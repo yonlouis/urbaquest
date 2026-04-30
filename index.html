@@ -108,14 +108,15 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
 .plist { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; margin-bottom: .5rem; }
 .pc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px;
       cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 58px;
-      transition: background .1s; position: relative; scroll-margin-top: 80px; }
+      transition: background .1s; position: relative; scroll-margin-top: 80px;
+      pointer-events: all; -webkit-user-select: none; user-select: none; }
 .pc:active { background: var(--bg3); }
 .pc.obj-me  { border-color: var(--green) !important; border-width: 1.5px; }
 .pc.obj-me2 { border-color: var(--blue)  !important; border-width: 1.5px; }
-.pc.done    { opacity: .38; }
+.pc.done    { opacity: .38; pointer-events: none; }
 .pc.done .pname { text-decoration: line-through; }
 .pc.opp-target  { border-color: var(--border2); }
-.pc.no-click    { cursor: default; opacity: .6; }
+.pc.no-click    { cursor: default; opacity: .6; pointer-events: none; }
 .cat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .ic-h { background: rgba(34,197,94,.1);  color: var(--gtext); }
 .ic-f { background: rgba(245,158,11,.1); color: #fcd34d; }
@@ -626,7 +627,7 @@ function renderList(){
       myDone?`<span class="pill pill-g">${G.names[G.ap]} ✓${myTime?' · '+myTime:''}</span>`:'',
       oppDone?`<span class="pill pill-b">${G.names[G.ap===0?1:0]} ✓${oppTime?' · '+oppTime:''}</span>`:'',
     ].filter(Boolean).join('');
-    return `<div class="${cls}" ${clickable?`onclick="tap(${p.id})"`:''}> 
+    return `<div class="${cls}" ${clickable?`onclick="tap(${p.id})"`:''}>`+`
       <div class="cat-icon ${icls[p.cat]}">${icons[p.cat]}</div>
       <div class="pinfo">
         <div class="pname">${p.name}</div>
@@ -755,6 +756,7 @@ function renderOverlay(){
 //  ACTIONS
 // ══════════════════════════════════════════════════════
 function tap(id){
+  console.log('tap', id, 'ap=', G.ap, 'assigns=', JSON.stringify(G.assigns));
   G.confirm=PLACES.find(p=>p.id===id);
   G.photoPreview=null;
   renderOverlay();
