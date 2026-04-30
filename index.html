@@ -207,21 +207,59 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
   <div class="setup-card">
     <div class="logo">Urba<span>Quest</span></div>
     <div class="logo-sub">Cité Internationale · 17 boulevard Jourdan</div>
-    <div class="player-fields">
-      <div class="field">
-        <label><span class="color-badge" style="background:var(--green)"></span>Joueur 1</label>
-        <input id="n0" value="" placeholder="Prénom…">
+    <div id="reset-notice-area"></div>
+
+    <!-- Choix : créer ou rejoindre -->
+    <div id="setup-choice">
+      <button class="btn-launch" style="margin-bottom:10px" onclick="showCreate()">Créer une partie</button>
+      <button class="btn-launch" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="showJoin()">Rejoindre une partie</button>
+    </div>
+
+    <!-- Formulaire créer -->
+    <div id="setup-create" style="display:none">
+      <div class="player-fields">
+        <div class="field">
+          <label><span class="color-badge" style="background:var(--green)"></span>Ton prénom</label>
+          <input id="n0" placeholder="Prénom…">
+        </div>
+        <div class="field">
+          <label><span class="color-badge" style="background:var(--blue)"></span>Adversaire</label>
+          <input id="n1" placeholder="Prénom…">
+        </div>
       </div>
       <div class="field">
-        <label><span class="color-badge" style="background:var(--blue)"></span>Joueur 2</label>
-        <input id="n1" value="" placeholder="Prénom…">
+        <label>Points à atteindre</label>
+        <input id="tgt" type="number" value="15" min="2" max="60" step="0.5">
       </div>
+      <button class="btn-launch" onclick="createGame()">Créer la partie →</button>
+      <button style="width:100%;padding:10px;background:transparent;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:6px" onclick="showChoice()">← Retour</button>
     </div>
-    <div class="field">
-      <label>Points à atteindre</label>
-      <input id="tgt" type="number" value="15" min="2" max="60" step="0.5">
+
+    <!-- Attente après création — affiche le code -->
+    <div id="setup-waiting" style="display:none">
+      <div style="text-align:center;padding:.5rem 0 1.25rem">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Partage ce code à ton adversaire</div>
+        <div id="room-code-display" style="font-size:42px;font-weight:800;letter-spacing:6px;color:var(--green);margin-bottom:10px"></div>
+        <div style="font-size:12px;color:var(--text3)">En attente que l'adversaire rejoigne…</div>
+        <div style="margin-top:10px"><span class="spinner"></span></div>
+      </div>
+      <button style="width:100%;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--rsm);color:var(--text2);font-size:13px;cursor:pointer" onclick="cancelWaiting()">Annuler</button>
     </div>
-    <button class="btn-launch" onclick="startGame()">Lancer la partie →</button>
+
+    <!-- Formulaire rejoindre -->
+    <div id="setup-join" style="display:none">
+      <div class="field">
+        <label>Ton prénom</label>
+        <input id="join-name" placeholder="Prénom…">
+      </div>
+      <div class="field">
+        <label>Code de la partie</label>
+        <input id="join-code" placeholder="Ex: LION42" style="text-transform:uppercase;letter-spacing:3px;font-size:18px;font-weight:700">
+      </div>
+      <button class="btn-launch" onclick="joinGame()">Rejoindre →</button>
+      <button style="width:100%;padding:10px;background:transparent;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:6px" onclick="showChoice()">← Retour</button>
+    </div>
+
   </div>
 </div>
 
@@ -409,9 +447,10 @@ let G = {
   filter:'all',
   confirm:null,
   photoPreview:null,
-  resetPending:false,  // true = un joueur demande un reset
-  resetBy:-1,          // 0 ou 1 = index du joueur demandeur
-  winner:-1,           // 0 ou 1 une fois la partie gagnée
+  resetPending:false,
+  resetBy:-1,
+  winner:-1,
+  roomCode:null,
   ts:0
 };
 
@@ -432,21 +471,22 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db   = firebase.database();
-const ROOM = 'game1';
 
 let fbListening  = false;
 let lastPushedTs = 0;
 
 function fbPush(data){
+  if(!G.roomCode) return;
   const payload = {...data, ts: Date.now()};
   lastPushedTs = payload.ts;
-  db.ref(ROOM).set(payload).catch(e=>console.warn('Firebase write:', e));
+  db.ref(G.roomCode).update(payload).catch(e=>console.warn('Firebase write:', e));
 }
 
-function fbListen(){
+function fbListen(code){
   if(fbListening) return;
   fbListening = true;
-  db.ref(ROOM).on('value', snap => {
+  const room = code || G.roomCode;
+  db.ref(room).on('value', snap => {
     const d = snap.val();
     if(!d || d.ts <= G.ts || d.ts === lastPushedTs) return;
     G.ts = d.ts;
@@ -643,19 +683,15 @@ function renderWinner(){
 
 function showResetByOpp(){
   G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
-     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1};
+     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,roomCode:null};
+  fbListening=false;
   try{localStorage.removeItem(LS);}catch(e){}
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('view-main').style.display='none';
   document.getElementById('view-setup').style.display='flex';
-  const card=document.querySelector('.setup-card');
-  const existing=document.getElementById('reset-notice');
-  if(existing) existing.remove();
-  const notice=document.createElement('div');
-  notice.id='reset-notice';
-  notice.style.cssText='background:rgba(245,158,11,.12);border:1px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--amber);text-align:center';
-  notice.textContent='L\'adversaire a réinitialisé la partie. Lance une nouvelle partie quand tu es prêt.';
-  card.insertBefore(notice,card.firstChild);
+  showChoice();
+  const area=document.getElementById('reset-notice-area');
+  area.innerHTML='<div style="background:rgba(245,158,11,.12);border:1px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--amber);text-align:center">L\'adversaire a réinitialisé la partie.</div>';
 }
 
 function showWinnerAlert(wi){
@@ -788,31 +824,121 @@ function confirmReset2(){
 }
 
 function doReset(){
-  // Pousser resetDone dans Firebase pour avertir l'adversaire
   fbPush({visits:{},names:G.names,assigns:{p0:[],p1:[]},target:G.target,winner:-1,resetDone:true,ts:Date.now()});
+  const code=G.roomCode;
   G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
-     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,ts:Date.now()};
+     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,
+     roomCode:null,ts:Date.now()};
+  fbListening=false;
+  if(code) db.ref(code).off();
   try{localStorage.removeItem(LS);}catch(e){}
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('view-main').style.display='none';
   document.getElementById('view-setup').style.display='flex';
+  showChoice();
 }
 
-function startGame(){
+// ══════════════════════════════════════════════════════
+//  SETUP NAVIGATION
+// ══════════════════════════════════════════════════════
+function showChoice(){ document.getElementById('setup-choice').style.display=''; document.getElementById('setup-create').style.display='none'; document.getElementById('setup-join').style.display='none'; document.getElementById('setup-waiting').style.display='none'; }
+function showCreate(){ document.getElementById('setup-choice').style.display='none'; document.getElementById('setup-create').style.display='block'; }
+function showJoin()  { document.getElementById('setup-choice').style.display='none'; document.getElementById('setup-join').style.display='block'; }
+
+function genCode(){
+  const w=['LION','OURS','LYNX','AIGL','LOUP','IBIS','LYNX','CERF','TIGR','PUMA'];
+  return w[Math.floor(Math.random()*w.length)] + Math.floor(10+Math.random()*90);
+}
+
+let waitingUnsub = null;
+
+function cancelWaiting(){
+  if(waitingUnsub){ waitingUnsub(); waitingUnsub=null; }
+  // Supprimer la room dans Firebase
+  if(G.roomCode) db.ref(G.roomCode).remove().catch(()=>{});
+  G.roomCode = null;
+  showChoice();
+}
+
+// ══════════════════════════════════════════════════════
+//  CRÉER UNE PARTIE
+// ══════════════════════════════════════════════════════
+function createGame(){
   try{
-    const n0=document.getElementById('n0').value.trim()||'Joueur 1';
-    const n1=document.getElementById('n1').value.trim()||'Joueur 2';
-    const t=parseFloat(document.getElementById('tgt').value)||15;
-    const{p0,p1}=assign(t);
-    G={...G,phase:'game',names:[n0,n1],target:t,assigns:{p0,p1},visits:{},photos:{},
-       ap:0,confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,ts:Date.now()};
-    document.getElementById('view-setup').style.display='none';
-    document.getElementById('view-main').style.display='block';
-    fbListen();
-    save();render();
-  }catch(err){
-    alert('Erreur au lancement : '+err.message);
-  }
+    const n0 = document.getElementById('n0').value.trim()||'Joueur 1';
+    const n1 = document.getElementById('n1').value.trim()||'Joueur 2';
+    const t  = parseFloat(document.getElementById('tgt').value)||15;
+    const code = genCode();
+    const {p0,p1} = assign(t);
+
+    G.roomCode = code;
+    G.names    = [n0, n1];
+    G.target   = t;
+    G.assigns  = {p0, p1};
+    G.ap       = 0; // le créateur est joueur 0
+
+    // Pousser la partie dans Firebase sous le code
+    db.ref(code).set({
+      visits:{}, names:[n0,n1], assigns:{p0,p1}, target:t,
+      winner:-1, resetDone:false, status:'waiting',
+      ts: Date.now()
+    });
+
+    // Afficher le code et attendre que le joueur 2 rejoigne
+    document.getElementById('setup-create').style.display='none';
+    document.getElementById('setup-waiting').style.display='block';
+    document.getElementById('room-code-display').textContent = code;
+
+    // Écouter le changement de status → 'playing'
+    waitingUnsub = db.ref(code+'/status').on('value', snap => {
+      if(snap.val()==='playing'){
+        waitingUnsub && db.ref(code+'/status').off('value', waitingUnsub);
+        waitingUnsub = null;
+        enterGame(0, code);
+      }
+    });
+  }catch(err){ alert('Erreur : '+err.message); }
+}
+
+// ══════════════════════════════════════════════════════
+//  REJOINDRE UNE PARTIE
+// ══════════════════════════════════════════════════════
+function joinGame(){
+  const name = document.getElementById('join-name').value.trim()||'Joueur 2';
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if(!code){ alert('Entre un code de partie.'); return; }
+
+  // Récupérer la partie depuis Firebase
+  db.ref(code).once('value').then(snap=>{
+    const d = snap.val();
+    if(!d){ alert('Code introuvable. Vérifie le code.'); return; }
+    if(d.status==='playing'){ alert('Cette partie a déjà commencé.'); return; }
+
+    // Mettre à jour le prénom du joueur 2 et passer status → playing
+    const names = [d.names[0], name];
+    db.ref(code).update({ names, status:'playing', ts: Date.now() });
+
+    G.roomCode = code;
+    G.names    = names;
+    G.target   = d.target;
+    G.assigns  = d.assigns;
+    G.ap       = 1; // le rejoignant est joueur 1
+    enterGame(1, code);
+  }).catch(()=>alert('Erreur de connexion Firebase.'));
+}
+
+// ══════════════════════════════════════════════════════
+//  ENTRER EN JEU
+// ══════════════════════════════════════════════════════
+function enterGame(playerIndex, code){
+  G = {...G, phase:'game', visits:{}, photos:{},
+       confirm:null, photoPreview:null,
+       resetPending:false, resetBy:-1, winner:-1,
+       ap: playerIndex, ts: Date.now()};
+  document.getElementById('view-setup').style.display='none';
+  document.getElementById('view-main').style.display='block';
+  fbListen(code);
+  save(); render();
 }
 
 // ══════════════════════════════════════════════════════
@@ -869,10 +995,10 @@ document.getElementById('overlay').addEventListener('click',function(e){if(e.tar
 //  INIT
 // ══════════════════════════════════════════════════════
 loadLocal();
-if(G.phase==='game'){
+if(G.phase==='game' && G.roomCode){
   document.getElementById('view-setup').style.display='none';
   document.getElementById('view-main').style.display='block';
-  fbListen();
+  fbListen(G.roomCode);
   render();
 }
 </script>
