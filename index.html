@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="true">
+<meta name="apple-mobile-web-app-capable" content="true">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UrbaQuest">
+<title>UrbaQuest</title>
+<style>
+:root {
+  --bg:     #0a0a0a;
+  --bg2:    #161616;
+  --bg3:    #222;
+  --border: #2a2a2a;
+  --border2:#383838;
+  --text:   #f2f2f2;
+  --text2:  #888;
+  --text3:  #444;
+  --green:  #22c55e;
+  --gdim:   rgba(34,197,94,.12);
+  --gtext:  #86efac;
+  --blue:   #3b82f6;
+  --bdim:   rgba(59,130,246,.12);
+  --btext:  #93c5fd;
+  --red:    #ef4444;
+  --rdim:   rgba(239,68,68,.12);
+  --amber:  #f59e0b;
+  --adim:   rgba(245,158,11,.12);
+  --r:      14px;
+  --rsm:    10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; background: var(--bg); }
+body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+       background: var(--bg); color: var(--text); min-height: 100vh;
+       padding-top: var(--safe-top); overflow-x: hidden; }
+
+/* ══════════════════════════════
+   SETUP
+══════════════════════════════ */
+#view-setup { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; }
+.setup-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 22px; padding: 2rem 1.75rem; width: 100%; max-width: 360px; }
+.logo { font-size: 26px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 3px; }
+.logo span { color: var(--green); }
+.logo-sub { font-size: 13px; color: var(--text2); margin-bottom: 2rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--text2); margin-bottom: 6px; }
+.field input { width: 100%; padding: 13px 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--rsm); color: var(--text); font-size: 16px; outline: none; }
+.field input:focus { border-color: var(--green); }
+.player-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+.color-badge { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.btn-launch { width: 100%; padding: 15px; background: var(--green); color: #000; border: none; border-radius: var(--rsm); font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: .2px; margin-top: .5rem; }
+.btn-launch:active { opacity: .8; transform: scale(.98); }
+
+/* ══════════════════════════════
+   MAIN
+══════════════════════════════ */
+#view-main { display: none; padding-bottom: calc(2rem + var(--safe-bot)); }
+
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(10,10,10,.92);
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid var(--border); padding: 12px 16px;
+          display: flex; align-items: center; justify-content: space-between; }
+.topbar h1 { font-size: 16px; font-weight: 700; letter-spacing: -.4px; }
+.topbar p  { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.sync-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2);
+             padding: 5px 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2.5s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* scores */
+.scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px 0; }
+.sc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px; }
+.sc.p0 { border-color: rgba(34,197,94,.3); }
+.sc.p1 { border-color: rgba(59,130,246,.3); }
+.sc-lbl { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.sc-val { font-size: 30px; font-weight: 800; letter-spacing: -2px; }
+.sc.p0 .sc-val { color: var(--gtext); }
+.sc.p1 .sc-val { color: var(--btext); }
+.sc-name { font-size: 12px; color: var(--text2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* progress */
+.prg-wrap { padding: 12px 16px 4px; }
+.prg-row  { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.prg-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+.prg-fill  { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* tabs */
+.player-tabs { display: flex; gap: 8px; padding: 10px 16px; }
+.ptab { flex: 1; padding: 9px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); background: transparent; text-align: center; }
+.ptab.act { background: var(--text); color: var(--bg); border-color: var(--text); }
+.ptab-reset { padding: 9px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; color: var(--text3); background: transparent; }
+
+/* filters */
+.filters { display: flex; gap: 6px; padding: 0 16px 6px; flex-wrap: wrap; overflow-x: auto; }
+.fil { padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; color: var(--text2); background: transparent; white-space: nowrap; flex-shrink: 0; }
+.fil.act { border-color: var(--border2); color: var(--text); background: var(--bg3); }
+
+/* section label */
+.sec-lbl { padding: 6px 16px; font-size: 11px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; }
+
+/* place list */
+.plist { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; margin-bottom: .5rem; }
+.pc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px;
+      cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 58px;
+      transition: background .1s; position: relative; }
+.pc:active { background: var(--bg3); }
+.pc.obj-me  { border-color: var(--green) !important; border-width: 1.5px; }
+.pc.obj-me2 { border-color: var(--blue)  !important; border-width: 1.5px; }
+.pc.done    { opacity: .38; }
+.pc.done .pname { text-decoration: line-through; }
+.pc.opp-target  { border-color: var(--border2); }
+.pc.no-click    { cursor: default; opacity: .6; }
+.cat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.ic-h { background: rgba(34,197,94,.1);  color: var(--gtext); }
+.ic-f { background: rgba(245,158,11,.1); color: #fcd34d; }
+.ic-s { background: rgba(59,130,246,.1); color: var(--btext); }
+.ic-c { background: rgba(167,139,250,.1);color: #c4b5fd; }
+.pinfo { flex: 1; min-width: 0; }
+.pname { font-size: 14px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pdist { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.pills { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.pill { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.pill-obj   { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); }
+.pill-g     { background: var(--gdim); color: var(--gtext); }
+.pill-b     { background: var(--bdim); color: var(--btext); }
+.ppts { font-size: 14px; font-weight: 700; flex-shrink: 0; min-width: 38px; text-align: right; }
+.photo-thumb { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.divider { padding: 8px 16px 4px; display: flex; align-items: center; gap: 10px; }
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+.divider-text { font-size: 11px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+
+/* rankings */
+.ranks-wrap { padding: 0 16px; }
+.ranks { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.rr { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.rr:last-child { border-bottom: none; }
+.rn { font-size: 12px; color: var(--text3); min-width: 16px; }
+.rname { flex: 1; font-size: 14px; }
+.rscore { font-size: 16px; font-weight: 700; }
+
+/* winner */
+#winner-area { padding: 12px 16px 0; }
+.winner-banner { background: var(--gdim); border: 1px solid var(--green); border-radius: var(--r); padding: 14px; text-align: center; }
+.winner-banner h2 { font-size: 20px; font-weight: 800; color: var(--gtext); }
+.winner-banner p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.btn-gallery { margin-top: 10px; padding: 10px 20px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--rsm); font-size: 14px; color: var(--text); cursor: pointer; }
+
+/* ══════════════════════════════
+   OVERLAY (photo + confirm)
+══════════════════════════════ */
+#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75);
+           backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+           z-index: 50; align-items: flex-end; padding: calc(1rem + var(--safe-bot)) 1rem 1rem; }
+#overlay.show { display: flex; }
+.ovbox { background: var(--bg2); border: 1px solid var(--border2); border-radius: 22px;
+         padding: 1.5rem; width: 100%; max-width: 420px; margin: 0 auto; }
+.ov-title { font-size: 18px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 4px; }
+.ov-meta  { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 1.25rem; }
+.ov-meta strong { color: var(--gtext); }
+.btn-row  { display: flex; gap: 10px; }
+.btn-primary   { flex: 1; padding: 14px; background: var(--green); color: #000; border: none; border-radius: var(--rsm); font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-primary:active { opacity: .8; }
+.btn-secondary { padding: 14px 18px; background: transparent; border: 1px solid var(--border2); border-radius: var(--rsm); font-size: 15px; cursor: pointer; color: var(--text); }
+.btn-danger    { flex: 1; padding: 14px; background: var(--rdim); border: 1px solid var(--red); color: var(--red); border-radius: var(--rsm); font-size: 15px; font-weight: 600; cursor: pointer; }
+.photo-preview { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: var(--rsm); margin-bottom: 1rem; background: var(--bg3); display: block; }
+#camera-input  { display: none; }
+
+/* ══════════════════════════════
+   GALLERY VIEW
+══════════════════════════════ */
+#view-gallery { display: none; min-height: 100vh; padding-bottom: calc(2rem + var(--safe-bot)); }
+.gallery-topbar { position: sticky; top: 0; z-index: 20; background: rgba(10,10,10,.92);
+                  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                  border-bottom: 1px solid var(--border); padding: 12px 16px;
+                  display: flex; align-items: center; gap: 12px; }
+.btn-back { padding: 7px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; cursor: pointer; color: var(--text); }
+.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 16px; }
+.gal-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; cursor: pointer; }
+.gal-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.gal-item-info { padding: 8px 10px; }
+.gal-item-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gal-item-who  { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.gal-empty { padding: 3rem 2rem; text-align: center; color: var(--text3); font-size: 14px; }
+
+/* fullscreen photo */
+#photo-full { display: none; position: fixed; inset: 0; background: #000; z-index: 100; align-items: center; justify-content: center; flex-direction: column; }
+#photo-full.show { display: flex; }
+#photo-full img { max-width: 100%; max-height: 85vh; object-fit: contain; }
+#photo-full-close { position: absolute; top: calc(1rem + var(--safe-top)); right: 1rem; padding: 8px 16px; background: rgba(255,255,255,.15); border: none; border-radius: 20px; color: #fff; font-size: 15px; cursor: pointer; }
+
+/* misc */
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.empty-msg { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════ SETUP ════════════════════════════ -->
+<div id="view-setup">
+  <div class="setup-card">
+    <div class="logo">Urba<span>Quest</span></div>
+    <div class="logo-sub">Cité Internationale · 17 boulevard Jourdan</div>
+    <div class="player-fields">
+      <div class="field">
+        <label><span class="color-badge" style="background:var(--green)"></span>Joueur 1</label>
+        <input id="n0" value="" placeholder="Prénom…">
+      </div>
+      <div class="field">
+        <label><span class="color-badge" style="background:var(--blue)"></span>Joueur 2</label>
+        <input id="n1" value="" placeholder="Prénom…">
+      </div>
+    </div>
+    <div class="field">
+      <label>Points à atteindre</label>
+      <input id="tgt" type="number" value="15" min="2" max="60" step="0.5">
+    </div>
+    <button class="btn-launch" onclick="startGame()">Lancer la partie →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════ MAIN ════════════════════════════ -->
+<div id="view-main">
+  <div class="topbar">
+    <div><h1>UrbaQuest</h1><p>Cité Internationale · T7</p></div>
+    <div class="sync-pill"><span class="sync-dot"></span>sync</div>
+  </div>
+  <div id="winner-area"></div>
+  <div class="scores" id="scores"></div>
+  <div class="prg-wrap" id="progress"></div>
+  <div class="player-tabs" id="player-tabs"></div>
+  <div class="filters" id="status-filters"></div>
+  <div id="place-list-wrap"></div>
+</div>
+
+<!-- ════════════════════════════ GALLERY ════════════════════════════ -->
+<div id="view-gallery">
+  <div class="gallery-topbar">
+    <button class="btn-back" onclick="showMain()">← Retour</button>
+    <span style="font-size:15px;font-weight:600">Galerie photos</span>
+  </div>
+  <div class="gallery-grid" id="gallery-grid"></div>
+</div>
+
+<!-- ════════════════════════════ OVERLAY ════════════════════════════ -->
+<div id="overlay">
+  <div class="ovbox" id="ov-content"></div>
+</div>
+
+<!-- hidden camera inputs — separate for front/back but we use one -->
+<input type="file" id="camera-input" accept="image/*" capture="environment">
+
+<!-- fullscreen photo viewer -->
+<div id="photo-full">
+  <img id="photo-full-img" src="" alt="">
+  <button id="photo-full-close" onclick="closeFullPhoto()">✕ Fermer</button>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════
+const GPS_R  = 30;
+const DEPART = { lat: 48.8190903, lng: 2.3379825 };
+
+const RAW = [
+  {id:1, name:"Maison internationale",            cat:"h", lat:48.8190903, lng:2.3379825},
+  {id:2, name:"Fondation Deutsch de la Meurthe",  cat:"h", lat:48.8201539, lng:2.3349741},
+  {id:3, name:"Maison des étudiants canadiens",   cat:"h", lat:48.8204573, lng:2.3369524},
+  {id:4, name:"Collège d'Espagne",                cat:"h", lat:48.8187352, lng:2.3411075},
+  {id:5, name:"Maison de l'Inde",                 cat:"h", lat:48.818452,  lng:2.3432123},
+  {id:6, name:"Maison de l'Argentine",            cat:"h", lat:48.8199908, lng:2.3375918},
+  {id:7, name:"Fondation suisse",                 cat:"h", lat:48.8182167, lng:2.3422944},
+  {id:8, name:"Fondation Biermans-Lapôtre",       cat:"h", lat:48.8193408, lng:2.341208 },
+  {id:9, name:"Maison du Japon",                  cat:"h", lat:48.8188787, lng:2.3419191},
+  {id:10,name:"Maison de l'Italie",               cat:"h", lat:48.8192682, lng:2.3424156},
+  {id:11,name:"Collège néerlandais",              cat:"h", lat:48.8218398, lng:2.3308692},
+  {id:12,name:"Maison du Brésil",                 cat:"h", lat:48.8178296, lng:2.3435037},
+  {id:13,name:"Maison du Cambodge",               cat:"h", lat:48.81750,   lng:2.3363889},
+  {id:14,name:"Fondation des États-Unis",         cat:"h", lat:48.8198307, lng:2.3397685},
+  {id:15,name:"Maison Heinrich Heine",            cat:"h", lat:48.8177387, lng:2.335733 },
+  {id:16,name:"Maison du Portugal",               cat:"h", lat:48.8173215, lng:2.3434388},
+  {id:17,name:"Maison du Maroc",                  cat:"h", lat:48.8189201, lng:2.3439013},
+  {id:18,name:"Maison de Norvège",                cat:"h", lat:48.8178899, lng:2.342739 },
+  {id:19,name:"Fondation hellénique",             cat:"h", lat:48.820698,  lng:2.3323607},
+  {id:20,name:"Fondation Avicenne",               cat:"h", lat:48.81798,   lng:2.33488  },
+  {id:21,name:"Maison du Mexique",                cat:"h", lat:48.8192424, lng:2.3394408},
+  {id:22,name:"Maison de la Tunisie",             cat:"h", lat:48.8212623, lng:2.3331285},
+  {id:23,name:"Collège franco-britannique",       cat:"h", lat:48.8190754, lng:2.3402948},
+  {id:24,name:"Maison de la Corée",               cat:"h", lat:48.8172669, lng:2.3403564},
+  {id:25,name:"Maison du Liban",                  cat:"h", lat:48.8173512, lng:2.3385253},
+  {id:26,name:"Fondation Victor Lyon",            cat:"h", lat:48.8198289, lng:2.3364676},
+  {id:27,name:"Fondation de Monaco",              cat:"h", lat:48.8213165, lng:2.3326537},
+  {id:28,name:"Maison des provinces de France",   cat:"h", lat:48.8215264, lng:2.3318505},
+  {id:29,name:"Fondation Lucien Paye",            cat:"h", lat:48.820892,  lng:2.3332389},
+  {id:30,name:"Résidence André Honnorat",         cat:"h", lat:48.8200979, lng:2.3381959},
+  {id:31,name:"Maison des étudiants arméniens",   cat:"h", lat:48.821563,  lng:2.3311019},
+  {id:32,name:"Maison de la francophonie",        cat:"h", lat:48.819654,  lng:2.3299338},
+  {id:33,name:"Maison de l'Île-de-France",        cat:"h", lat:48.8171664, lng:2.3375679},
+  {id:34,name:"Maison d'Égypte",                  cat:"h", lat:48.8170291, lng:2.3410511},
+  {id:35,name:"Maison de l'Asie du Sud-Est",      cat:"h", lat:48.8218722, lng:2.3309033},
+  {id:36,name:"Résidence J.-V. Daubié",           cat:"h", lat:48.8187698, lng:2.3334981},
+  {id:37,name:"Maison Arts et Métiers",           cat:"h", lat:48.817722,  lng:2.3332091},
+  {id:38,name:"Fondation Rosa Abreu de Grancher", cat:"h", lat:48.8211654, lng:2.330988 },
+  {id:39,name:"Fondation danoise",                cat:"h", lat:48.8185444, lng:2.342462 },
+  {id:40,name:"Maison de la Chine",               cat:"h", lat:48.8174,    lng:2.3420   },
+  {id:41,name:"Stade Ouest",                      cat:"s", lat:48.8196716, lng:2.3316912},
+  {id:42,name:"Stade Dalmasso",                   cat:"s", lat:48.8173658, lng:2.3419802},
+  {id:43,name:"Terrain de tennis",                cat:"s", lat:48.8191577, lng:2.3342031},
+  {id:44,name:"Gymnase",                          cat:"s", lat:48.8181118, lng:2.3344254},
+  {id:45,name:"Piscine de la Cité",               cat:"s", lat:48.8190049, lng:2.3385215},
+  {id:46,name:"Restaurant universitaire Crous",   cat:"f", lat:48.8192917, lng:2.3374932},
+  {id:47,name:"Théâtre de la Cité internationale",cat:"c", lat:48.8192648, lng:2.3384469},
+];
+
+function hav(a,b){
+  const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
+}
+function calcPts(d){
+  if(d<=100)return .5; if(d<=150)return 1;  if(d<=200)return 1.5;
+  if(d<=250)return 2;  if(d<=300)return 2.5; if(d<=350)return 3;
+  if(d<=400)return 3.5;if(d<=450)return 4;  if(d<=500)return 4.5;
+  if(d<=600)return 5;  if(d<=700)return 5.5; return null;
+}
+function fmt(p){ return Number.isInteger(p)?String(p):p.toFixed(1); }
+
+const PLACES = RAW.map(p=>{const d=hav(DEPART,p);const pts=calcPts(d);return{...p,dist:d,pts};})
+  .filter(p=>p.pts!==null).sort((a,b)=>a.dist-b.dist);
+
+function assign(target){
+  const used=new Set();
+
+  const low  = PLACES.filter(p=>p.pts>=0.5&&p.pts<=1.5).sort(()=>Math.random()-.5);
+  const mid  = PLACES.filter(p=>p.pts>=2  &&p.pts<=3.5).sort(()=>Math.random()-.5);
+  const high = PLACES.filter(p=>p.pts>=4             ).sort(()=>Math.random()-.5);
+
+  function pick(bucket){
+    const c=bucket.filter(p=>!used.has(p.id));
+    if(!c.length) return null;
+    const p=c[0]; used.add(p.id); return p;
+  }
+
+  function fillPlayer(t){
+    const arr=[];
+    let score=0;
+
+    // Minimums obligatoires — seulement si la target le permet
+    if(t>=1){
+      for(let i=0;i<2;i++){
+        const p=pick(low);
+        if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
+      }
+    }
+    if(t>=score+2){
+      for(let i=0;i<2;i++){
+        const p=pick(mid);
+        if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
+      }
+    }
+    if(t>=score+4){
+      const ph=pick(high);
+      if(ph){arr.push(ph.id);score=parseFloat((score+ph.pts).toFixed(1));}
+    }
+
+    // Compléter jusqu'à l'objectif
+    const byPts={};
+    PLACES.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
+    const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
+    let rem=parseFloat((t-score).toFixed(1));
+    let safety=0;
+    outer: for(const k of keys){
+      while(rem>=k){
+        if(++safety>200) break outer; // évite boucle infinie
+        const c=(byPts[k]||[]).filter(p=>!used.has(p.id));
+        if(!c.length) break;
+        const p=c[Math.floor(Math.random()*c.length)];
+        arr.push(p.id);used.add(p.id);
+        score=parseFloat((score+k).toFixed(1));
+        rem=parseFloat((t-score).toFixed(1));
+      }
+    }
+    return arr;
+  }
+
+  return{p0:fillPlayer(target),p1:fillPlayer(target)};
+}
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let G = {
+  phase:'setup',
+  names:['',''],
+  target:15,
+  visits:{},
+  photos:{},
+  assigns:{p0:[],p1:[]},
+  ap:0,
+  filter:'all',
+  confirm:null,
+  photoPreview:null,
+  resetPending:false,  // true = un joueur demande un reset
+  resetBy:-1,          // 0 ou 1 = index du joueur demandeur
+  winner:-1,           // 0 ou 1 une fois la partie gagnée
+  ts:0
+};
+
+const LS = 'urbaquest_v1';
+
+// ══════════════════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyADOzmRY7ZJJlLJ5KMWuJsV8gHT_bZeOMw",
+  authDomain: "urbaquest.firebaseapp.com",
+  databaseURL: "https://urbaquest-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "urbaquest",
+  storageBucket: "urbaquest.firebasestorage.app",
+  messagingSenderId: "233524460859",
+  appId: "1:233524460855:web:88716a619ee299bd620b1e"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+const ROOM  = 'game1'; // clé de la partie dans Firebase
+
+let fbListening = false;
+let lastPushedTs = 0;
+
+function fbPush(data){
+  const payload = {...data, ts: Date.now()};
+  lastPushedTs = payload.ts;
+  set(ref(db, ROOM), payload).catch(e=>console.warn('Firebase write error', e));
+}
+
+function fbListen(){
+  if(fbListening) return;
+  fbListening = true;
+  onValue(ref(db, ROOM), snap => {
+    const d = snap.val();
+    if(!d || d.ts <= G.ts || d.ts === lastPushedTs) return;
+    G.ts = d.ts;
+
+    // Reset par l'adversaire
+    if(d.resetDone && G.phase==='game'){
+      showResetByOpp(); return;
+    }
+    // Signal de victoire
+    if(d.winner >= 0 && G.winner < 0){
+      G.winner = d.winner;
+      G.visits  = d.visits  || G.visits;
+      G.assigns = d.assigns || G.assigns;
+      if(G.phase==='game') showWinnerAlert(d.winner);
+      return;
+    }
+    // Mise à jour normale
+    if(d.visits)  G.visits  = d.visits;
+    if(d.assigns) G.assigns = d.assigns;
+    if(d.names)   G.names   = d.names;
+    if(d.target)  G.target  = d.target;
+    if(G.phase==='game' && !G.confirm) render();
+  });
+}
+
+function save(){
+  try{
+    const forCloud = {
+      visits:   G.visits,
+      names:    G.names,
+      assigns:  G.assigns,
+      target:   G.target,
+      winner:   G.winner,
+      resetDone:false,
+      ts:       Date.now()
+    };
+    fbPush(forCloud);
+    localStorage.setItem(LS, JSON.stringify({...G, confirm:null, photoPreview:null}));
+  }catch(e){ console.warn('save error', e); }
+}
+
+function loadLocal(){
+  try{const r=localStorage.getItem(LS); if(r) Object.assign(G, JSON.parse(r));}catch(e){}
+}
+
+function scoreOf(pi){
+  const k=pi===0?'p0':'p1';let s=0;
+  for(const[id,v] of Object.entries(G.visits)){if(v[k]){const p=PLACES.find(x=>x.id==id);if(p)s+=p.pts;}}
+  return s;
+}
+
+// ══════════════════════════════════════════════════════
+//  CAMERA
+// ══════════════════════════════════════════════════════
+const camInput = document.getElementById('camera-input');
+
+camInput.addEventListener('change', function(){
+  const file = this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    G.photoPreview = e.target.result;
+    renderOverlay();
+  };
+  reader.readAsDataURL(file);
+  // reset so same file can be re-selected
+  this.value = '';
+});
+
+function openCamera(){
+  camInput.click();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER ENGINE
+// ══════════════════════════════════════════════════════
+function render(){
+  renderScores();
+  renderTabs();
+  renderList();
+  renderWinner();
+}
+
+function renderScores(){
+  const s0=scoreOf(0),s1=scoreOf(1),t=G.target;
+  const pc0=Math.min(100,Math.round(s0/t*100)),pc1=Math.min(100,Math.round(s1/t*100));
+  document.getElementById('scores').innerHTML=`
+    <div class="sc p0"><div class="sc-lbl">Score</div><div class="sc-val">${fmt(s0)}</div><div class="sc-name">${G.names[0]||'Joueur 1'}</div></div>
+    <div class="sc p1"><div class="sc-lbl">Score</div><div class="sc-val">${fmt(s1)}</div><div class="sc-name">${G.names[1]||'Joueur 2'}</div></div>`;
+  document.getElementById('progress').innerHTML=`
+    <div class="prg-row"><span style="color:var(--gtext)">${G.names[0]}</span><span style="color:var(--text3)">${pc0}%</span></div>
+    <div class="prg-track"><div class="prg-fill" style="width:${pc0}%;background:var(--green)"></div></div>
+    <div class="prg-row"><span style="color:var(--btext)">${G.names[1]}</span><span style="color:var(--text3)">${pc1}%</span></div>
+    <div class="prg-track"><div class="prg-fill" style="width:${pc1}%;background:var(--blue)"></div></div>`;
+}
+
+function renderTabs(){
+  document.getElementById('player-tabs').innerHTML=
+    [0,1].map(i=>`<button class="ptab ${G.ap===i?'act':''}" onclick="swP(${i})">${G.names[i]||'Joueur '+(i+1)}</button>`).join('')+
+    `<button class="ptab-reset" onclick="confirmReset()">↺</button>`;
+  const mk=G.ap===0?'p0':'p1';
+  const myTodo=PLACES.filter(p=>G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[mk]);
+  const myDone=PLACES.filter(p=>!!G.visits[p.id]?.[mk]);
+  document.getElementById('status-filters').innerHTML=
+    `<button class="fil ${G.filter==='all'?'act':''}" onclick="setF('all')">Tous</button>`+
+    `<button class="fil ${G.filter==='mine'?'act':''}" onclick="setF('mine')">Mes objectifs (${myTodo.length})</button>`+
+    `<button class="fil ${G.filter==='done'?'act':''}" onclick="setF('done')">Visités (${myDone.length})</button>`;
+}
+
+function renderList(){
+  const mk=G.ap===0?'p0':'p1', ok=G.ap===0?'p1':'p0';
+
+  // Seuls les lieux assignés à l'un ou l'autre joueur
+  let pl=PLACES.filter(p=>G.assigns[mk].includes(p.id)||G.assigns[ok].includes(p.id));
+
+  // filter status
+  let shown=pl;
+  if(G.filter==='mine') shown=pl.filter(p=>G.assigns[mk].includes(p.id));
+  if(G.filter==='done') shown=pl.filter(p=>!!G.visits[p.id]?.[mk]);
+
+  const icons={h:'M',f:'R',c:'T',s:'S'}, icls={h:'ic-h',f:'ic-f',c:'ic-c',s:'ic-s'};
+
+  // Sections : mes objectifs à faire / objectifs adversaire / visités par moi
+  const myObjectifs  = shown.filter(p=>G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[mk]);
+  const oppObjectifs = shown.filter(p=>G.assigns[ok].includes(p.id)&&!G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[ok]);
+  const donePlaces   = shown.filter(p=>!!G.visits[p.id]?.[mk]);
+
+  function makeCard(p, clickable=true){
+    const v=G.visits[p.id]||{};
+    const myDone=!!v[mk], oppDone=!!v[ok];
+    const isMine=G.assigns[mk].includes(p.id);
+    const isOpp=G.assigns[ok].includes(p.id);
+    let cls='pc';
+    if(myDone) cls+=' done';
+    else if(isMine) cls+=G.ap===0?' obj-me':' obj-me2';
+    if(!clickable) cls+=' no-click';
+    const myPhoto=(G.photos[p.id]||{})[mk];
+    const myTime=v[mk+'_time']||'';
+    const oppTime=v[ok+'_time']||'';
+    const pills=[
+      isMine&&!myDone?`<span class="pill pill-obj">Mon objectif</span>`:'',
+      isOpp&&!oppDone?`<span class="pill" style="background:var(--bdim);color:var(--btext);border:none">Objectif adversaire</span>`:'',
+      myDone?`<span class="pill pill-g">${G.names[G.ap]} ✓${myTime?' · '+myTime:''}</span>`:'',
+      oppDone?`<span class="pill pill-b">${G.names[G.ap===0?1:0]} ✓${oppTime?' · '+oppTime:''}</span>`:'',
+    ].filter(Boolean).join('');
+    return `<div class="${cls}" ${clickable?`onclick="tap(${p.id})"`:''}> 
+      <div class="cat-icon ${icls[p.cat]}">${icons[p.cat]}</div>
+      <div class="pinfo">
+        <div class="pname">${p.name}</div>
+        <div class="pdist">${p.dist} m du départ</div>
+        <div class="pills">${pills}</div>
+      </div>
+      ${myPhoto?`<img class="photo-thumb" src="${myPhoto}" alt="">`:''}
+      <div class="ppts" style="color:${G.ap===0?'var(--gtext)':'var(--btext)'}">${fmt(p.pts)}<span style="font-size:10px;font-weight:400;color:var(--text3)"> pt${p.pts>1?'s':''}</span></div>
+    </div>`;
+  }
+
+  let html='';
+  if(myObjectifs.length){
+    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Mes objectifs</div><div class="divider-line"></div></div>`;
+    html+=`<div class="plist">${myObjectifs.map(makeCard).join('')}</div>`;
+  }
+  if(oppObjectifs.length&&G.filter==='all'){
+    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Objectifs adversaire</div><div class="divider-line"></div></div>`;
+    html+=`<div class="plist">${oppObjectifs.map(p=>makeCard(p,false)).join('')}</div>`;
+  }
+  if(donePlaces.length){
+    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Visités (${donePlaces.length})</div><div class="divider-line"></div></div>`;
+    html+=`<div class="plist">${donePlaces.map(makeCard).join('')}</div>`;
+  }
+  if(!html) html=`<div class="empty-msg">Aucun lieu dans ce filtre</div>`;
+
+  document.getElementById('place-list-wrap').innerHTML=html;
+}
+
+function renderRankings(){
+  const rows=[{n:G.names[0],s:scoreOf(0)},{n:G.names[1],s:scoreOf(1)}].sort((a,b)=>b.s-a.s);
+  document.getElementById('rankings').innerHTML=rows.map((r,i)=>`
+    <div class="rr">
+      <span class="rn">${i+1}</span>
+      <span class="rname">${r.n}</span>
+      <span class="rscore">${fmt(r.s)}<span style="font-size:12px;font-weight:400;color:var(--text3)"> / ${fmt(G.target)}</span>${r.s>=G.target?' 🏆':''}</span>
+    </div>`).join('');
+}
+
+function renderWinner(){
+  const s0=scoreOf(0),s1=scoreOf(1),t=G.target;
+  const wi=s0>=t?0:s1>=t?1:-1;
+  // Pousser le signal si nouveau gagnant
+  if(wi>=0 && G.winner<0){
+    G.winner=wi; save();
+  }
+  const w=wi>=0?G.names[wi]:null;
+  document.getElementById('winner-area').innerHTML=w
+    ?`<div style="padding:12px 16px 0"><div class="winner-banner">
+        <h2>${w} a gagné ! 🏆</h2><p>${fmt(t)} points atteints</p>
+        <button class="btn-gallery" onclick="showGallery()">📷 Voir toutes les photos</button>
+      </div></div>`:'';
+}
+
+function showResetByOpp(){
+  G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
+     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1};
+  try{localStorage.removeItem(LS);}catch(e){}
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('view-main').style.display='none';
+  document.getElementById('view-setup').style.display='flex';
+  const card=document.querySelector('.setup-card');
+  const existing=document.getElementById('reset-notice');
+  if(existing) existing.remove();
+  const notice=document.createElement('div');
+  notice.id='reset-notice';
+  notice.style.cssText='background:rgba(245,158,11,.12);border:1px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--amber);text-align:center';
+  notice.textContent='L\'adversaire a réinitialisé la partie. Lance une nouvelle partie quand tu es prêt.';
+  card.insertBefore(notice,card.firstChild);
+}
+
+function showWinnerAlert(wi){
+  const ov=document.getElementById('overlay');
+  document.getElementById('ov-content').innerHTML=`
+    <div style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🏆</div>
+      <div class="ov-title" style="text-align:center">${G.names[wi]} a gagné !</div>
+      <div class="ov-meta" style="text-align:center;margin-top:8px">La partie est terminée.</div>
+      <div class="btn-row" style="margin-top:1.25rem">
+        <button class="btn-primary" onclick="closeOv();render()">Voir les résultats</button>
+      </div>
+    </div>`;
+  ov.classList.add('show');
+  render();
+}
+
+// ══════════════════════════════════════════════════════
+//  OVERLAY
+// ══════════════════════════════════════════════════════
+function renderOverlay(){
+  const ov=document.getElementById('overlay');
+  const p=G.confirm;
+  if(!p){ov.classList.remove('show');return;}
+  ov.classList.add('show');
+
+  const mk=G.ap===0?'p0':'p1';
+  const done=G.visits[p.id]?.[mk];
+  const isTarget=G.assigns[mk].includes(p.id);
+  const myPhoto=(G.photos[p.id]||{})[mk];
+
+  let html=`<div class="ov-title">${p.name}</div>
+    <div class="ov-meta">${fmt(p.pts)} pt${p.pts>1?'s':''} · ${p.dist} m du départ${isTarget?' · <strong>Ton objectif</strong>':''}</div>`;
+
+  if(done){
+    // Already visited — show photo if any + option to cancel
+    if(myPhoto) html+=`<img class="photo-preview" src="${myPhoto}" alt="" onclick="openFullPhoto('${myPhoto}')">`;
+    html+=`<div class="btn-row">
+      <button class="btn-danger" onclick="cancelVisit()">Annuler la visite</button>
+      <button class="btn-secondary" onclick="closeOv()">Fermer</button>
+    </div>`;
+  } else if(G.photoPreview){
+    // Photo taken — confirm it
+    html+=`<img class="photo-preview" src="${G.photoPreview}" alt="">`;
+    html+=`<div class="btn-row">
+      <button class="btn-primary" onclick="confirmVisit()">Valider +${fmt(p.pts)} pt${p.pts>1?'s':''}</button>
+      <button class="btn-secondary" onclick="retakePhoto()">Reprendre</button>
+    </div>`;
+  } else {
+    // Default: take photo
+    html+=`<div class="btn-row">
+      <button class="btn-primary" onclick="openCamera()">📷 Prendre une photo</button>
+      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
+    </div>`;
+  }
+
+  document.getElementById('ov-content').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════════════
+function tap(id){
+  G.confirm=PLACES.find(p=>p.id===id);
+  G.photoPreview=null;
+  renderOverlay();
+}
+
+function closeOv(){
+  G.confirm=null;G.photoPreview=null;
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function retakePhoto(){
+  G.photoPreview=null;
+  renderOverlay();
+  setTimeout(()=>camInput.click(),100);
+}
+
+function confirmVisit(){
+  const p=G.confirm,mk=G.ap===0?'p0':'p1';
+  if(!G.visits[p.id])G.visits[p.id]={};
+  const now=new Date();
+  const hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  G.visits[p.id][mk]=true;
+  G.visits[p.id][mk+'_time']=hhmm;
+  if(G.photoPreview){
+    if(!G.photos[p.id])G.photos[p.id]={};
+    G.photos[p.id][mk]=G.photoPreview;
+  }
+  G.confirm=null;G.photoPreview=null;G.ts=Date.now();
+  document.getElementById('overlay').classList.remove('show');
+  save();render();
+}
+
+function cancelVisit(){
+  const p=G.confirm,mk=G.ap===0?'p0':'p1';
+  if(G.visits[p.id])G.visits[p.id][mk]=false;
+  if(G.photos[p.id])delete G.photos[p.id][mk];
+  G.confirm=null;G.ts=Date.now();
+  document.getElementById('overlay').classList.remove('show');
+  save();render();
+}
+
+function swP(i){G.ap=i;render();}
+function setF(f){G.filter=f;renderList();renderTabs();}
+
+function confirmReset(){
+  // Étape 1 — première confirmation
+  const ov=document.getElementById('overlay');
+  document.getElementById('ov-content').innerHTML=`
+    <div class="ov-title">Réinitialiser la partie ?</div>
+    <div class="ov-meta">La partie en cours sera effacée pour les deux joueurs.<br>Cette action est irréversible.</div>
+    <div class="btn-row">
+      <button class="btn-danger" onclick="confirmReset2()">Oui, réinitialiser</button>
+      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
+    </div>`;
+  ov.classList.add('show');
+}
+
+function confirmReset2(){
+  // Étape 2 — deuxième confirmation
+  document.getElementById('ov-content').innerHTML=`
+    <div class="ov-title">Tu es sûr ?</div>
+    <div class="ov-meta" style="color:var(--red)">Toute la progression des deux joueurs sera perdue.<br>Confirme une dernière fois.</div>
+    <div class="btn-row">
+      <button class="btn-danger" onclick="doReset()">Confirmer la réinitialisation</button>
+      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
+    </div>`;
+}
+
+function doReset(){
+  // Pousser resetDone dans Firebase pour avertir l'adversaire
+  fbPush({visits:{},names:G.names,assigns:{p0:[],p1:[]},target:G.target,winner:-1,resetDone:true,ts:Date.now()});
+  G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
+     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,ts:Date.now()};
+  try{localStorage.removeItem(LS);}catch(e){}
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('view-main').style.display='none';
+  document.getElementById('view-setup').style.display='flex';
+}
+
+function startGame(){
+  try{
+    const n0=document.getElementById('n0').value.trim()||'Joueur 1';
+    const n1=document.getElementById('n1').value.trim()||'Joueur 2';
+    const t=parseFloat(document.getElementById('tgt').value)||15;
+    const{p0,p1}=assign(t);
+    G={...G,phase:'game',names:[n0,n1],target:t,assigns:{p0,p1},visits:{},photos:{},
+       ap:0,confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,ts:Date.now()};
+    document.getElementById('view-setup').style.display='none';
+    document.getElementById('view-main').style.display='block';
+    fbListen();
+    save();render();
+  }catch(err){
+    alert('Erreur au lancement : '+err.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  GALLERY
+// ══════════════════════════════════════════════════════
+function showGallery(){
+  document.getElementById('view-main').style.display='none';
+  document.getElementById('view-gallery').style.display='block';
+  renderGallery();
+}
+function showMain(){
+  document.getElementById('view-gallery').style.display='none';
+  document.getElementById('view-main').style.display='block';
+}
+
+function renderGallery(){
+  const items=[];
+  for(const[id,pv] of Object.entries(G.photos)){
+    const place=PLACES.find(p=>p.id==id);
+    if(!place)continue;
+    if(pv.p0) items.push({place,photo:pv.p0,who:G.names[0],pi:0});
+    if(pv.p1) items.push({place,photo:pv.p1,who:G.names[1],pi:1});
+  }
+  if(!items.length){
+    document.getElementById('gallery-grid').innerHTML=`<div class="gal-empty" style="grid-column:1/-1">Aucune photo pour l'instant</div>`;
+    return;
+  }
+  document.getElementById('gallery-grid').innerHTML=items.map(it=>{
+    const timeKey=(it.pi===0?'p0':'p1')+'_time';
+    const t=(G.visits[it.place.id]||{})[timeKey]||'';
+    return `<div class="gal-item" onclick="openFullPhoto('${it.photo}')">
+      <img src="${it.photo}" alt="${it.place.name}">
+      <div class="gal-item-info">
+        <div class="gal-item-name">${it.place.name}</div>
+        <div class="gal-item-who" style="color:${it.pi===0?'var(--gtext)':'var(--btext)'}">${it.who}${t?' · '+t:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openFullPhoto(src){
+  document.getElementById('photo-full-img').src=src;
+  document.getElementById('photo-full').classList.add('show');
+}
+function closeFullPhoto(){
+  document.getElementById('photo-full').classList.remove('show');
+  document.getElementById('photo-full-img').src='';
+}
+
+// Close overlay on backdrop click
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeOv();});
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+loadLocal();
+if(G.phase==='game'){
+  document.getElementById('view-setup').style.display='none';
+  document.getElementById('view-main').style.display='block';
+  fbListen();
+  render();
+}
+</script>
+</body>
+</html>
