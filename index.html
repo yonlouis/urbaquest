@@ -262,7 +262,9 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
   <button id="photo-full-close" onclick="closeFullPhoto()">✕ Fermer</button>
 </div>
 
-<script type="module">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
 // ══════════════════════════════════════════════════════
 //  DATA
 // ══════════════════════════════════════════════════════
@@ -416,11 +418,8 @@ let G = {
 const LS = 'urbaquest_v1';
 
 // ══════════════════════════════════════════════════════
-//  FIREBASE
+//  FIREBASE (compat SDK — pas d'import ESM requis)
 // ══════════════════════════════════════════════════════
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
 const firebaseConfig = {
   apiKey: "AIzaSyADOzmRY7ZJJlLJ5KMWuJsV8gHT_bZeOMw",
   authDomain: "urbaquest.firebaseapp.com",
@@ -428,43 +427,37 @@ const firebaseConfig = {
   projectId: "urbaquest",
   storageBucket: "urbaquest.firebasestorage.app",
   messagingSenderId: "233524460859",
-  appId: "1:233524460855:web:88716a619ee299bd620b1e"
+  appId: "1:233524460859:web:88716a619ee299bd620b1e"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getDatabase(fbApp);
-const ROOM  = 'game1'; // clé de la partie dans Firebase
+firebase.initializeApp(firebaseConfig);
+const db   = firebase.database();
+const ROOM = 'game1';
 
-let fbListening = false;
+let fbListening  = false;
 let lastPushedTs = 0;
 
 function fbPush(data){
   const payload = {...data, ts: Date.now()};
   lastPushedTs = payload.ts;
-  set(ref(db, ROOM), payload).catch(e=>console.warn('Firebase write error', e));
+  db.ref(ROOM).set(payload).catch(e=>console.warn('Firebase write:', e));
 }
 
 function fbListen(){
   if(fbListening) return;
   fbListening = true;
-  onValue(ref(db, ROOM), snap => {
+  db.ref(ROOM).on('value', snap => {
     const d = snap.val();
     if(!d || d.ts <= G.ts || d.ts === lastPushedTs) return;
     G.ts = d.ts;
-
-    // Reset par l'adversaire
-    if(d.resetDone && G.phase==='game'){
-      showResetByOpp(); return;
-    }
-    // Signal de victoire
+    if(d.resetDone && G.phase==='game'){ showResetByOpp(); return; }
     if(d.winner >= 0 && G.winner < 0){
-      G.winner = d.winner;
+      G.winner  = d.winner;
       G.visits  = d.visits  || G.visits;
       G.assigns = d.assigns || G.assigns;
       if(G.phase==='game') showWinnerAlert(d.winner);
       return;
     }
-    // Mise à jour normale
     if(d.visits)  G.visits  = d.visits;
     if(d.assigns) G.assigns = d.assigns;
     if(d.names)   G.names   = d.names;
