@@ -117,6 +117,7 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
 .pc.done .pname { text-decoration: line-through; }
 .pc.opp-target  { border-color: var(--border2); }
 .pc.no-click    { cursor: default; opacity: .6; pointer-events: none; }
+.pc.now-run     { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); cursor: default; }
 .cat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .ic-h { background: rgba(34,197,94,.1);  color: var(--gtext); }
 .ic-f { background: rgba(245,158,11,.1); color: #fcd34d; }
@@ -380,7 +381,7 @@ const PLACES = RAW.map(p=>{const d=hav(DEPART,p);const pts=calcPts(d);return{...
 function assign(target){
   const used=new Set();
 
-  // IDs des lieux fixes
+  // IDs des lieux fixes — leurs points s'ajoutent au-dessus de l'objectif choisi
   const FIXED_P0 = [33];           // Maison de l'Île-de-France
   const FIXED_P1 = [19, 29, 39];   // Fondation hellénique, Lucien Paye, danoise
 
@@ -398,16 +399,17 @@ function assign(target){
     const arr=[];
     let score=0;
 
-    // Lieux fixes en premier
+    // 1. Ajouter les lieux fixes — NE PAS les compter dans le score
+    //    car l'objectif t est le score à atteindre HORS fixes
     for(const fid of fixedIds){
       if(!used.has(fid)){
         const p=PLACES.find(x=>x.id===fid);
-        if(p){arr.push(p.id);used.add(p.id);score=parseFloat((score+p.pts).toFixed(1));}
+        if(p){ arr.push(p.id); used.add(p.id); }
       }
     }
 
-    // Minimums obligatoires si la target le permet
-    if(t>=score+1){
+    // 2. Minimums obligatoires sur l'objectif t
+    if(t>=1){
       for(let i=0;i<2;i++){
         const p=pick(low);
         if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
@@ -424,7 +426,7 @@ function assign(target){
       if(ph){arr.push(ph.id);score=parseFloat((score+ph.pts).toFixed(1));}
     }
 
-    // Compléter jusqu'à l'objectif
+    // 3. Compléter jusqu'à l'objectif t (hors fixes)
     const byPts={};
     PLACES.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
     const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
@@ -436,7 +438,7 @@ function assign(target){
         const c=(byPts[k]||[]).filter(p=>!used.has(p.id));
         if(!c.length) break;
         const p=c[Math.floor(Math.random()*c.length)];
-        arr.push(p.id);used.add(p.id);
+        arr.push(p.id); used.add(p.id);
         score=parseFloat((score+k).toFixed(1));
         rem=parseFloat((t-score).toFixed(1));
       }
@@ -444,7 +446,6 @@ function assign(target){
     return arr;
   }
 
-  // P0 d'abord (bloque ses fixes), puis P1
   const p0 = fillPlayer(target, FIXED_P0);
   const p1 = fillPlayer(target, FIXED_P1);
   return{p0, p1};
@@ -675,7 +676,16 @@ function renderList(){
   let html='';
   if(myObjectifs.length){
     html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Mes objectifs</div><div class="divider-line"></div></div>`;
-    html+=`<div class="plist">${myObjectifs.map(makeCard).join('')}</div>`;
+    // Tuile "Now, run!" à la place du premier lieu
+    const firstPlace = myObjectifs[0];
+    const nowRunTile = `<div class="pc now-run" style="pointer-events:none">
+      <div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center">🏃</div>
+      <div class="pinfo">
+        <div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div>
+        <div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div>
+      </div>
+    </div>`;
+    html+=`<div class="plist">${nowRunTile}${myObjectifs.map(makeCard).join('')}</div>`;
   }
   if(oppObjectifs.length&&G.filter==='all'){
     html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Objectifs adversaire</div><div class="divider-line"></div></div>`;
