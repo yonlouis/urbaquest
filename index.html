@@ -118,6 +118,7 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
 .pc.opp-target  { border-color: var(--border2); }
 .pc.no-click    { cursor: default; opacity: .6; pointer-events: none; }
 .pc.now-run     { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); cursor: default; }
+.now-run-wrap   { padding: 0 16px 4px; pointer-events: none; }
 .cat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .ic-h { background: rgba(34,197,94,.1);  color: var(--gtext); }
 .ic-f { background: rgba(245,158,11,.1); color: #fcd34d; }
@@ -399,7 +400,7 @@ function assign(target){
     const arr=[];
     let score=0;
 
-    // 1. Ajouter les lieux fixes ET compter leurs points dans t
+    // 1. Lieux fixes — comptent dans t
     for(const fid of fixedIds){
       if(!used.has(fid)){
         const p=PLACES.find(x=>x.id===fid);
@@ -407,33 +408,25 @@ function assign(target){
       }
     }
 
-    // 2. Remplissage aléatoire — compléter jusqu'à t en partant de score déjà atteint
-    const rem_after_fixed = parseFloat((t - score).toFixed(1));
-    if(rem_after_fixed <= 0) return arr; // les fixes couvrent déjà l'objectif
+    // Reste à couvrir après les fixes
+    let rem = parseFloat((t - score).toFixed(1));
+    if(rem <= 0) return arr;
 
-    // Minimums obligatoires sur le reste
-    if(rem_after_fixed >= 1){
-      for(let i=0;i<2;i++){
-        const p=pick(low);
-        if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
-      }
-    }
-    if(parseFloat((t-score).toFixed(1)) >= 2){
-      for(let i=0;i<2;i++){
-        const p=pick(mid);
-        if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
-      }
-    }
-    if(parseFloat((t-score).toFixed(1)) >= 4){
-      const ph=pick(high);
-      if(ph){arr.push(ph.id);score=parseFloat((score+ph.pts).toFixed(1));}
-    }
+    // 2. Minimum 1 lieu entre 0.5 et 1 pt
+    const veryLow = PLACES.filter(p=>p.pts>=0.5&&p.pts<=1).sort(()=>Math.random()-.5);
+    const p1 = veryLow.find(p=>!used.has(p.id));
+    if(p1 && rem>=p1.pts){ arr.push(p1.id); used.add(p1.id); score=parseFloat((score+p1.pts).toFixed(1)); rem=parseFloat((t-score).toFixed(1)); }
 
-    // Compléter jusqu'à t
+    // 3. Minimum 1 lieu entre 1.5 et 2 pts
+    const medLow = PLACES.filter(p=>p.pts>=1.5&&p.pts<=2).sort(()=>Math.random()-.5);
+    const p2 = medLow.find(p=>!used.has(p.id));
+    if(p2 && rem>=p2.pts){ arr.push(p2.id); used.add(p2.id); score=parseFloat((score+p2.pts).toFixed(1)); rem=parseFloat((t-score).toFixed(1)); }
+
+    // 4. Compléter le reste jusqu'à t
     const byPts={};
     PLACES.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
     const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
-    let rem=parseFloat((t-score).toFixed(1));
+    rem=parseFloat((t-score).toFixed(1));
     let safety=0;
     outer: for(const k of keys){
       while(rem>=k){
@@ -664,32 +657,23 @@ function renderList(){
       myDone?`<span class="pill pill-g">${G.names[G.ap]} ✓${myTime?' · '+myTime:''}</span>`:'',
       oppDone?`<span class="pill pill-b">${G.names[G.ap===0?1:0]} ✓${oppTime?' · '+oppTime:''}</span>`:'',
     ].filter(Boolean).join('');
-    return `<div class="${cls}" ${clickable?`onclick="tap(${p.id})"`:''}>`+`
-      <div class="cat-icon ${icls[p.cat]}">${icons[p.cat]}</div>
-      <div class="pinfo">
-        <div class="pname">${p.name}</div>
-        <div class="pdist">${p.dist} m du départ</div>
-        <div class="pills">${pills}</div>
-      </div>
-      ${myPhoto?`<img class="photo-thumb" src="${myPhoto}" alt="">`:''}
-      <div class="ppts" style="color:${G.ap===0?'var(--gtext)':'var(--btext)'}">${fmt(p.pts)}<span style="font-size:10px;font-weight:400;color:var(--text3)"> pt${p.pts>1?'s':''}</span></div>
-    </div>`;
+    // data-id au lieu de onclick pour éviter les problèmes de tap mobile
+    return `<div class="${cls}" ${clickable?`data-tapid="${p.id}"`:''}>`+
+      `<div class="cat-icon ${icls[p.cat]}">${icons[p.cat]}</div>`+
+      `<div class="pinfo">`+
+        `<div class="pname">${p.name}</div>`+
+        `<div class="pdist">${p.dist} m du départ</div>`+
+        `<div class="pills">${pills}</div>`+
+      `</div>`+
+      (myPhoto?`<img class="photo-thumb" src="${myPhoto}" alt="">`:'')+
+      `<div class="ppts" style="color:${G.ap===0?'var(--gtext)':'var(--btext)'}">${fmt(p.pts)}<span style="font-size:10px;font-weight:400;color:var(--text3)"> pt${p.pts>1?'s':''}</span></div>`+
+    `</div>`;
   }
 
   let html='';
   if(myObjectifs.length){
     html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Mes objectifs</div><div class="divider-line"></div></div>`;
-    // Tuile "Now, run!" hors du plist, avant les vraies cartes
-    html+=`<div style="padding:0 16px 4px;pointer-events:none">
-      <div class="pc now-run">
-        <div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px">🏃</div>
-        <div class="pinfo">
-          <div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div>
-          <div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div>
-        </div>
-      </div>
-    </div>`;
-    // Les vraies cartes dans leur propre plist
+    html+=`<div class="now-run-wrap"><div class="pc now-run"><div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px">🏃</div><div class="pinfo"><div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div><div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div></div></div></div>`;
     html+=`<div class="plist">${myObjectifs.map(makeCard).join('')}</div>`;
   }
   if(oppObjectifs.length&&G.filter==='all'){
@@ -702,7 +686,19 @@ function renderList(){
   }
   if(!html) html=`<div class="empty-msg">Aucun lieu dans ce filtre</div>`;
 
-  document.getElementById('place-list-wrap').innerHTML=html;
+  const wrap = document.getElementById('place-list-wrap');
+  wrap.innerHTML = html;
+
+  // Attacher les listeners APRÈS injection dans le DOM
+  wrap.querySelectorAll('[data-tapid]').forEach(el => {
+    el.addEventListener('touchend', function(e){
+      e.preventDefault();
+      tap(parseInt(this.dataset.tapid));
+    }, {passive:false});
+    el.addEventListener('click', function(){
+      tap(parseInt(this.dataset.tapid));
+    });
+  });
 }
 
 function renderRankings(){
