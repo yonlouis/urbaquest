@@ -132,7 +132,8 @@ body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-seri
 .pill-b     { background: var(--bdim); color: var(--btext); }
 .ppts { font-size: 14px; font-weight: 700; flex-shrink: 0; min-width: 38px; text-align: right; }
 .photo-thumb { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
-.divider { padding: 8px 16px 4px; display: flex; align-items: center; gap: 10px; }
+/* divider */
+.divider { padding: 8px 16px 4px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
 .divider-line { flex: 1; height: 1px; background: var(--border); }
 .divider-text { font-size: 11px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
 
@@ -379,6 +380,10 @@ const PLACES = RAW.map(p=>{const d=hav(DEPART,p);const pts=calcPts(d);return{...
 function assign(target){
   const used=new Set();
 
+  // IDs des lieux fixes
+  const FIXED_P0 = [33];           // Maison de l'Île-de-France
+  const FIXED_P1 = [19, 29, 39];   // Fondation hellénique, Lucien Paye, danoise
+
   const low  = PLACES.filter(p=>p.pts>=0.5&&p.pts<=1.5).sort(()=>Math.random()-.5);
   const mid  = PLACES.filter(p=>p.pts>=2  &&p.pts<=3.5).sort(()=>Math.random()-.5);
   const high = PLACES.filter(p=>p.pts>=4             ).sort(()=>Math.random()-.5);
@@ -389,12 +394,20 @@ function assign(target){
     const p=c[0]; used.add(p.id); return p;
   }
 
-  function fillPlayer(t){
+  function fillPlayer(t, fixedIds){
     const arr=[];
     let score=0;
 
-    // Minimums obligatoires — seulement si la target le permet
-    if(t>=1){
+    // Lieux fixes en premier
+    for(const fid of fixedIds){
+      if(!used.has(fid)){
+        const p=PLACES.find(x=>x.id===fid);
+        if(p){arr.push(p.id);used.add(p.id);score=parseFloat((score+p.pts).toFixed(1));}
+      }
+    }
+
+    // Minimums obligatoires si la target le permet
+    if(t>=score+1){
       for(let i=0;i<2;i++){
         const p=pick(low);
         if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
@@ -419,7 +432,7 @@ function assign(target){
     let safety=0;
     outer: for(const k of keys){
       while(rem>=k){
-        if(++safety>200) break outer; // évite boucle infinie
+        if(++safety>200) break outer;
         const c=(byPts[k]||[]).filter(p=>!used.has(p.id));
         if(!c.length) break;
         const p=c[Math.floor(Math.random()*c.length)];
@@ -431,7 +444,10 @@ function assign(target){
     return arr;
   }
 
-  return{p0:fillPlayer(target),p1:fillPlayer(target)};
+  // P0 d'abord (bloque ses fixes), puis P1
+  const p0 = fillPlayer(target, FIXED_P0);
+  const p1 = fillPlayer(target, FIXED_P1);
+  return{p0, p1};
 }
 
 // ══════════════════════════════════════════════════════
@@ -494,17 +510,34 @@ function fbListen(code){
     if(d.resetDone && G.phase==='game'){ showResetByOpp(); return; }
     if(d.winner >= 0 && G.winner < 0){
       G.winner  = d.winner;
-      G.visits  = d.visits  || G.visits;
-      G.assigns = d.assigns || G.assigns;
+      // Merger visits sans écraser photos locales
+      if(d.visits) mergeVisits(d.visits);
+      if(d.assigns) G.assigns = d.assigns;
       if(G.phase==='game') showWinnerAlert(d.winner);
       return;
     }
-    if(d.visits)  G.visits  = d.visits;
+    // Merger visits sans écraser photos locales
+    if(d.visits)  mergeVisits(d.visits);
     if(d.assigns) G.assigns = d.assigns;
     if(d.names)   G.names   = d.names;
     if(d.target)  G.target  = d.target;
     if(G.phase==='game' && !G.confirm) render();
   });
+}
+
+// Merge visits depuis Firebase sans toucher aux photos locales
+function mergeVisits(remoteVisits){
+  for(const [id, rv] of Object.entries(remoteVisits)){
+    if(!G.visits[id]) G.visits[id] = {};
+    // Copier chaque clé sauf les photos (celles-ci restent locales)
+    for(const [k, val] of Object.entries(rv)){
+      G.visits[id][k] = val;
+    }
+  }
+  // Garder les entrées locales non présentes dans remote
+  for(const id of Object.keys(G.visits)){
+    if(!remoteVisits[id]) {} // garder local
+  }
 }
 
 function save(){
