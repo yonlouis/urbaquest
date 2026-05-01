@@ -399,34 +399,37 @@ function assign(target){
     const arr=[];
     let score=0;
 
-    // 1. Ajouter les lieux fixes — NE PAS les compter dans le score
-    //    car l'objectif t est le score à atteindre HORS fixes
+    // 1. Ajouter les lieux fixes ET compter leurs points dans t
     for(const fid of fixedIds){
       if(!used.has(fid)){
         const p=PLACES.find(x=>x.id===fid);
-        if(p){ arr.push(p.id); used.add(p.id); }
+        if(p){ arr.push(p.id); used.add(p.id); score=parseFloat((score+p.pts).toFixed(1)); }
       }
     }
 
-    // 2. Minimums obligatoires sur l'objectif t
-    if(t>=1){
+    // 2. Remplissage aléatoire — compléter jusqu'à t en partant de score déjà atteint
+    const rem_after_fixed = parseFloat((t - score).toFixed(1));
+    if(rem_after_fixed <= 0) return arr; // les fixes couvrent déjà l'objectif
+
+    // Minimums obligatoires sur le reste
+    if(rem_after_fixed >= 1){
       for(let i=0;i<2;i++){
         const p=pick(low);
         if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
       }
     }
-    if(t>=score+2){
+    if(parseFloat((t-score).toFixed(1)) >= 2){
       for(let i=0;i<2;i++){
         const p=pick(mid);
         if(p){arr.push(p.id);score=parseFloat((score+p.pts).toFixed(1));}
       }
     }
-    if(t>=score+4){
+    if(parseFloat((t-score).toFixed(1)) >= 4){
       const ph=pick(high);
       if(ph){arr.push(ph.id);score=parseFloat((score+ph.pts).toFixed(1));}
     }
 
-    // 3. Compléter jusqu'à l'objectif t (hors fixes)
+    // Compléter jusqu'à t
     const byPts={};
     PLACES.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
     const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
@@ -676,16 +679,18 @@ function renderList(){
   let html='';
   if(myObjectifs.length){
     html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Mes objectifs</div><div class="divider-line"></div></div>`;
-    // Tuile "Now, run!" à la place du premier lieu
-    const firstPlace = myObjectifs[0];
-    const nowRunTile = `<div class="pc now-run" style="pointer-events:none">
-      <div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center">🏃</div>
-      <div class="pinfo">
-        <div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div>
-        <div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div>
+    // Tuile "Now, run!" hors du plist, avant les vraies cartes
+    html+=`<div style="padding:0 16px 4px;pointer-events:none">
+      <div class="pc now-run">
+        <div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px">🏃</div>
+        <div class="pinfo">
+          <div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div>
+          <div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div>
+        </div>
       </div>
     </div>`;
-    html+=`<div class="plist">${nowRunTile}${myObjectifs.map(makeCard).join('')}</div>`;
+    // Les vraies cartes dans leur propre plist
+    html+=`<div class="plist">${myObjectifs.map(makeCard).join('')}</div>`;
   }
   if(oppObjectifs.length&&G.filter==='all'){
     html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Objectifs adversaire</div><div class="divider-line"></div></div>`;
