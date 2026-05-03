@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="true">
-<meta name="apple-mobile-web-app-capable" content="true">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="UrbaQuest">
+<meta name="theme-color" content="#0a0a0a">
 <title>UrbaQuest</title>
 <style>
 :root {
@@ -15,464 +13,577 @@
   --bg2:    #161616;
   --bg3:    #222;
   --border: #2a2a2a;
-  --border2:#383838;
   --text:   #f2f2f2;
   --text2:  #888;
   --text3:  #444;
   --green:  #22c55e;
-  --gdim:   rgba(34,197,94,.12);
-  --gtext:  #86efac;
   --blue:   #3b82f6;
-  --bdim:   rgba(59,130,246,.12);
-  --btext:  #93c5fd;
   --red:    #ef4444;
-  --rdim:   rgba(239,68,68,.12);
   --amber:  #f59e0b;
-  --adim:   rgba(245,158,11,.12);
-  --r:      14px;
-  --rsm:    10px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --purple: #8b5cf6;
+  --orange: #f97316;
+  --yellow: #eab308;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; background: var(--bg); }
-body { font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-       background: var(--bg); color: var(--text); min-height: 100vh;
-       padding-top: var(--safe-top); overflow-x: hidden; }
+html, body {
+  background: var(--bg); color: var(--text); height: 100%;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 15px; overflow-x: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+button, input { font-family: inherit; font-size: inherit; outline: none; }
+button { cursor: pointer; border: none; background: none; color: inherit; }
+input {
+  background: var(--bg2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; width: 100%;
+}
+input:focus { border-color: var(--text2); }
 
-/* ══════════════════════════════
-   SETUP
-══════════════════════════════ */
-#view-setup { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; }
-.setup-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 22px; padding: 2rem 1.75rem; width: 100%; max-width: 360px; }
-.logo { font-size: 26px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 3px; }
-.logo span { color: var(--green); }
-.logo-sub { font-size: 13px; color: var(--text2); margin-bottom: 2rem; }
-.field { margin-bottom: 1rem; }
-.field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--text2); margin-bottom: 6px; }
-.field input { width: 100%; padding: 13px 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--rsm); color: var(--text); font-size: 16px; outline: none; }
-.field input:focus { border-color: var(--green); }
-.player-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
-.color-badge { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.btn-launch { width: 100%; padding: 15px; background: var(--green); color: #000; border: none; border-radius: var(--rsm); font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: .2px; margin-top: .5rem; }
-.btn-launch:active { opacity: .8; transform: scale(.98); }
+/* ---------- SCREENS ---------- */
+.screen { display: none; min-height: 100vh; padding: 20px; }
+.screen.active { display: block; }
+#screen-game.active { display: flex; flex-direction: column; padding: 0; min-height: 100vh; }
 
-/* ══════════════════════════════
-   MAIN
-══════════════════════════════ */
-#view-main { display: none; padding-bottom: calc(2rem + var(--safe-bot)); padding-top: 0; }
-.main-content { padding-top: 0; }
+/* ---------- SETUP ---------- */
+.setup-wrap { max-width: 480px; margin: 0 auto; padding-top: 8vh; }
+.logo {
+  font-size: 42px; font-weight: 900; letter-spacing: -1.5px;
+  text-align: center; margin-bottom: 8px;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.tagline { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 36px; }
+.btn-row { display: flex; gap: 10px; margin-bottom: 24px; }
+.btn-tab {
+  flex: 1; padding: 14px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; font-weight: 600; transition: all .2s;
+}
+.btn-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.form-block { display: flex; flex-direction: column; gap: 12px; }
+.form-block.hidden { display: none; }
+.btn-primary {
+  background: linear-gradient(90deg, var(--green), #16a34a);
+  color: white; padding: 16px; border-radius: 12px; font-weight: 700;
+  font-size: 16px; margin-top: 8px;
+}
+.btn-primary:disabled { opacity: .5; }
+.btn-secondary {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 14px; border-radius: 12px; font-weight: 600;
+}
+.status-msg {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 14px; border-radius: 10px; text-align: center;
+  color: var(--text2); margin-top: 12px; font-size: 14px;
+}
+.status-msg.err { color: var(--red); border-color: var(--red); }
+.code-display {
+  background: var(--bg2); border: 2px dashed var(--green);
+  padding: 24px; border-radius: 14px; text-align: center; margin-top: 20px;
+}
+.code-display .code {
+  font-size: 36px; font-weight: 900; letter-spacing: 6px;
+  color: var(--green); margin: 8px 0;
+}
+.spinner {
+  width: 22px; height: 22px; border: 3px solid var(--border);
+  border-top-color: var(--green); border-radius: 50%;
+  animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.topbar { position: relative; top: 0; z-index: 10; background: rgba(10,10,10,.95);
-          border-bottom: 1px solid var(--border); padding: 12px 16px;
-          display: flex; align-items: center; justify-content: space-between; }
-.topbar h1 { font-size: 16px; font-weight: 700; letter-spacing: -.4px; }
-.topbar p  { font-size: 11px; color: var(--text2); margin-top: 1px; }
-.sync-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2);
-             padding: 5px 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; }
-.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2.5s ease infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* ---------- GAME HEADER ---------- */
+.game-header {
+  position: sticky; top: 0; z-index: 50; background: rgba(10,10,10,.92);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.game-title { font-weight: 900; letter-spacing: -.5px; font-size: 18px; }
+.game-title .accent {
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sync-dot {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2);
+}
+.sync-dot::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.sync-dot.off::before { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
-/* scores */
-.scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px 0; }
-.sc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px; }
-.sc.p0 { border-color: rgba(34,197,94,.3); }
-.sc.p1 { border-color: rgba(59,130,246,.3); }
-.sc-lbl { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
-.sc-val { font-size: 30px; font-weight: 800; letter-spacing: -2px; }
-.sc.p0 .sc-val { color: var(--gtext); }
-.sc.p1 .sc-val { color: var(--btext); }
-.sc-name { font-size: 12px; color: var(--text2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ---------- SCORES ---------- */
+.scores {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  padding: 14px 16px;
+}
+.score-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px;
+}
+.score-card.p0 { border-color: rgba(34,197,94,.4); }
+.score-card.p1 { border-color: rgba(59,130,246,.4); }
+.score-name { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.score-val { font-size: 30px; font-weight: 800; line-height: 1.1; margin-top: 2px; }
+.score-card.p0 .score-val { color: var(--green); }
+.score-card.p1 .score-val { color: var(--blue); }
+.score-target { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.progress {
+  height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.progress-bar { height: 100%; transition: width .4s; border-radius: 2px; }
+.score-card.p0 .progress-bar { background: var(--green); }
+.score-card.p1 .progress-bar { background: var(--blue); }
 
-/* progress */
-.prg-wrap { padding: 12px 16px 4px; }
-.prg-row  { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-.prg-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
-.prg-fill  { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+/* ---------- TABS PLAYERS ---------- */
+.player-tabs {
+  display: flex; gap: 8px; padding: 0 16px 12px;
+}
+.tab-pl {
+  flex: 1; padding: 11px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; font-weight: 600; font-size: 14px; color: var(--text2);
+  transition: all .2s;
+}
+.tab-pl.active.p0 { background: rgba(34,197,94,.15); color: var(--green); border-color: var(--green); }
+.tab-pl.active.p1 { background: rgba(59,130,246,.15); color: var(--blue); border-color: var(--blue); }
+.btn-reset {
+  padding: 11px 14px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; font-size: 16px;
+}
 
-/* tabs */
-.player-tabs { display: flex; gap: 8px; padding: 10px 16px; }
-.ptab { flex: 1; padding: 9px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); background: transparent; text-align: center; }
-.ptab.act { background: var(--text); color: var(--bg); border-color: var(--text); }
-.ptab-reset { padding: 9px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; color: var(--text3); background: transparent; }
+/* ---------- FILTERS ---------- */
+.filters {
+  display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.filters::-webkit-scrollbar { display: none; }
+.filter {
+  flex-shrink: 0; padding: 7px 14px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 20px; font-size: 13px;
+  color: var(--text2); white-space: nowrap;
+}
+.filter.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
 
-/* filters */
-.filters { display: flex; gap: 6px; padding: 0 16px 6px; flex-wrap: wrap; overflow-x: auto; }
-.fil { padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; color: var(--text2); background: transparent; white-space: nowrap; flex-shrink: 0; }
-.fil.act { border-color: var(--border2); color: var(--text); background: var(--bg3); }
+/* ---------- LIST ---------- */
+.list-wrap { flex: 1; padding: 0 16px 100px; overflow-y: auto; }
+.section-title {
+  font-size: 11px; color: var(--text2); text-transform: uppercase;
+  letter-spacing: 1.4px; font-weight: 600; margin: 14px 4px 8px;
+}
+.cards { display: flex; flex-direction: column; gap: 4px; }
 
-/* section label */
-.sec-lbl { padding: 6px 16px; font-size: 11px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; }
+.tile-run {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border-radius: 14px; padding: 18px; min-height: 58px;
+  display: flex; align-items: center; gap: 14px;
+  font-weight: 800; font-size: 17px; color: white;
+  pointer-events: none; user-select: none;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 16px rgba(34,197,94,.25);
+}
+.tile-run .emo { font-size: 28px; }
 
-/* place list */
-.plist { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; margin-bottom: .5rem; }
-.pc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 14px;
-      cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 58px;
-      transition: background .1s; position: relative; scroll-margin-top: 80px;
-      pointer-events: all; -webkit-user-select: none; user-select: none; }
-.pc:active { background: var(--bg3); }
-.pc.obj-me  { border-color: var(--green) !important; border-width: 1.5px; }
-.pc.obj-me2 { border-color: var(--blue)  !important; border-width: 1.5px; }
-.pc.done    { opacity: .38; pointer-events: none; }
-.pc.done .pname { text-decoration: line-through; }
-.pc.opp-target  { border-color: var(--border2); }
-.pc.no-click    { cursor: default; opacity: .6; pointer-events: none; }
-.pc.now-run     { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); cursor: default; }
-.now-run-wrap   { padding: 0 16px 4px; pointer-events: none; }
-.cat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-.ic-h { background: rgba(34,197,94,.1);  color: var(--gtext); }
-.ic-f { background: rgba(245,158,11,.1); color: #fcd34d; }
-.ic-s { background: rgba(59,130,246,.1); color: var(--btext); }
-.ic-c { background: rgba(167,139,250,.1);color: #c4b5fd; }
-.pinfo { flex: 1; min-width: 0; }
-.pname { font-size: 14px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pdist { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.pills { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-.pill { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
-.pill-obj   { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); }
-.pill-g     { background: var(--gdim); color: var(--gtext); }
-.pill-b     { background: var(--bdim); color: var(--btext); }
-.ppts { font-size: 14px; font-weight: 700; flex-shrink: 0; min-width: 38px; text-align: right; }
-.photo-thumb { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
-/* divider */
-.divider { padding: 8px 16px 4px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
-.divider-line { flex: 1; height: 1px; background: var(--border); }
-.divider-text { font-size: 11px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 14px; min-height: 58px;
+  display: flex; align-items: center; gap: 12px;
+  transition: transform .15s, background .15s;
+  position: relative;
+}
+.card:active { transform: scale(.98); background: var(--bg3); }
+.card.mine.p0 { border-color: rgba(34,197,94,.45); }
+.card.mine.p1 { border-color: rgba(59,130,246,.45); }
+.card.opp { opacity: .55; pointer-events: none; }
+.card.visited { background: var(--bg3); }
+.card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; flex-shrink: 0;
+}
+.card.mine.p0 .card-icon { background: rgba(34,197,94,.18); color: var(--green); }
+.card.mine.p1 .card-icon { background: rgba(59,130,246,.18); color: var(--blue); }
+.card-thumb {
+  width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+}
+.card-body { flex: 1; min-width: 0; }
+.card-name {
+  font-weight: 600; font-size: 14px; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card-meta {
+  font-size: 12px; color: var(--text2); margin-top: 2px;
+  display: flex; gap: 8px; align-items: center;
+}
+.card-time { color: var(--green); font-weight: 600; }
+.card.opp .card-time { color: var(--blue); }
+.card-pts {
+  font-size: 16px; font-weight: 800; flex-shrink: 0; padding-left: 8px;
+}
+.card.mine.p0 .card-pts { color: var(--green); }
+.card.mine.p1 .card-pts { color: var(--blue); }
+.card-pts.opp { color: var(--text3); }
+.badge-mine {
+  display: inline-block; padding: 2px 7px; border-radius: 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.card.mine.p0 .badge-mine { background: rgba(34,197,94,.2); color: var(--green); }
+.card.mine.p1 .badge-mine { background: rgba(59,130,246,.2); color: var(--blue); }
+.check-mark { color: var(--green); font-size: 14px; font-weight: 700; }
 
-/* rankings */
-.ranks-wrap { padding: 0 16px; }
-.ranks { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-.rr { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
-.rr:last-child { border-bottom: none; }
-.rn { font-size: 12px; color: var(--text3); min-width: 16px; }
-.rname { flex: 1; font-size: 14px; }
-.rscore { font-size: 16px; font-weight: 700; }
+/* ---------- COMPASS BUTTON ---------- */
+.fab-compass {
+  position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
+  border-radius: 50%; background: var(--bg2); border: 1px solid var(--border);
+  display: none; align-items: center; justify-content: center; font-size: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.5); z-index: 40;
+}
+.fab-compass.show { display: flex; }
 
-/* winner */
-#winner-area { padding: 12px 16px 0; }
-.winner-banner { background: var(--gdim); border: 1px solid var(--green); border-radius: var(--r); padding: 14px; text-align: center; }
-.winner-banner h2 { font-size: 20px; font-weight: 800; color: var(--gtext); }
-.winner-banner p { font-size: 13px; color: var(--text2); margin-top: 3px; }
-.btn-gallery { margin-top: 10px; padding: 10px 20px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--rsm); font-size: 14px; color: var(--text); cursor: pointer; }
+/* ---------- OVERLAY ---------- */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.92);
+  z-index: 100; display: none; flex-direction: column;
+  padding: 20px; padding-top: calc(20px + env(safe-area-inset-top));
+}
+.overlay.show { display: flex; }
+.overlay-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.overlay-title { font-weight: 700; font-size: 18px; }
+.btn-close {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--bg2);
+  border: 1px solid var(--border); font-size: 18px;
+}
 
-/* ══════════════════════════════
-   OVERLAY (photo + confirm)
-══════════════════════════════ */
-#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75);
-           backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-           z-index: 50; align-items: flex-end; padding: calc(1rem + var(--safe-bot)) 1rem 1rem; }
-#overlay.show { display: flex; }
-.ovbox { background: var(--bg2); border: 1px solid var(--border2); border-radius: 22px;
-         padding: 1.5rem; width: 100%; max-width: 420px; margin: 0 auto; }
-.ov-title { font-size: 18px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 4px; }
-.ov-meta  { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 1.25rem; }
-.ov-meta strong { color: var(--gtext); }
-.btn-row  { display: flex; gap: 10px; }
-.btn-primary   { flex: 1; padding: 14px; background: var(--green); color: #000; border: none; border-radius: var(--rsm); font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-primary:active { opacity: .8; }
-.btn-secondary { padding: 14px 18px; background: transparent; border: 1px solid var(--border2); border-radius: var(--rsm); font-size: 15px; cursor: pointer; color: var(--text); }
-.btn-danger    { flex: 1; padding: 14px; background: var(--rdim); border: 1px solid var(--red); color: var(--red); border-radius: var(--rsm); font-size: 15px; font-weight: 600; cursor: pointer; }
-.photo-preview { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: var(--rsm); margin-bottom: 1rem; background: var(--bg3); display: block; }
-#camera-input  { display: none; }
+/* ---------- COMPASS VIEW ---------- */
+.compass-view {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+}
+.compass-target {
+  font-size: 22px; font-weight: 700; text-align: center; line-height: 1.2;
+}
+.compass-distance { font-size: 14px; color: var(--text2); }
+.compass-circle {
+  width: min(70vw, 280px); aspect-ratio: 1; border-radius: 50%;
+  border: 2px solid var(--border); position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg2);
+}
+.compass-arrow {
+  width: 70%; height: 70%; transition: transform .25s ease-out;
+  display: flex; align-items: center; justify-content: center;
+}
+.compass-arrow svg { width: 100%; height: 100%; }
+.compass-radar {
+  width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--green);
+  position: relative; display: none;
+  animation: radarPulse 1.4s ease-in-out infinite;
+}
+.compass-radar.show { display: block; }
+@keyframes radarPulse {
+  0% { box-shadow: 0 0 0 0 rgba(34,197,94,.6); }
+  70% { box-shadow: 0 0 0 30px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+.compass-radar::after {
+  content: '📍'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 36px;
+}
+.compass-onsite {
+  display: none; text-align: center; color: var(--green);
+  font-weight: 800; font-size: 22px; margin-top: 8px;
+}
+.compass-onsite.show { display: block; }
 
-/* ══════════════════════════════
-   GALLERY VIEW
-══════════════════════════════ */
-#view-gallery { display: none; min-height: 100vh; padding-bottom: calc(2rem + var(--safe-bot)); }
-.gallery-topbar { position: sticky; top: 0; z-index: 20; background: rgba(10,10,10,.92);
-                  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-                  border-bottom: 1px solid var(--border); padding: 12px 16px;
-                  display: flex; align-items: center; gap: 12px; }
-.btn-back { padding: 7px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; cursor: pointer; color: var(--text); }
-.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 16px; }
-.gal-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; cursor: pointer; }
-.gal-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
-.gal-item-info { padding: 8px 10px; }
-.gal-item-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gal-item-who  { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.gal-empty { padding: 3rem 2rem; text-align: center; color: var(--text3); font-size: 14px; }
+.btn-permission {
+  display: none; background: var(--amber); color: var(--bg);
+  padding: 12px 24px; border-radius: 10px; font-weight: 700;
+}
+.btn-permission.show { display: inline-block; }
 
-/* fullscreen photo */
-#photo-full { display: none; position: fixed; inset: 0; background: #000; z-index: 100; align-items: center; justify-content: center; flex-direction: column; }
-#photo-full.show { display: flex; }
-#photo-full img { max-width: 100%; max-height: 85vh; object-fit: contain; }
-#photo-full-close { position: absolute; top: calc(1rem + var(--safe-top)); right: 1rem; padding: 8px 16px; background: rgba(255,255,255,.15); border: none; border-radius: 20px; color: #fff; font-size: 15px; cursor: pointer; }
+/* ---------- VALIDATE OVERLAY ---------- */
+.validate-content {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px; text-align: center;
+}
+.validate-target {
+  font-size: 24px; font-weight: 800; line-height: 1.2;
+  max-width: 90%;
+}
+.validate-distance {
+  font-size: 56px; font-weight: 900; color: var(--amber);
+}
+.validate-distance.ok { color: var(--green); }
+.validate-msg { color: var(--text2); font-size: 15px; }
+.validate-msg.ok { color: var(--green); font-weight: 700; font-size: 18px; }
+.btn-camera {
+  background: var(--green); color: white; padding: 16px 32px;
+  border-radius: 14px; font-weight: 700; font-size: 16px; display: none;
+}
+.btn-camera.show { display: inline-block; }
+.preview-img {
+  max-width: 100%; max-height: 50vh; border-radius: 14px;
+  display: none; margin: 0 auto;
+}
+.preview-img.show { display: block; }
+.preview-actions {
+  display: none; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.preview-actions.show { display: flex; }
 
-/* misc */
-.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: middle; margin-right: 6px; }
-@keyframes sp { to { transform: rotate(360deg); } }
-.empty-msg { text-align: center; padding: 2rem; color: var(--text3); font-size: 14px; }
+/* ---------- POPUPS ---------- */
+.popup {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.popup.show { display: flex; }
+.popup-box {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 18px; padding: 24px; max-width: 360px; width: 100%;
+  text-align: center;
+}
+.popup-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.popup-text { color: var(--text2); margin-bottom: 18px; line-height: 1.4; font-size: 14px; }
+.popup-actions { display: flex; gap: 10px; }
+.popup-actions button { flex: 1; }
+.popup-emoji { font-size: 48px; margin-bottom: 8px; }
+
+/* ---------- WIN GALLERY ---------- */
+.win-banner {
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  padding: 16px; text-align: center; font-weight: 800; font-size: 18px;
+  color: white; margin-bottom: 16px; border-radius: 14px;
+}
+.gallery-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  overflow-y: auto; flex: 1;
+}
+.gallery-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; cursor: pointer;
+}
+.gallery-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.gallery-info { padding: 8px 10px; font-size: 11px; }
+.gallery-info .pl { font-weight: 700; }
+.gallery-info .pl.p0 { color: var(--green); }
+.gallery-info .pl.p1 { color: var(--blue); }
+.gallery-info .pname {
+  font-size: 12px; color: var(--text); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fullscreen-img {
+  position: fixed; inset: 0; background: rgba(0,0,0,.96); z-index: 300;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.fullscreen-img.show { display: flex; }
+.fullscreen-img img { max-width: 100%; max-height: 100%; border-radius: 12px; }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════ SETUP ════════════════════════════ -->
-<div id="view-setup">
-  <div class="setup-card">
-    <div class="logo">Urba<span>Quest</span></div>
-    <div class="logo-sub">Cité Internationale · 17 boulevard Jourdan</div>
-    <div id="reset-notice-area"></div>
+<!-- ============== SCREEN SETUP ============== -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-wrap">
+    <div class="logo">UrbaQuest</div>
+    <div class="tagline">Jeu de piste urbain · 2 joueurs</div>
 
-    <!-- Choix : créer ou rejoindre -->
-    <div id="setup-choice">
-      <button class="btn-launch" style="margin-bottom:10px" onclick="showCreate()">Créer une partie</button>
-      <button class="btn-launch" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2)" onclick="showJoin()">Rejoindre une partie</button>
+    <div class="btn-row">
+      <button class="btn-tab active" id="tab-create">Créer</button>
+      <button class="btn-tab" id="tab-join">Rejoindre</button>
     </div>
 
-    <!-- Formulaire créer -->
-    <div id="setup-create" style="display:none">
-      <div class="player-fields">
-        <div class="field">
-          <label><span class="color-badge" style="background:var(--green)"></span>Ton prénom</label>
-          <input id="n0" placeholder="Prénom…">
-        </div>
-        <div class="field">
-          <label><span class="color-badge" style="background:var(--blue)"></span>Adversaire</label>
-          <input id="n1" placeholder="Prénom…">
-        </div>
-      </div>
-      <div class="field">
-        <label>Points à atteindre</label>
-        <input id="tgt" type="number" value="15" min="2" max="60" step="0.5">
-      </div>
-      <button class="btn-launch" onclick="createGame()">Créer la partie →</button>
-      <button style="width:100%;padding:10px;background:transparent;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:6px" onclick="showChoice()">← Retour</button>
+    <!-- CREATE FORM -->
+    <div class="form-block" id="form-create">
+      <input type="text" id="i-name1" placeholder="Ton prénom" maxlength="20">
+      <input type="text" id="i-name2" placeholder="Prénom de l'adversaire" maxlength="20">
+      <input type="number" id="i-target" placeholder="Objectif de points (ex. 20)" min="5" max="100">
+      <button class="btn-primary" id="btn-create">Créer la partie</button>
+      <div class="status-msg" id="create-status" style="display:none;"></div>
     </div>
 
-    <!-- Attente après création — affiche le code -->
-    <div id="setup-waiting" style="display:none">
-      <div style="text-align:center;padding:.5rem 0 1.25rem">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Partage ce code à ton adversaire</div>
-        <div id="room-code-display" style="font-size:42px;font-weight:800;letter-spacing:6px;color:var(--green);margin-bottom:10px"></div>
-        <div style="font-size:12px;color:var(--text3)">En attente que l'adversaire rejoigne…</div>
-        <div style="margin-top:10px"><span class="spinner"></span></div>
-      </div>
-      <button style="width:100%;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--rsm);color:var(--text2);font-size:13px;cursor:pointer" onclick="cancelWaiting()">Annuler</button>
+    <!-- JOIN FORM -->
+    <div class="form-block hidden" id="form-join">
+      <input type="text" id="i-name-join" placeholder="Ton prénom" maxlength="20">
+      <input type="text" id="i-code" placeholder="Code de la partie (6 caractères)" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;">
+      <button class="btn-primary" id="btn-join">Rejoindre</button>
+      <div class="status-msg" id="join-status" style="display:none;"></div>
     </div>
 
-    <!-- Formulaire rejoindre -->
-    <div id="setup-join" style="display:none">
-      <div class="field">
-        <label>Ton prénom</label>
-        <input id="join-name" placeholder="Prénom…">
+    <!-- WAITING -->
+    <div id="waiting-block" style="display:none;">
+      <div class="code-display">
+        <div style="color:var(--text2);font-size:13px;text-transform:uppercase;letter-spacing:1.5px;">Code de la partie</div>
+        <div class="code" id="game-code"></div>
+        <div style="color:var(--text2);font-size:13px;">Partage ce code avec ton adversaire</div>
       </div>
-      <div class="field">
-        <label>Code de la partie</label>
-        <input id="join-code" placeholder="Ex: LION42" style="text-transform:uppercase;letter-spacing:3px;font-size:18px;font-weight:700">
+      <div class="status-msg" style="margin-top:16px;">
+        <span class="spinner"></span>&nbsp;&nbsp;En attente du joueur 2…
       </div>
-      <button class="btn-launch" onclick="joinGame()">Rejoindre →</button>
-      <button style="width:100%;padding:10px;background:transparent;border:none;color:var(--text2);font-size:13px;cursor:pointer;margin-top:6px" onclick="showChoice()">← Retour</button>
+      <button class="btn-secondary" id="btn-cancel-wait" style="margin-top:12px;width:100%;">Annuler</button>
     </div>
-
   </div>
 </div>
 
-<!-- ════════════════════════════ MAIN ════════════════════════════ -->
-<div id="view-main">
-  <div class="topbar">
-    <div><h1>UrbaQuest</h1><p>Cité Internationale · T7</p></div>
-    <div class="sync-pill"><span class="sync-dot"></span>sync</div>
+<!-- ============== SCREEN GAME ============== -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <div class="game-title"><span class="accent">Urba</span>Quest</div>
+    <div class="sync-dot" id="sync-dot">Sync</div>
   </div>
-  <div id="winner-area"></div>
-  <div class="scores" id="scores"></div>
-  <div class="prg-wrap" id="progress"></div>
-  <div class="player-tabs" id="player-tabs"></div>
-  <div class="filters" id="status-filters"></div>
-  <div id="place-list-wrap"></div>
+
+  <div class="scores">
+    <div class="score-card p0">
+      <div class="score-name" id="score-name-0">Joueur 1</div>
+      <div class="score-val" id="score-val-0">0.0</div>
+      <div class="score-target" id="score-target-0">/ 0 pts</div>
+      <div class="progress"><div class="progress-bar" id="progress-0" style="width:0%;"></div></div>
+    </div>
+    <div class="score-card p1">
+      <div class="score-name" id="score-name-1">Joueur 2</div>
+      <div class="score-val" id="score-val-1">0.0</div>
+      <div class="score-target" id="score-target-1">/ 0 pts</div>
+      <div class="progress"><div class="progress-bar" id="progress-1" style="width:0%;"></div></div>
+    </div>
+  </div>
+
+  <div class="player-tabs">
+    <button class="tab-pl p0 active" id="tab-p0">Joueur 1</button>
+    <button class="tab-pl p1" id="tab-p1">Joueur 2</button>
+    <button class="btn-reset" id="btn-reset" title="Réinitialiser">↺</button>
+  </div>
+
+  <div class="filters">
+    <button class="filter active" data-filter="all">Tous</button>
+    <button class="filter" data-filter="mine">Mes objectifs</button>
+    <button class="filter" data-filter="visited">Visités</button>
+  </div>
+
+  <div class="list-wrap" id="list-wrap"></div>
 </div>
 
-<!-- ════════════════════════════ GALLERY ════════════════════════════ -->
-<div id="view-gallery">
-  <div class="gallery-topbar">
-    <button class="btn-back" onclick="showMain()">← Retour</button>
-    <span style="font-size:15px;font-weight:600">Galerie photos</span>
+<!-- ============== COMPASS OVERLAY ============== -->
+<div class="overlay" id="compass-overlay">
+  <div class="overlay-header">
+    <div class="overlay-title">Boussole</div>
+    <button class="btn-close" id="compass-close">✕</button>
   </div>
+  <div class="compass-view">
+    <div class="compass-target" id="compass-target"></div>
+    <div class="compass-distance" id="compass-distance"></div>
+    <div class="compass-circle" id="compass-circle">
+      <div class="compass-arrow" id="compass-arrow">
+        <svg viewBox="0 0 100 100">
+          <path id="arrow-path" d="M 50 10 L 65 60 L 50 50 L 35 60 Z" fill="#22c55e"/>
+        </svg>
+      </div>
+    </div>
+    <div class="compass-radar" id="compass-radar"></div>
+    <div class="compass-onsite" id="compass-onsite">Tu es sur place !</div>
+    <button class="btn-permission" id="btn-permission">Activer la boussole</button>
+    <button class="btn-primary" id="btn-validate-from-compass" style="display:none;">Valider ce lieu</button>
+  </div>
+</div>
+
+<!-- ============== VALIDATE OVERLAY ============== -->
+<div class="overlay" id="validate-overlay">
+  <div class="overlay-header">
+    <div class="overlay-title">Valider</div>
+    <button class="btn-close" id="validate-close">✕</button>
+  </div>
+  <div class="validate-content">
+    <div class="validate-target" id="validate-target"></div>
+    <div class="validate-distance" id="validate-distance">--</div>
+    <div class="validate-msg" id="validate-msg">Calcul de la distance…</div>
+    <button class="btn-camera" id="btn-camera">📷 Prendre une photo</button>
+    <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none;">
+    <img class="preview-img" id="preview-img">
+    <div class="preview-actions" id="preview-actions">
+      <button class="btn-secondary" id="btn-retake">Reprendre</button>
+      <button class="btn-primary" id="btn-confirm" style="margin-top:0;">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== POPUPS ============== -->
+<div class="popup" id="popup-reset1">
+  <div class="popup-box">
+    <div class="popup-emoji">⚠️</div>
+    <div class="popup-title">Réinitialiser la partie ?</div>
+    <div class="popup-text">L'adversaire sera renvoyé à l'écran d'accueil. Cette action ne peut pas être annulée.</div>
+    <div class="popup-actions">
+      <button class="btn-secondary" id="reset1-cancel">Annuler</button>
+      <button class="btn-primary" id="reset1-ok" style="margin-top:0;background:var(--red);">Continuer</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup" id="popup-reset2">
+  <div class="popup-box">
+    <div class="popup-emoji">🔥</div>
+    <div class="popup-title">Es-tu vraiment sûr ?</div>
+    <div class="popup-text">Toutes les progressions seront perdues.</div>
+    <div class="popup-actions">
+      <button class="btn-secondary" id="reset2-cancel">Non</button>
+      <button class="btn-primary" id="reset2-ok" style="margin-top:0;background:var(--red);">Oui, réinitialiser</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup" id="popup-win">
+  <div class="popup-box">
+    <div class="popup-emoji">🏆</div>
+    <div class="popup-title" id="win-title">Victoire !</div>
+    <div class="popup-text" id="win-text"></div>
+    <div class="popup-actions">
+      <button class="btn-primary" id="btn-gallery" style="margin-top:0;">Voir la galerie</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup" id="popup-info">
+  <div class="popup-box">
+    <div class="popup-emoji" id="info-emoji">ℹ️</div>
+    <div class="popup-title" id="info-title"></div>
+    <div class="popup-text" id="info-text"></div>
+    <div class="popup-actions">
+      <button class="btn-primary" id="info-ok" style="margin-top:0;">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== GALLERY OVERLAY ============== -->
+<div class="overlay" id="gallery-overlay">
+  <div class="overlay-header">
+    <div class="overlay-title" id="gallery-title">Galerie</div>
+    <button class="btn-close" id="gallery-close">✕</button>
+  </div>
+  <div class="win-banner" id="win-banner"></div>
   <div class="gallery-grid" id="gallery-grid"></div>
+  <button class="btn-primary" id="btn-new-game" style="margin-top:14px;">Nouvelle partie</button>
 </div>
 
-<!-- ════════════════════════════ OVERLAY ════════════════════════════ -->
-<div id="overlay">
-  <div class="ovbox" id="ov-content"></div>
+<div class="fullscreen-img" id="fullscreen-img">
+  <img id="full-img" alt="">
 </div>
 
-<!-- hidden camera inputs — separate for front/back but we use one -->
-<input type="file" id="camera-input" accept="image/*" capture="environment">
+<!-- ============== FAB COMPASS ============== -->
+<button class="fab-compass" id="fab-compass" title="Boussole">🧭</button>
 
-<!-- fullscreen photo viewer -->
-<div id="photo-full">
-  <img id="photo-full-img" src="" alt="">
-  <button id="photo-full-close" onclick="closeFullPhoto()">✕ Fermer</button>
-</div>
-
+<!-- ============== FIREBASE ============== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
 <script>
-// ══════════════════════════════════════════════════════
-//  DATA
-// ══════════════════════════════════════════════════════
-const GPS_R  = 30;
-const DEPART = { lat: 48.8190903, lng: 2.3379825 };
-
-const RAW = [
-  {id:1, name:"Maison internationale",            cat:"h", lat:48.8190903, lng:2.3379825},
-  {id:2, name:"Fondation Deutsch de la Meurthe",  cat:"h", lat:48.8201539, lng:2.3349741},
-  {id:3, name:"Maison des étudiants canadiens",   cat:"h", lat:48.8204573, lng:2.3369524},
-  {id:4, name:"Collège d'Espagne",                cat:"h", lat:48.8187352, lng:2.3411075},
-  {id:5, name:"Maison de l'Inde",                 cat:"h", lat:48.818452,  lng:2.3432123},
-  {id:6, name:"Maison de l'Argentine",            cat:"h", lat:48.8199908, lng:2.3375918},
-  {id:7, name:"Fondation suisse",                 cat:"h", lat:48.8182167, lng:2.3422944},
-  {id:8, name:"Fondation Biermans-Lapôtre",       cat:"h", lat:48.8193408, lng:2.341208 },
-  {id:9, name:"Maison du Japon",                  cat:"h", lat:48.8188787, lng:2.3419191},
-  {id:10,name:"Maison de l'Italie",               cat:"h", lat:48.8192682, lng:2.3424156},
-  {id:11,name:"Collège néerlandais",              cat:"h", lat:48.8218398, lng:2.3308692},
-  {id:12,name:"Maison du Brésil",                 cat:"h", lat:48.8178296, lng:2.3435037},
-  {id:13,name:"Maison du Cambodge",               cat:"h", lat:48.81750,   lng:2.3363889},
-  {id:14,name:"Fondation des États-Unis",         cat:"h", lat:48.8198307, lng:2.3397685},
-  {id:15,name:"Maison Heinrich Heine",            cat:"h", lat:48.8177387, lng:2.335733 },
-  {id:16,name:"Maison du Portugal",               cat:"h", lat:48.8173215, lng:2.3434388},
-  {id:17,name:"Maison du Maroc",                  cat:"h", lat:48.8189201, lng:2.3439013},
-  {id:18,name:"Maison de Norvège",                cat:"h", lat:48.8178899, lng:2.342739 },
-  {id:19,name:"Fondation hellénique",             cat:"h", lat:48.820698,  lng:2.3323607},
-  {id:20,name:"Fondation Avicenne",               cat:"h", lat:48.81798,   lng:2.33488  },
-  {id:21,name:"Maison du Mexique",                cat:"h", lat:48.8192424, lng:2.3394408},
-  {id:22,name:"Maison de la Tunisie",             cat:"h", lat:48.8212623, lng:2.3331285},
-  {id:23,name:"Collège franco-britannique",       cat:"h", lat:48.8190754, lng:2.3402948},
-  {id:24,name:"Maison de la Corée",               cat:"h", lat:48.8172669, lng:2.3403564},
-  {id:25,name:"Maison du Liban",                  cat:"h", lat:48.8173512, lng:2.3385253},
-  {id:26,name:"Fondation Victor Lyon",            cat:"h", lat:48.8198289, lng:2.3364676},
-  {id:27,name:"Fondation de Monaco",              cat:"h", lat:48.8213165, lng:2.3326537},
-  {id:28,name:"Maison des provinces de France",   cat:"h", lat:48.8215264, lng:2.3318505},
-  {id:29,name:"Fondation Lucien Paye",            cat:"h", lat:48.820892,  lng:2.3332389},
-  {id:30,name:"Résidence André Honnorat",         cat:"h", lat:48.8200979, lng:2.3381959},
-  {id:31,name:"Maison des étudiants arméniens",   cat:"h", lat:48.821563,  lng:2.3311019},
-  {id:32,name:"Maison de la francophonie",        cat:"h", lat:48.819654,  lng:2.3299338},
-  {id:33,name:"Maison de l'Île-de-France",        cat:"h", lat:48.8171664, lng:2.3375679},
-  {id:34,name:"Maison d'Égypte",                  cat:"h", lat:48.8170291, lng:2.3410511},
-  {id:35,name:"Maison de l'Asie du Sud-Est",      cat:"h", lat:48.8218722, lng:2.3309033},
-  {id:36,name:"Résidence J.-V. Daubié",           cat:"h", lat:48.8187698, lng:2.3334981},
-  {id:37,name:"Maison Arts et Métiers",           cat:"h", lat:48.817722,  lng:2.3332091},
-  {id:38,name:"Fondation Rosa Abreu de Grancher", cat:"h", lat:48.8211654, lng:2.330988 },
-  {id:39,name:"Fondation danoise",                cat:"h", lat:48.8185444, lng:2.342462 },
-  {id:40,name:"Maison de la Chine",               cat:"h", lat:48.8174,    lng:2.3420   },
-  {id:41,name:"Stade Ouest",                      cat:"s", lat:48.8196716, lng:2.3316912},
-  {id:42,name:"Stade Dalmasso",                   cat:"s", lat:48.8173658, lng:2.3419802},
-  {id:43,name:"Terrain de tennis",                cat:"s", lat:48.8191577, lng:2.3342031},
-  {id:44,name:"Gymnase",                          cat:"s", lat:48.8181118, lng:2.3344254},
-  {id:45,name:"Piscine de la Cité",               cat:"s", lat:48.8190049, lng:2.3385215},
-  {id:46,name:"Restaurant universitaire Crous",   cat:"f", lat:48.8192917, lng:2.3374932},
-  {id:47,name:"Théâtre de la Cité internationale",cat:"c", lat:48.8192648, lng:2.3384469},
-];
-
-function hav(a,b){
-  const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
-  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
-}
-function calcPts(d){
-  if(d<=100)return .5; if(d<=150)return 1;  if(d<=200)return 1.5;
-  if(d<=250)return 2;  if(d<=300)return 2.5; if(d<=350)return 3;
-  if(d<=400)return 3.5;if(d<=450)return 4;  if(d<=500)return 4.5;
-  if(d<=600)return 5;  if(d<=700)return 5.5; return null;
-}
-function fmt(p){ return Number.isInteger(p)?String(p):p.toFixed(1); }
-
-const PLACES = RAW.map(p=>{const d=hav(DEPART,p);const pts=calcPts(d);return{...p,dist:d,pts};})
-  .filter(p=>p.pts!==null).sort((a,b)=>a.dist-b.dist);
-
-function assign(target){
-  const used=new Set();
-
-  // IDs des lieux fixes — leurs points s'ajoutent au-dessus de l'objectif choisi
-  const FIXED_P0 = [33];           // Maison de l'Île-de-France
-  const FIXED_P1 = [19, 29, 39];   // Fondation hellénique, Lucien Paye, danoise
-
-  const low  = PLACES.filter(p=>p.pts>=0.5&&p.pts<=1.5).sort(()=>Math.random()-.5);
-  const mid  = PLACES.filter(p=>p.pts>=2  &&p.pts<=3.5).sort(()=>Math.random()-.5);
-  const high = PLACES.filter(p=>p.pts>=4             ).sort(()=>Math.random()-.5);
-
-  function pick(bucket){
-    const c=bucket.filter(p=>!used.has(p.id));
-    if(!c.length) return null;
-    const p=c[0]; used.add(p.id); return p;
-  }
-
-  function fillPlayer(t, fixedIds){
-    const arr=[];
-    let score=0;
-
-    // 1. Lieux fixes — comptent dans t
-    for(const fid of fixedIds){
-      if(!used.has(fid)){
-        const p=PLACES.find(x=>x.id===fid);
-        if(p){ arr.push(p.id); used.add(p.id); score=parseFloat((score+p.pts).toFixed(1)); }
-      }
-    }
-
-    // Reste à couvrir après les fixes
-    let rem = parseFloat((t - score).toFixed(1));
-    if(rem <= 0) return arr;
-
-    // 2. Minimum 1 lieu entre 0.5 et 1 pt
-    const veryLow = PLACES.filter(p=>p.pts>=0.5&&p.pts<=1).sort(()=>Math.random()-.5);
-    const p1 = veryLow.find(p=>!used.has(p.id));
-    if(p1 && rem>=p1.pts){ arr.push(p1.id); used.add(p1.id); score=parseFloat((score+p1.pts).toFixed(1)); rem=parseFloat((t-score).toFixed(1)); }
-
-    // 3. Minimum 1 lieu entre 1.5 et 2 pts
-    const medLow = PLACES.filter(p=>p.pts>=1.5&&p.pts<=2).sort(()=>Math.random()-.5);
-    const p2 = medLow.find(p=>!used.has(p.id));
-    if(p2 && rem>=p2.pts){ arr.push(p2.id); used.add(p2.id); score=parseFloat((score+p2.pts).toFixed(1)); rem=parseFloat((t-score).toFixed(1)); }
-
-    // 4. Compléter le reste jusqu'à t
-    const byPts={};
-    PLACES.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
-    const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
-    rem=parseFloat((t-score).toFixed(1));
-    let safety=0;
-    outer: for(const k of keys){
-      while(rem>=k){
-        if(++safety>200) break outer;
-        const c=(byPts[k]||[]).filter(p=>!used.has(p.id));
-        if(!c.length) break;
-        const p=c[Math.floor(Math.random()*c.length)];
-        arr.push(p.id); used.add(p.id);
-        score=parseFloat((score+k).toFixed(1));
-        rem=parseFloat((t-score).toFixed(1));
-      }
-    }
-    return arr;
-  }
-
-  const p0 = fillPlayer(target, FIXED_P0);
-  const p1 = fillPlayer(target, FIXED_P1);
-  return{p0, p1};
-}
-
-// ══════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════
-let G = {
-  phase:'setup',
-  names:['',''],
-  target:15,
-  visits:{},
-  photos:{},
-  assigns:{p0:[],p1:[]},
-  ap:0,
-  filter:'all',
-  confirm:null,
-  photoPreview:null,
-  resetPending:false,
-  resetBy:-1,
-  winner:-1,
-  roomCode:null,
-  ts:0
-};
-
-const LS = 'urbaquest_v1';
-
-// ══════════════════════════════════════════════════════
-//  FIREBASE (compat SDK — pas d'import ESM requis)
-// ══════════════════════════════════════════════════════
+/* ============================================================
+   FIREBASE INIT
+============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyADOzmRY7ZJJlLJ5KMWuJsV8gHT_bZeOMw",
   authDomain: "urbaquest.firebaseapp.com",
@@ -482,571 +593,1040 @@ const firebaseConfig = {
   messagingSenderId: "233524460859",
   appId: "1:233524460859:web:88716a619ee299bd620b1e"
 };
-
 firebase.initializeApp(firebaseConfig);
-const db   = firebase.database();
+const db = firebase.database();
+const storage = firebase.storage();
 
-let fbListening  = false;
-let lastPushedTs = 0;
+/* ============================================================
+   STATE
+============================================================ */
+const state = {
+  code: null,
+  ap: 0,            // active player slot (0 or 1) — moi
+  myName: '',
+  startLat: null,
+  startLng: null,
+  curLat: null,
+  curLng: null,
+  heading: 0,
+  watchId: null,
+  orientationAttached: false,
+  room: null,       // mirror Firebase room
+  roomRef: null,
+  selectedTab: 0,   // which player's view to show (0 = p0, 1 = p1)
+  filter: 'all',
+  validatingPlace: null,
+  compassPlace: null,
+  pendingBlob: null,
+  pendingPreviewUrl: null,
+  syncOk: false,
+};
 
-function fbPush(data){
-  if(!G.roomCode) return;
-  const payload = {...data, ts: Date.now()};
-  lastPushedTs = payload.ts;
-  db.ref(G.roomCode).update(payload).catch(e=>console.warn('Firebase write:', e));
+/* ============================================================
+   UTILS
+============================================================ */
+function $(sel) { return document.querySelector(sel); }
+function $$(sel) { return Array.from(document.querySelectorAll(sel)); }
+function show(el) { el.classList.add('show'); }
+function hide(el) { el.classList.remove('show'); }
+function showScreen(id) {
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  $('#' + id).classList.add('active');
 }
-
-function fbListen(code){
-  if(fbListening) return;
-  fbListening = true;
-  const room = code || G.roomCode;
-  db.ref(room).on('value', snap => {
-    const d = snap.val();
-    if(!d || d.ts <= G.ts || d.ts === lastPushedTs) return;
-    G.ts = d.ts;
-    if(d.resetDone && G.phase==='game'){ showResetByOpp(); return; }
-    if(d.winner >= 0 && G.winner < 0){
-      G.winner  = d.winner;
-      // Merger visits sans écraser photos locales
-      if(d.visits) mergeVisits(d.visits);
-      if(d.assigns) G.assigns = d.assigns;
-      if(G.phase==='game') showWinnerAlert(d.winner);
-      return;
-    }
-    // Merger visits sans écraser photos locales
-    if(d.visits)  mergeVisits(d.visits);
-    if(d.assigns) G.assigns = d.assigns;
-    if(d.names)   G.names   = d.names;
-    if(d.target)  G.target  = d.target;
-    if(G.phase==='game' && !G.confirm) render();
-  });
+function timeNow() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 }
-
-// Merge visits depuis Firebase sans toucher aux photos locales
-function mergeVisits(remoteVisits){
-  for(const [id, rv] of Object.entries(remoteVisits)){
-    if(!G.visits[id]) G.visits[id] = {};
-    // Copier chaque clé sauf les photos (celles-ci restent locales)
-    for(const [k, val] of Object.entries(rv)){
-      G.visits[id][k] = val;
-    }
-  }
-  // Garder les entrées locales non présentes dans remote
-  for(const id of Object.keys(G.visits)){
-    if(!remoteVisits[id]) {} // garder local
-  }
-}
-
-function save(){
-  try{
-    const forCloud = {
-      visits:   G.visits,
-      names:    G.names,
-      assigns:  G.assigns,
-      target:   G.target,
-      winner:   G.winner,
-      resetDone:false,
-      ts:       Date.now()
-    };
-    fbPush(forCloud);
-    localStorage.setItem(LS, JSON.stringify({...G, confirm:null, photoPreview:null}));
-  }catch(e){ console.warn('save error', e); }
-}
-
-function loadLocal(){
-  try{const r=localStorage.getItem(LS); if(r) Object.assign(G, JSON.parse(r));}catch(e){}
-}
-
-function scoreOf(pi){
-  const k=pi===0?'p0':'p1';let s=0;
-  for(const[id,v] of Object.entries(G.visits)){if(v[k]){const p=PLACES.find(x=>x.id==id);if(p)s+=p.pts;}}
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
 }
+function distMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+function pointsForDist(d) {
+  if (d < 100) return 0.5;
+  if (d < 150) return 1;
+  if (d < 200) return 1.5;
+  if (d < 250) return 2;
+  if (d < 300) return 2.5;
+  if (d < 350) return 3;
+  if (d < 400) return 3.5;
+  if (d < 450) return 4;
+  if (d < 500) return 4.5;
+  if (d < 600) return 5;
+  if (d <= 700) return 5.5;
+  return null;
+}
+function getBearing(from, to) {
+  const dLng = (to.lng - from.lng) * Math.PI / 180;
+  const lat1 = from.lat * Math.PI / 180;
+  const lat2 = to.lat * Math.PI / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function arrowColorByDist(d) {
+  if (d > 400) return '#8B5CF6';
+  if (d > 300) return '#EF4444';
+  if (d > 200) return '#F97316';
+  if (d > 100) return '#EAB308';
+  return '#22C55E';
+}
+function categoryIcon(cat) {
+  return cat === 'historic' ? 'H' : cat === 'tourism' ? 'T' : cat === 'artwork' ? 'A' : cat === 'fountain' ? 'F' : '•';
+}
+function showInfo(emoji, title, text, cb) {
+  $('#info-emoji').textContent = emoji;
+  $('#info-title').textContent = title;
+  $('#info-text').textContent = text;
+  show($('#popup-info'));
+  $('#info-ok').onclick = () => { hide($('#popup-info')); if (cb) cb(); };
+}
+function setStatus(elId, msg, isErr) {
+  const el = $('#' + elId);
+  if (!msg) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.textContent = msg;
+  el.classList.toggle('err', !!isErr);
+}
 
-// ══════════════════════════════════════════════════════
-//  CAMERA
-// ══════════════════════════════════════════════════════
-const camInput = document.getElementById('camera-input');
+/* ============================================================
+   GEOLOCATION
+============================================================ */
+function getOnceGPS() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('Géolocalisation non supportée'));
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      err => reject(err),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  });
+}
+function startWatchGPS() {
+  if (state.watchId !== null) return;
+  if (!navigator.geolocation) return;
+  state.watchId = navigator.geolocation.watchPosition(
+    pos => {
+      state.curLat = pos.coords.latitude;
+      state.curLng = pos.coords.longitude;
+      onPositionUpdate();
+    },
+    err => console.warn('GPS watch error', err),
+    { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 }
+  );
+}
 
-camInput.addEventListener('change', function(){
-  const file = this.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    G.photoPreview = e.target.result;
-    renderOverlay();
-  };
-  reader.readAsDataURL(file);
-  // reset so same file can be re-selected
-  this.value = '';
+/* ============================================================
+   OVERPASS API
+============================================================ */
+async function fetchOverpass(lat, lng) {
+  const query = `[out:json][timeout:25];
+(
+  node["name"]["historic"](around:700,${lat},${lng});
+  node["name"]["tourism"](around:700,${lat},${lng});
+  node["name"]["amenity"="fountain"](around:700,${lat},${lng});
+  node["name"]["artwork_type"](around:700,${lat},${lng});
+  way["name"]["historic"](around:700,${lat},${lng});
+  way["name"]["tourism"](around:700,${lat},${lng});
+);
+out center 40;`;
+  const endpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.fr/api/interpreter'
+  ];
+  let lastErr = null;
+  for (const url of endpoints) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 25000);
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: query,
+        signal: ctrl.signal
+      });
+      clearTimeout(tid);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      return parseOverpass(data, lat, lng);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('Overpass indisponible');
+}
+function parseOverpass(data, lat, lng) {
+  const out = [];
+  const seen = new Set();
+  for (const el of data.elements || []) {
+    const t = el.tags || {};
+    const name = t.name;
+    if (!name) continue;
+    const elat = el.lat || (el.center && el.center.lat);
+    const elng = el.lon || (el.center && el.center.lon);
+    if (!elat || !elng) continue;
+    const d = distMeters(lat, lng, elat, elng);
+    const pts = pointsForDist(d);
+    if (pts === null) continue;
+    let cat = 'tourism';
+    if (t.historic) cat = 'historic';
+    else if (t.artwork_type) cat = 'artwork';
+    else if (t.amenity === 'fountain') cat = 'fountain';
+    else if (t.tourism) cat = 'tourism';
+    const key = name.trim().toLowerCase() + '_' + Math.round(elat * 1e4) + '_' + Math.round(elng * 1e4);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      id: 'p_' + el.type + '_' + el.id,
+      name: name.trim(),
+      lat: elat, lng: elng,
+      dist: Math.round(d),
+      pts, cat
+    });
+  }
+  out.sort((a, b) => a.dist - b.dist);
+  return out;
+}
+
+/* ============================================================
+   ASSIGN ALGORITHM
+============================================================ */
+function assign(places, target) {
+  const used = new Set();
+  function fillPlayer(t) {
+    const arr = [];
+    let score = 0;
+    const veryLow = places.filter(p => p.pts >= 0.5 && p.pts <= 1 && !used.has(p.id));
+    if (veryLow.length && t >= veryLow[0].pts) {
+      const p = veryLow[Math.floor(Math.random() * veryLow.length)];
+      arr.push(p.id); used.add(p.id); score += p.pts;
+    }
+    const medLow = places.filter(p => p.pts >= 1.5 && p.pts <= 2 && !used.has(p.id));
+    if (medLow.length && t - score >= medLow[0].pts) {
+      const p = medLow[Math.floor(Math.random() * medLow.length)];
+      arr.push(p.id); used.add(p.id); score += p.pts;
+    }
+    const byPts = {};
+    places.forEach(p => { if (!byPts[p.pts]) byPts[p.pts] = []; byPts[p.pts].push(p); });
+    const keys = Object.keys(byPts).map(Number).sort((a, b) => b - a);
+    let rem = parseFloat((t - score).toFixed(1));
+    let safety = 0;
+    outer: for (const k of keys) {
+      while (rem >= k) {
+        if (++safety > 200) break outer;
+        const c = (byPts[k] || []).filter(p => !used.has(p.id));
+        if (!c.length) break;
+        const p = c[Math.floor(Math.random() * c.length)];
+        arr.push(p.id); used.add(p.id);
+        score = parseFloat((score + k).toFixed(1));
+        rem = parseFloat((t - score).toFixed(1));
+      }
+    }
+    return { ids: arr, score };
+  }
+  const r0 = fillPlayer(target);
+  const r1 = fillPlayer(target);
+  return { p0: r0.ids, p1: r1.ids, s0: r0.score, s1: r1.score };
+}
+
+/* ============================================================
+   CREATE / JOIN
+============================================================ */
+$('#tab-create').onclick = () => {
+  $('#tab-create').classList.add('active');
+  $('#tab-join').classList.remove('active');
+  $('#form-create').classList.remove('hidden');
+  $('#form-join').classList.add('hidden');
+};
+$('#tab-join').onclick = () => {
+  $('#tab-join').classList.add('active');
+  $('#tab-create').classList.remove('active');
+  $('#form-join').classList.remove('hidden');
+  $('#form-create').classList.add('hidden');
+};
+
+$('#btn-create').onclick = async () => {
+  const n1 = $('#i-name1').value.trim();
+  const n2 = $('#i-name2').value.trim();
+  const target = parseInt($('#i-target').value);
+  if (!n1 || !n2) return setStatus('create-status', 'Renseigne les deux prénoms', true);
+  if (!target || target < 5) return setStatus('create-status', 'Objectif minimum : 5 points', true);
+
+  $('#btn-create').disabled = true;
+  setStatus('create-status', '📍 Demande de position GPS…');
+
+  try {
+    const pos = await getOnceGPS();
+    state.startLat = pos.lat; state.startLng = pos.lng;
+    setStatus('create-status', '🌍 Recherche des lieux autour de toi…');
+    const places = await fetchOverpass(pos.lat, pos.lng);
+    if (places.length < 4) {
+      setStatus('create-status', 'Trop peu de lieux trouvés ici (' + places.length + '). Essaie ailleurs.', true);
+      $('#btn-create').disabled = false;
+      return;
+    }
+
+    // Total points dispo
+    const totalPts = places.reduce((s, p) => s + p.pts, 0);
+    let actualTarget = target;
+    if (totalPts < target * 2) {
+      // pas assez de points pour 2 joueurs → ajuster
+      actualTarget = Math.max(3, Math.floor(totalPts / 2.2 * 2) / 2); // arrondi à 0.5
+      actualTarget = Math.round(actualTarget * 2) / 2;
+    }
+
+    setStatus('create-status', '🎯 Attribution des objectifs…');
+    const a = assign(places, actualTarget);
+
+    const code = genCode();
+    state.code = code;
+    state.ap = 0;
+    state.myName = n1;
+
+    // Build places map (only used ones) — keep all so opponent's are visible
+    const placesMap = {};
+    places.forEach(p => { placesMap[p.id] = { name: p.name, lat: p.lat, lng: p.lng, pts: p.pts, cat: p.cat, dist: p.dist }; });
+
+    const room = {
+      names: [n1, n2],
+      target: actualTarget,
+      startLat: pos.lat, startLng: pos.lng,
+      assigns: { p0: a.p0, p1: a.p1 },
+      places: placesMap,
+      visits: {},
+      winner: -1,
+      resetDone: false,
+      status: 'waiting',
+      ts: Date.now()
+    };
+
+    await db.ref('rooms/' + code).set(room);
+
+    // UI: show waiting
+    $('#form-create').classList.add('hidden');
+    $('#tab-create').style.display = 'none';
+    $('#tab-join').style.display = 'none';
+    $('#btn-cancel-wait').onclick = async () => {
+      try { await db.ref('rooms/' + code).remove(); } catch(e){}
+      location.reload();
+    };
+    $('#game-code').textContent = code;
+    $('#waiting-block').style.display = 'block';
+
+    if (actualTarget !== target) {
+      showInfo('ℹ️', 'Objectif ajusté', 'Pas assez de lieux pour ' + target + ' pts par joueur. Objectif réajusté à ' + actualTarget + ' pts.');
+    }
+
+    // Listen for player 2 to join
+    state.roomRef = db.ref('rooms/' + code);
+    state.roomRef.on('value', snap => {
+      const r = snap.val();
+      if (!r) return;
+      state.room = r;
+      if (r.status === 'playing') {
+        enterGame();
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    setStatus('create-status', '❌ ' + (e.message || 'Erreur'), true);
+    $('#btn-create').disabled = false;
+  }
+};
+
+$('#btn-join').onclick = async () => {
+  const name = $('#i-name-join').value.trim();
+  const code = $('#i-code').value.trim().toUpperCase();
+  if (!name) return setStatus('join-status', 'Renseigne ton prénom', true);
+  if (code.length !== 6) return setStatus('join-status', 'Code à 6 caractères', true);
+
+  $('#btn-join').disabled = true;
+  setStatus('join-status', '🔍 Recherche de la partie…');
+
+  try {
+    const snap = await db.ref('rooms/' + code).once('value');
+    const r = snap.val();
+    if (!r) { setStatus('join-status', 'Partie introuvable', true); $('#btn-join').disabled = false; return; }
+    if (r.status === 'playing') { setStatus('join-status', 'Partie déjà en cours', true); $('#btn-join').disabled = false; return; }
+
+    setStatus('join-status', '📍 Vérification de ta position…');
+    const pos = await getOnceGPS();
+    const d = distMeters(pos.lat, pos.lng, r.startLat, r.startLng);
+    if (d > 2000) {
+      setStatus('join-status', `Tu es à ${Math.round(d)}m de l'autre joueur. Distance max 2km.`, true);
+      $('#btn-join').disabled = false;
+      return;
+    }
+
+    state.code = code;
+    state.ap = 1;
+    state.myName = name;
+    state.startLat = r.startLat; state.startLng = r.startLng;
+    state.room = r;
+
+    // update name slot 2 + status
+    await db.ref('rooms/' + code).update({
+      'names/1': name,
+      status: 'playing'
+    });
+
+    state.roomRef = db.ref('rooms/' + code);
+    state.roomRef.on('value', snap => {
+      const r2 = snap.val();
+      if (!r2) return;
+      state.room = r2;
+      onRoomUpdate();
+    });
+
+    enterGame();
+  } catch (e) {
+    console.error(e);
+    setStatus('join-status', '❌ ' + (e.message || 'Erreur'), true);
+    $('#btn-join').disabled = false;
+  }
+};
+
+/* ============================================================
+   ENTER GAME
+============================================================ */
+function enterGame() {
+  showScreen('screen-game');
+  state.selectedTab = state.ap;
+  startWatchGPS();
+  attachOrientation();
+
+  // Fill names + targets
+  $('#score-name-0').textContent = state.room.names[0] || 'Joueur 1';
+  $('#score-name-1').textContent = state.room.names[1] || 'Joueur 2';
+  $('#score-target-0').textContent = '/ ' + state.room.target + ' pts';
+  $('#score-target-1').textContent = '/ ' + state.room.target + ' pts';
+
+  // Tab labels
+  $('#tab-p0').textContent = state.room.names[0];
+  $('#tab-p1').textContent = state.room.names[1];
+
+  // Set up reactivity
+  if (!state.roomRef) {
+    state.roomRef = db.ref('rooms/' + state.code);
+    state.roomRef.on('value', snap => {
+      const r = snap.val();
+      if (!r) return;
+      state.room = r;
+      onRoomUpdate();
+    });
+  }
+  setSync(true);
+  onRoomUpdate();
+}
+
+function setSync(ok) {
+  state.syncOk = ok;
+  $('#sync-dot').classList.toggle('off', !ok);
+}
+
+function onPositionUpdate() {
+  // refresh validate overlay if open
+  if (state.validatingPlace && $('#validate-overlay').classList.contains('show')) {
+    refreshValidateDistance();
+  }
+  if (state.compassPlace && $('#compass-overlay').classList.contains('show')) {
+    refreshCompass();
+  }
+}
+
+/* ============================================================
+   ROOM UPDATE — RENDER
+============================================================ */
+function onRoomUpdate() {
+  if (!state.room) return;
+  if (state.room.resetDone && state.room.resetDone !== '__self__') {
+    // adversaire a reset
+    if (!window.__resetSeen) {
+      window.__resetSeen = true;
+      showInfo('🔄', 'Partie réinitialisée', "L'adversaire a réinitialisé la partie", () => {
+        location.reload();
+      });
+    }
+    return;
+  }
+
+  // Compute scores
+  const scores = computeScores();
+  $('#score-val-0').textContent = scores[0].toFixed(1);
+  $('#score-val-1').textContent = scores[1].toFixed(1);
+  $('#progress-0').style.width = Math.min(100, (scores[0] / state.room.target) * 100) + '%';
+  $('#progress-1').style.width = Math.min(100, (scores[1] / state.room.target) * 100) + '%';
+
+  // Check victory
+  if (state.room.winner === -1) {
+    if (scores[0] >= state.room.target) {
+      db.ref('rooms/' + state.code + '/winner').set(0);
+    } else if (scores[1] >= state.room.target) {
+      db.ref('rooms/' + state.code + '/winner').set(1);
+    }
+  }
+
+  renderList();
+
+  if (state.room.winner >= 0 && !window.__winShown) {
+    window.__winShown = true;
+    showWinPopup();
+  }
+}
+
+function computeScores() {
+  const visits = state.room.visits || {};
+  const places = state.room.places || {};
+  const scores = [0, 0];
+  for (const slot of [0, 1]) {
+    const ids = (state.room.assigns && state.room.assigns['p' + slot]) || [];
+    for (const id of ids) {
+      const v = visits[id];
+      if (v && v['p' + slot]) {
+        scores[slot] += (places[id] && places[id].pts) || 0;
+      }
+    }
+  }
+  return [parseFloat(scores[0].toFixed(1)), parseFloat(scores[1].toFixed(1))];
+}
+
+/* ============================================================
+   PLAYER TABS / FILTERS
+============================================================ */
+$('#tab-p0').onclick = () => { state.selectedTab = 0; updateTabs(); renderList(); };
+$('#tab-p1').onclick = () => { state.selectedTab = 1; updateTabs(); renderList(); };
+function updateTabs() {
+  $('#tab-p0').classList.toggle('active', state.selectedTab === 0);
+  $('#tab-p1').classList.toggle('active', state.selectedTab === 1);
+}
+$$('.filter').forEach(b => b.onclick = () => {
+  $$('.filter').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  state.filter = b.dataset.filter;
+  renderList();
 });
 
-function openCamera(){
-  camInput.click();
-}
+/* ============================================================
+   RENDER LIST
+============================================================ */
+function renderList() {
+  const wrap = $('#list-wrap');
+  while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
 
-// ══════════════════════════════════════════════════════
-//  RENDER ENGINE
-// ══════════════════════════════════════════════════════
-function render(){
-  renderScores();
-  renderTabs();
-  renderList();
-  renderWinner();
-}
+  const slot = state.selectedTab;
+  const oppSlot = 1 - slot;
+  const places = state.room.places || {};
+  const visits = state.room.visits || {};
+  const myIds = (state.room.assigns && state.room.assigns['p' + slot]) || [];
+  const oppIds = (state.room.assigns && state.room.assigns['p' + oppSlot]) || [];
 
-function renderScores(){
-  const s0=scoreOf(0),s1=scoreOf(1),t=G.target;
-  const pc0=Math.min(100,Math.round(s0/t*100)),pc1=Math.min(100,Math.round(s1/t*100));
-  document.getElementById('scores').innerHTML=`
-    <div class="sc p0"><div class="sc-lbl">Score</div><div class="sc-val">${fmt(s0)}</div><div class="sc-name">${G.names[0]||'Joueur 1'}</div></div>
-    <div class="sc p1"><div class="sc-lbl">Score</div><div class="sc-val">${fmt(s1)}</div><div class="sc-name">${G.names[1]||'Joueur 2'}</div></div>`;
-  document.getElementById('progress').innerHTML=`
-    <div class="prg-row"><span style="color:var(--gtext)">${G.names[0]}</span><span style="color:var(--text3)">${pc0}%</span></div>
-    <div class="prg-track"><div class="prg-fill" style="width:${pc0}%;background:var(--green)"></div></div>
-    <div class="prg-row"><span style="color:var(--btext)">${G.names[1]}</span><span style="color:var(--text3)">${pc1}%</span></div>
-    <div class="prg-track"><div class="prg-fill" style="width:${pc1}%;background:var(--blue)"></div></div>`;
-}
+  const isVisited = (id, s) => visits[id] && visits[id]['p' + s];
 
-function renderTabs(){
-  document.getElementById('player-tabs').innerHTML=
-    [0,1].map(i=>`<button class="ptab ${G.ap===i?'act':''}" onclick="swP(${i})">${G.names[i]||'Joueur '+(i+1)}</button>`).join('')+
-    `<button class="ptab-reset" onclick="confirmReset()">↺</button>`;
-  const mk=G.ap===0?'p0':'p1';
-  const myTodo=PLACES.filter(p=>G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[mk]);
-  const myDone=PLACES.filter(p=>!!G.visits[p.id]?.[mk]);
-  document.getElementById('status-filters').innerHTML=
-    `<button class="fil ${G.filter==='all'?'act':''}" onclick="setF('all')">Tous</button>`+
-    `<button class="fil ${G.filter==='mine'?'act':''}" onclick="setF('mine')">Mes objectifs (${myTodo.length})</button>`+
-    `<button class="fil ${G.filter==='done'?'act':''}" onclick="setF('done')">Visités (${myDone.length})</button>`;
-}
+  // Tile run
+  const tile = document.createElement('div');
+  tile.className = 'tile-run';
+  const tileEmo = document.createElement('div');
+  tileEmo.className = 'emo';
+  tileEmo.textContent = '🏃';
+  const tileTxt = document.createElement('div');
+  tileTxt.textContent = 'Now, run!';
+  tile.appendChild(tileEmo);
+  tile.appendChild(tileTxt);
+  wrap.appendChild(tile);
 
-function renderList(){
-  const mk=G.ap===0?'p0':'p1', ok=G.ap===0?'p1':'p0';
+  // Build sections
+  const myToDo = myIds.filter(id => !isVisited(id, slot));
+  const oppToDo = oppIds.filter(id => !isVisited(id, oppSlot));
+  const visited = [];
+  for (const id of myIds) if (isVisited(id, slot)) visited.push({ id, who: slot });
+  for (const id of oppIds) if (isVisited(id, oppSlot)) visited.push({ id, who: oppSlot });
+  visited.sort((a, b) => {
+    const va = visits[a.id] && visits[a.id]['p' + a.who + '_time'] || '';
+    const vb = visits[b.id] && visits[b.id]['p' + b.who + '_time'] || '';
+    return vb.localeCompare(va);
+  });
 
-  // Seuls les lieux assignés à l'un ou l'autre joueur
-  let pl=PLACES.filter(p=>G.assigns[mk].includes(p.id)||G.assigns[ok].includes(p.id));
+  // Filtering
+  const F = state.filter;
+  const showMine = F === 'all' || F === 'mine';
+  const showOpp = F === 'all';
+  const showVis = F === 'all' || F === 'visited';
 
-  // filter status
-  let shown=pl;
-  if(G.filter==='mine') shown=pl.filter(p=>G.assigns[mk].includes(p.id));
-  if(G.filter==='done') shown=pl.filter(p=>!!G.visits[p.id]?.[mk]);
-
-  const icons={h:'M',f:'R',c:'T',s:'S'}, icls={h:'ic-h',f:'ic-f',c:'ic-c',s:'ic-s'};
-
-  // Sections : mes objectifs à faire / objectifs adversaire / visités par moi
-  const myObjectifs  = shown.filter(p=>G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[mk]);
-  const oppObjectifs = shown.filter(p=>G.assigns[ok].includes(p.id)&&!G.assigns[mk].includes(p.id)&&!G.visits[p.id]?.[ok]);
-  const donePlaces   = shown.filter(p=>!!G.visits[p.id]?.[mk]);
-
-  function makeCard(p, clickable=true){
-    const v=G.visits[p.id]||{};
-    const myDone=!!v[mk], oppDone=!!v[ok];
-    const isMine=G.assigns[mk].includes(p.id);
-    const isOpp=G.assigns[ok].includes(p.id);
-    let cls='pc';
-    if(myDone) cls+=' done';
-    else if(isMine) cls+=G.ap===0?' obj-me':' obj-me2';
-    if(!clickable) cls+=' no-click';
-    const myPhoto=(G.photos[p.id]||{})[mk];
-    const myTime=v[mk+'_time']||'';
-    const oppTime=v[ok+'_time']||'';
-    const pills=[
-      isMine&&!myDone?`<span class="pill pill-obj">Mon objectif</span>`:'',
-      isOpp&&!oppDone?`<span class="pill" style="background:var(--bdim);color:var(--btext);border:none">Objectif adversaire</span>`:'',
-      myDone?`<span class="pill pill-g">${G.names[G.ap]} ✓${myTime?' · '+myTime:''}</span>`:'',
-      oppDone?`<span class="pill pill-b">${G.names[G.ap===0?1:0]} ✓${oppTime?' · '+oppTime:''}</span>`:'',
-    ].filter(Boolean).join('');
-    // data-id au lieu de onclick pour éviter les problèmes de tap mobile
-    return `<div class="${cls}" ${clickable?`data-tapid="${p.id}"`:''}>`+
-      `<div class="cat-icon ${icls[p.cat]}">${icons[p.cat]}</div>`+
-      `<div class="pinfo">`+
-        `<div class="pname">${p.name}</div>`+
-        `<div class="pdist">${p.dist} m du départ</div>`+
-        `<div class="pills">${pills}</div>`+
-      `</div>`+
-      (myPhoto?`<img class="photo-thumb" src="${myPhoto}" alt="">`:'')+
-      `<div class="ppts" style="color:${G.ap===0?'var(--gtext)':'var(--btext)'}">${fmt(p.pts)}<span style="font-size:10px;font-weight:400;color:var(--text3)"> pt${p.pts>1?'s':''}</span></div>`+
-    `</div>`;
+  if (showMine && myToDo.length) {
+    const t = document.createElement('div');
+    t.className = 'section-title';
+    t.textContent = `Mes objectifs (${myToDo.length} restants)`;
+    wrap.appendChild(t);
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+    myToDo.forEach(id => cards.appendChild(buildCard(id, slot, 'mine')));
+    wrap.appendChild(cards);
   }
 
-  let html='';
-  if(myObjectifs.length){
-    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Mes objectifs</div><div class="divider-line"></div></div>`;
-    html+=`<div class="now-run-wrap"><div class="pc now-run"><div class="cat-icon" style="background:rgba(34,197,94,.15);color:var(--green);font-size:18px">🏃</div><div class="pinfo"><div class="pname" style="font-weight:700;color:var(--green)">Now, run!</div><div class="pdist" style="color:var(--text2)">Ton premier objectif t'attend</div></div></div></div>`;
-    html+=`<div class="plist">${myObjectifs.map(makeCard).join('')}</div>`;
+  if (showOpp && oppToDo.length) {
+    const t = document.createElement('div');
+    t.className = 'section-title';
+    t.textContent = `Objectifs de ${state.room.names[oppSlot] || 'adversaire'} (${oppToDo.length})`;
+    wrap.appendChild(t);
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+    oppToDo.forEach(id => cards.appendChild(buildCard(id, oppSlot, 'opp')));
+    wrap.appendChild(cards);
   }
-  if(oppObjectifs.length&&G.filter==='all'){
-    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Objectifs adversaire</div><div class="divider-line"></div></div>`;
-    html+=`<div class="plist">${oppObjectifs.map(p=>makeCard(p,false)).join('')}</div>`;
-  }
-  if(donePlaces.length){
-    html+=`<div class="divider"><div class="divider-line"></div><div class="divider-text">Visités (${donePlaces.length})</div><div class="divider-line"></div></div>`;
-    html+=`<div class="plist">${donePlaces.map(makeCard).join('')}</div>`;
-  }
-  if(!html) html=`<div class="empty-msg">Aucun lieu dans ce filtre</div>`;
 
-  const wrap = document.getElementById('place-list-wrap');
-  wrap.innerHTML = html;
+  if (showVis && visited.length) {
+    const t = document.createElement('div');
+    t.className = 'section-title';
+    t.textContent = `Visités (${visited.length})`;
+    wrap.appendChild(t);
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+    visited.forEach(v => cards.appendChild(buildCard(v.id, v.who, 'visited')));
+    wrap.appendChild(cards);
+  }
 
-  // Attacher les listeners APRÈS injection dans le DOM
-  wrap.querySelectorAll('[data-tapid]').forEach(el => {
-    el.addEventListener('touchend', function(e){
-      e.preventDefault();
-      tap(parseInt(this.dataset.tapid));
-    }, {passive:false});
-    el.addEventListener('click', function(){
-      tap(parseInt(this.dataset.tapid));
+  if (F === 'mine' && !myToDo.length) {
+    const t = document.createElement('div');
+    t.className = 'status-msg';
+    t.style.marginTop = '20px';
+    t.textContent = '🎉 Tous tes objectifs sont validés !';
+    wrap.appendChild(t);
+  }
+}
+
+function buildCard(id, slotForCard, kind) {
+  const places = state.room.places || {};
+  const visits = state.room.visits || {};
+  const p = places[id];
+  if (!p) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.textContent = '(lieu introuvable)';
+    return empty;
+  }
+  const v = visits[id] || {};
+  const isVisited = !!v['p' + slotForCard];
+  const card = document.createElement('div');
+  card.className = 'card';
+  if (kind === 'mine') card.classList.add('mine', 'p' + slotForCard);
+  if (kind === 'opp' && !isVisited) card.classList.add('opp');
+  if (isVisited) card.classList.add('visited');
+
+  // Icon or thumb
+  if (isVisited && v['p' + slotForCard + '_photo']) {
+    const img = document.createElement('img');
+    img.className = 'card-thumb';
+    img.src = v['p' + slotForCard + '_photo'];
+    img.alt = '';
+    img.loading = 'lazy';
+    img.onclick = (e) => {
+      e.stopPropagation();
+      $('#full-img').src = v['p' + slotForCard + '_photo'];
+      show($('#fullscreen-img'));
+    };
+    card.appendChild(img);
+  } else {
+    const ic = document.createElement('div');
+    ic.className = 'card-icon';
+    ic.textContent = categoryIcon(p.cat);
+    card.appendChild(ic);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'card-name';
+  // Visibility asymétrique : nom adversaire caché tant que non visité
+  if (kind === 'opp' && !isVisited) {
+    nameEl.textContent = '???';
+  } else {
+    nameEl.textContent = p.name;
+  }
+  body.appendChild(nameEl);
+
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+  const dist = document.createElement('span');
+  dist.textContent = `${p.dist}m`;
+  meta.appendChild(dist);
+  if (kind === 'mine' && !isVisited) {
+    const b = document.createElement('span');
+    b.className = 'badge-mine';
+    b.textContent = 'Mon objectif';
+    meta.appendChild(b);
+  }
+  if (isVisited && v['p' + slotForCard + '_time']) {
+    const tm = document.createElement('span');
+    tm.className = 'card-time';
+    if (slotForCard === 1) tm.style.color = 'var(--blue)';
+    tm.textContent = '✓ ' + v['p' + slotForCard + '_time'];
+    meta.appendChild(tm);
+  }
+  body.appendChild(meta);
+  card.appendChild(body);
+
+  const pts = document.createElement('div');
+  pts.className = 'card-pts';
+  if (kind === 'opp' && !isVisited) pts.classList.add('opp');
+  pts.textContent = p.pts;
+  card.appendChild(pts);
+
+  // Click handler
+  if (kind === 'mine' && !isVisited) {
+    card.addEventListener('click', () => openValidate(id));
+  } else if (isVisited && v['p' + slotForCard + '_photo']) {
+    // tap to open photo fullscreen
+    card.addEventListener('click', () => {
+      $('#full-img').src = v['p' + slotForCard + '_photo'];
+      show($('#fullscreen-img'));
     });
+  }
+
+  return card;
+}
+
+/* ============================================================
+   VALIDATE LIEU
+============================================================ */
+function openValidate(placeId) {
+  state.validatingPlace = placeId;
+  state.pendingBlob = null;
+  if (state.pendingPreviewUrl) { URL.revokeObjectURL(state.pendingPreviewUrl); state.pendingPreviewUrl = null; }
+  $('#preview-img').src = '';
+  hide($('#preview-img'));
+  hide($('#preview-actions'));
+  hide($('#btn-camera'));
+  $('#btn-camera').classList.remove('show');
+
+  const p = state.room.places[placeId];
+  $('#validate-target').textContent = p.name;
+  refreshValidateDistance();
+  show($('#validate-overlay'));
+}
+function refreshValidateDistance() {
+  if (!state.validatingPlace) return;
+  const p = state.room.places[state.validatingPlace];
+  if (state.curLat === null) {
+    $('#validate-distance').textContent = '--';
+    $('#validate-msg').textContent = 'Acquisition du GPS…';
+    $('#validate-msg').classList.remove('ok');
+    return;
+  }
+  const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
+  $('#validate-distance').textContent = Math.round(d) + 'm';
+  if (d <= 30) {
+    $('#validate-distance').classList.add('ok');
+    $('#validate-msg').classList.add('ok');
+    $('#validate-msg').textContent = 'Tu es sur place !';
+    $('#btn-camera').classList.add('show');
+  } else {
+    $('#validate-distance').classList.remove('ok');
+    $('#validate-msg').classList.remove('ok');
+    $('#validate-msg').textContent = 'Trop loin, approche-toi (max 30m)';
+    $('#btn-camera').classList.remove('show');
+  }
+}
+$('#validate-close').onclick = () => {
+  state.validatingPlace = null;
+  hide($('#validate-overlay'));
+};
+$('#btn-camera').onclick = () => $('#file-camera').click();
+$('#file-camera').onchange = async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  $('#file-camera').value = '';
+  try {
+    const blob = await compressImage(f, 1024);
+    state.pendingBlob = blob;
+    if (state.pendingPreviewUrl) URL.revokeObjectURL(state.pendingPreviewUrl);
+    state.pendingPreviewUrl = URL.createObjectURL(blob);
+    $('#preview-img').src = state.pendingPreviewUrl;
+    show($('#preview-img'));
+    show($('#preview-actions'));
+    $('#preview-actions').style.display = 'flex';
+    $('#btn-camera').classList.remove('show');
+  } catch (err) {
+    console.error(err);
+    showInfo('❌', 'Erreur', 'Impossible de traiter la photo');
+  }
+};
+$('#btn-retake').onclick = () => {
+  state.pendingBlob = null;
+  hide($('#preview-img'));
+  hide($('#preview-actions'));
+  $('#preview-actions').style.display = 'none';
+  $('#btn-camera').classList.add('show');
+  $('#file-camera').click();
+};
+$('#btn-confirm').onclick = async () => {
+  if (!state.pendingBlob || !state.validatingPlace) return;
+  $('#btn-confirm').disabled = true;
+  $('#btn-confirm').textContent = 'Envoi…';
+  try {
+    const placeId = state.validatingPlace;
+    const path = `photos/${state.code}/${placeId}/p${state.ap}.jpg`;
+    const ref = storage.ref(path);
+    await ref.put(state.pendingBlob, { contentType: 'image/jpeg' });
+    const url = await ref.getDownloadURL();
+
+    const upd = {};
+    upd[`visits/${placeId}/p${state.ap}`] = true;
+    upd[`visits/${placeId}/p${state.ap}_time`] = timeNow();
+    upd[`visits/${placeId}/p${state.ap}_photo`] = url;
+    await db.ref('rooms/' + state.code).update(upd);
+
+    state.validatingPlace = null;
+    state.pendingBlob = null;
+    if (state.pendingPreviewUrl) { URL.revokeObjectURL(state.pendingPreviewUrl); state.pendingPreviewUrl = null; }
+    hide($('#validate-overlay'));
+  } catch (e) {
+    console.error(e);
+    showInfo('❌', 'Échec', 'Échec de l\'envoi de la photo. Réessaie.');
+  } finally {
+    $('#btn-confirm').disabled = false;
+    $('#btn-confirm').textContent = 'Confirmer';
+  }
+};
+
+function compressImage(file, maxPx) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      try {
+        const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * ratio);
+        canvas.height = Math.round(img.height * ratio);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/jpeg', 0.8);
+      } catch (e) { URL.revokeObjectURL(url); reject(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('img load')); };
+    img.src = url;
   });
 }
 
-function renderRankings(){
-  const rows=[{n:G.names[0],s:scoreOf(0)},{n:G.names[1],s:scoreOf(1)}].sort((a,b)=>b.s-a.s);
-  document.getElementById('rankings').innerHTML=rows.map((r,i)=>`
-    <div class="rr">
-      <span class="rn">${i+1}</span>
-      <span class="rname">${r.n}</span>
-      <span class="rscore">${fmt(r.s)}<span style="font-size:12px;font-weight:400;color:var(--text3)"> / ${fmt(G.target)}</span>${r.s>=G.target?' 🏆':''}</span>
-    </div>`).join('');
-}
-
-function renderWinner(){
-  const s0=scoreOf(0),s1=scoreOf(1),t=G.target;
-  const wi=s0>=t?0:s1>=t?1:-1;
-  // Pousser le signal si nouveau gagnant
-  if(wi>=0 && G.winner<0){
-    G.winner=wi; save();
+/* ============================================================
+   COMPASS
+============================================================ */
+$('#fab-compass').onclick = () => {
+  // open compass for the closest "mine" pending place
+  if (!state.room) return;
+  const slot = state.ap;
+  const myIds = (state.room.assigns && state.room.assigns['p' + slot]) || [];
+  const visits = state.room.visits || {};
+  const pending = myIds.filter(id => !(visits[id] && visits[id]['p' + slot]));
+  if (!pending.length) return showInfo('🎉', 'Tous validés', 'Tu n\'as plus de lieux à atteindre !');
+  // closest
+  if (state.curLat !== null) {
+    pending.sort((a, b) => {
+      const pa = state.room.places[a], pb = state.room.places[b];
+      return distMeters(state.curLat, state.curLng, pa.lat, pa.lng) - distMeters(state.curLat, state.curLng, pb.lat, pb.lng);
+    });
   }
-  const w=wi>=0?G.names[wi]:null;
-  document.getElementById('winner-area').innerHTML=w
-    ?`<div style="padding:12px 16px 0"><div class="winner-banner">
-        <h2>${w} a gagné ! 🏆</h2><p>${fmt(t)} points atteints</p>
-        <button class="btn-gallery" onclick="showGallery()">📷 Voir toutes les photos</button>
-      </div></div>`:'';
-}
+  openCompass(pending[0]);
+};
 
-function showResetByOpp(){
-  G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
-     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,roomCode:null};
-  fbListening=false;
-  try{localStorage.removeItem(LS);}catch(e){}
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('view-main').style.display='none';
-  document.getElementById('view-setup').style.display='flex';
-  showChoice();
-  const area=document.getElementById('reset-notice-area');
-  area.innerHTML='<div style="background:rgba(245,158,11,.12);border:1px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--amber);text-align:center">L\'adversaire a réinitialisé la partie.</div>';
-}
-
-function showWinnerAlert(wi){
-  const ov=document.getElementById('overlay');
-  document.getElementById('ov-content').innerHTML=`
-    <div style="text-align:center">
-      <div style="font-size:48px;margin-bottom:12px">🏆</div>
-      <div class="ov-title" style="text-align:center">${G.names[wi]} a gagné !</div>
-      <div class="ov-meta" style="text-align:center;margin-top:8px">La partie est terminée.</div>
-      <div class="btn-row" style="margin-top:1.25rem">
-        <button class="btn-primary" onclick="closeOv();render()">Voir les résultats</button>
-      </div>
-    </div>`;
-  ov.classList.add('show');
-  render();
-}
-
-// ══════════════════════════════════════════════════════
-//  OVERLAY
-// ══════════════════════════════════════════════════════
-function renderOverlay(){
-  const ov=document.getElementById('overlay');
-  const p=G.confirm;
-  if(!p){ov.classList.remove('show');return;}
-  ov.classList.add('show');
-
-  const mk=G.ap===0?'p0':'p1';
-  const done=G.visits[p.id]?.[mk];
-  const isTarget=G.assigns[mk].includes(p.id);
-  const myPhoto=(G.photos[p.id]||{})[mk];
-
-  let html=`<div class="ov-title">${p.name}</div>
-    <div class="ov-meta">${fmt(p.pts)} pt${p.pts>1?'s':''} · ${p.dist} m du départ${isTarget?' · <strong>Ton objectif</strong>':''}</div>`;
-
-  if(done){
-    // Already visited — show photo if any + option to cancel
-    if(myPhoto) html+=`<img class="photo-preview" src="${myPhoto}" alt="" onclick="openFullPhoto('${myPhoto}')">`;
-    html+=`<div class="btn-row">
-      <button class="btn-danger" onclick="cancelVisit()">Annuler la visite</button>
-      <button class="btn-secondary" onclick="closeOv()">Fermer</button>
-    </div>`;
-  } else if(G.photoPreview){
-    // Photo taken — confirm it
-    html+=`<img class="photo-preview" src="${G.photoPreview}" alt="">`;
-    html+=`<div class="btn-row">
-      <button class="btn-primary" onclick="confirmVisit()">Valider +${fmt(p.pts)} pt${p.pts>1?'s':''}</button>
-      <button class="btn-secondary" onclick="retakePhoto()">Reprendre</button>
-    </div>`;
+function openCompass(placeId) {
+  state.compassPlace = placeId;
+  const p = state.room.places[placeId];
+  $('#compass-target').textContent = p.name;
+  $('#btn-validate-from-compass').style.display = 'none';
+  $('#btn-validate-from-compass').onclick = () => {
+    hide($('#compass-overlay'));
+    openValidate(placeId);
+  };
+  show($('#compass-overlay'));
+  // iOS permission button
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function' &&
+      !state.orientationAttached) {
+    $('#btn-permission').classList.add('show');
+    $('#btn-permission').onclick = async () => {
+      try {
+        const r = await DeviceOrientationEvent.requestPermission();
+        if (r === 'granted') {
+          attachOrientation();
+          $('#btn-permission').classList.remove('show');
+        }
+      } catch(e){ console.error(e); }
+    };
   } else {
-    // Default: take photo
-    html+=`<div class="btn-row">
-      <button class="btn-primary" onclick="openCamera()">📷 Prendre une photo</button>
-      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
-    </div>`;
+    $('#btn-permission').classList.remove('show');
   }
-
-  document.getElementById('ov-content').innerHTML=html;
+  refreshCompass();
 }
+$('#compass-close').onclick = () => {
+  state.compassPlace = null;
+  hide($('#compass-overlay'));
+};
 
-// ══════════════════════════════════════════════════════
-//  ACTIONS
-// ══════════════════════════════════════════════════════
-function tap(id){
-  console.log('tap', id, 'ap=', G.ap, 'assigns=', JSON.stringify(G.assigns));
-  G.confirm=PLACES.find(p=>p.id===id);
-  G.photoPreview=null;
-  renderOverlay();
-}
-
-function closeOv(){
-  G.confirm=null;G.photoPreview=null;
-  document.getElementById('overlay').classList.remove('show');
-}
-
-function retakePhoto(){
-  G.photoPreview=null;
-  renderOverlay();
-  setTimeout(()=>camInput.click(),100);
-}
-
-function confirmVisit(){
-  const p=G.confirm,mk=G.ap===0?'p0':'p1';
-  if(!G.visits[p.id])G.visits[p.id]={};
-  const now=new Date();
-  const hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  G.visits[p.id][mk]=true;
-  G.visits[p.id][mk+'_time']=hhmm;
-  if(G.photoPreview){
-    if(!G.photos[p.id])G.photos[p.id]={};
-    G.photos[p.id][mk]=G.photoPreview;
-  }
-  G.confirm=null;G.photoPreview=null;G.ts=Date.now();
-  document.getElementById('overlay').classList.remove('show');
-  save();render();
-}
-
-function cancelVisit(){
-  const p=G.confirm,mk=G.ap===0?'p0':'p1';
-  if(G.visits[p.id])G.visits[p.id][mk]=false;
-  if(G.photos[p.id])delete G.photos[p.id][mk];
-  G.confirm=null;G.ts=Date.now();
-  document.getElementById('overlay').classList.remove('show');
-  save();render();
-}
-
-function swP(i){G.ap=i;render();}
-function setF(f){G.filter=f;renderList();renderTabs();}
-
-function confirmReset(){
-  // Étape 1 — première confirmation
-  const ov=document.getElementById('overlay');
-  document.getElementById('ov-content').innerHTML=`
-    <div class="ov-title">Réinitialiser la partie ?</div>
-    <div class="ov-meta">La partie en cours sera effacée pour les deux joueurs.<br>Cette action est irréversible.</div>
-    <div class="btn-row">
-      <button class="btn-danger" onclick="confirmReset2()">Oui, réinitialiser</button>
-      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
-    </div>`;
-  ov.classList.add('show');
-}
-
-function confirmReset2(){
-  // Étape 2 — deuxième confirmation
-  document.getElementById('ov-content').innerHTML=`
-    <div class="ov-title">Tu es sûr ?</div>
-    <div class="ov-meta" style="color:var(--red)">Toute la progression des deux joueurs sera perdue.<br>Confirme une dernière fois.</div>
-    <div class="btn-row">
-      <button class="btn-danger" onclick="doReset()">Confirmer la réinitialisation</button>
-      <button class="btn-secondary" onclick="closeOv()">Annuler</button>
-    </div>`;
-}
-
-function doReset(){
-  fbPush({visits:{},names:G.names,assigns:{p0:[],p1:[]},target:G.target,winner:-1,resetDone:true,ts:Date.now()});
-  const code=G.roomCode;
-  G={...G,phase:'setup',visits:{},photos:{},assigns:{p0:[],p1:[]},
-     confirm:null,photoPreview:null,resetPending:false,resetBy:-1,winner:-1,
-     roomCode:null,ts:Date.now()};
-  fbListening=false;
-  if(code) db.ref(code).off();
-  try{localStorage.removeItem(LS);}catch(e){}
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('view-main').style.display='none';
-  document.getElementById('view-setup').style.display='flex';
-  showChoice();
-}
-
-// ══════════════════════════════════════════════════════
-//  SETUP NAVIGATION
-// ══════════════════════════════════════════════════════
-function showChoice(){ document.getElementById('setup-choice').style.display=''; document.getElementById('setup-create').style.display='none'; document.getElementById('setup-join').style.display='none'; document.getElementById('setup-waiting').style.display='none'; }
-function showCreate(){ document.getElementById('setup-choice').style.display='none'; document.getElementById('setup-create').style.display='block'; }
-function showJoin()  { document.getElementById('setup-choice').style.display='none'; document.getElementById('setup-join').style.display='block'; }
-
-function genCode(){
-  const w=['LION','OURS','LYNX','AIGL','LOUP','IBIS','LYNX','CERF','TIGR','PUMA'];
-  return w[Math.floor(Math.random()*w.length)] + Math.floor(10+Math.random()*90);
-}
-
-let waitingUnsub = null;
-
-function cancelWaiting(){
-  if(waitingUnsub){ waitingUnsub(); waitingUnsub=null; }
-  // Supprimer la room dans Firebase
-  if(G.roomCode) db.ref(G.roomCode).remove().catch(()=>{});
-  G.roomCode = null;
-  showChoice();
-}
-
-// ══════════════════════════════════════════════════════
-//  CRÉER UNE PARTIE
-// ══════════════════════════════════════════════════════
-function createGame(){
-  try{
-    const n0 = document.getElementById('n0').value.trim()||'Joueur 1';
-    const n1 = document.getElementById('n1').value.trim()||'Joueur 2';
-    const t  = parseFloat(document.getElementById('tgt').value)||15;
-    const code = genCode();
-    const {p0,p1} = assign(t);
-
-    G.roomCode = code;
-    G.names    = [n0, n1];
-    G.target   = t;
-    G.assigns  = {p0, p1};
-    G.ap       = 0; // le créateur est joueur 0
-
-    // Pousser la partie dans Firebase sous le code
-    db.ref(code).set({
-      visits:{}, names:[n0,n1], assigns:{p0,p1}, target:t,
-      winner:-1, resetDone:false, status:'waiting',
-      ts: Date.now()
-    });
-
-    // Afficher le code et attendre que le joueur 2 rejoigne
-    document.getElementById('setup-create').style.display='none';
-    document.getElementById('setup-waiting').style.display='block';
-    document.getElementById('room-code-display').textContent = code;
-
-    // Écouter le changement de status → 'playing'
-    waitingUnsub = db.ref(code+'/status').on('value', snap => {
-      if(snap.val()==='playing'){
-        waitingUnsub && db.ref(code+'/status').off('value', waitingUnsub);
-        waitingUnsub = null;
-        enterGame(0, code);
+function attachOrientation() {
+  if (state.orientationAttached) return;
+  const handler = (e) => {
+    let h = null;
+    if (typeof e.webkitCompassHeading === 'number') {
+      h = e.webkitCompassHeading;
+    } else if (typeof e.alpha === 'number') {
+      // alpha: 0 = north (with absolute=true). Convert.
+      h = (360 - e.alpha) % 360;
+    }
+    if (h !== null) {
+      state.heading = h;
+      if (state.compassPlace && $('#compass-overlay').classList.contains('show')) {
+        refreshCompass();
       }
-    });
-  }catch(err){ alert('Erreur : '+err.message); }
+    }
+  };
+  window.addEventListener('deviceorientationabsolute', handler, true);
+  window.addEventListener('deviceorientation', handler, true);
+  state.orientationAttached = true;
 }
 
-// ══════════════════════════════════════════════════════
-//  REJOINDRE UNE PARTIE
-// ══════════════════════════════════════════════════════
-function joinGame(){
-  const name = document.getElementById('join-name').value.trim()||'Joueur 2';
-  const code = document.getElementById('join-code').value.trim().toUpperCase();
-  if(!code){ alert('Entre un code de partie.'); return; }
+function refreshCompass() {
+  if (!state.compassPlace) return;
+  const p = state.room.places[state.compassPlace];
+  if (!p) return;
+  const arrow = $('#compass-arrow');
+  const radar = $('#compass-radar');
+  const onsite = $('#compass-onsite');
+  const circle = $('#compass-circle');
 
-  // Récupérer la partie depuis Firebase
-  db.ref(code).once('value').then(snap=>{
-    const d = snap.val();
-    if(!d){ alert('Code introuvable. Vérifie le code.'); return; }
-    if(d.status==='playing'){ alert('Cette partie a déjà commencé.'); return; }
-
-    // Mettre à jour le prénom du joueur 2 et passer status → playing
-    const names = [d.names[0], name];
-    db.ref(code).update({ names, status:'playing', ts: Date.now() });
-
-    G.roomCode = code;
-    G.names    = names;
-    G.target   = d.target;
-    G.assigns  = d.assigns;
-    G.ap       = 1; // le rejoignant est joueur 1
-    enterGame(1, code);
-  }).catch(()=>alert('Erreur de connexion Firebase.'));
-}
-
-// ══════════════════════════════════════════════════════
-//  ENTRER EN JEU
-// ══════════════════════════════════════════════════════
-function enterGame(playerIndex, code){
-  G = {...G, phase:'game', visits:{}, photos:{},
-       confirm:null, photoPreview:null,
-       resetPending:false, resetBy:-1, winner:-1,
-       ap: playerIndex, ts: Date.now()};
-  document.getElementById('view-setup').style.display='none';
-  document.getElementById('view-main').style.display='block';
-  fbListen(code);
-  save(); render();
-}
-
-// ══════════════════════════════════════════════════════
-//  GALLERY
-// ══════════════════════════════════════════════════════
-function showGallery(){
-  document.getElementById('view-main').style.display='none';
-  document.getElementById('view-gallery').style.display='block';
-  renderGallery();
-}
-function showMain(){
-  document.getElementById('view-gallery').style.display='none';
-  document.getElementById('view-main').style.display='block';
-}
-
-function renderGallery(){
-  const items=[];
-  for(const[id,pv] of Object.entries(G.photos)){
-    const place=PLACES.find(p=>p.id==id);
-    if(!place)continue;
-    if(pv.p0) items.push({place,photo:pv.p0,who:G.names[0],pi:0});
-    if(pv.p1) items.push({place,photo:pv.p1,who:G.names[1],pi:1});
-  }
-  if(!items.length){
-    document.getElementById('gallery-grid').innerHTML=`<div class="gal-empty" style="grid-column:1/-1">Aucune photo pour l'instant</div>`;
+  if (state.curLat === null) {
+    $('#compass-distance').textContent = 'Acquisition GPS…';
     return;
   }
-  document.getElementById('gallery-grid').innerHTML=items.map(it=>{
-    const timeKey=(it.pi===0?'p0':'p1')+'_time';
-    const t=(G.visits[it.place.id]||{})[timeKey]||'';
-    return `<div class="gal-item" onclick="openFullPhoto('${it.photo}')">
-      <img src="${it.photo}" alt="${it.place.name}">
-      <div class="gal-item-info">
-        <div class="gal-item-name">${it.place.name}</div>
-        <div class="gal-item-who" style="color:${it.pi===0?'var(--gtext)':'var(--btext)'}">${it.who}${t?' · '+t:''}</div>
-      </div>
-    </div>`;
-  }).join('');
+  const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
+  $('#compass-distance').textContent = Math.round(d) + 'm';
+
+  if (d <= 30) {
+    circle.style.display = 'none';
+    radar.classList.add('show');
+    onsite.classList.add('show');
+    $('#btn-validate-from-compass').style.display = 'inline-block';
+  } else {
+    circle.style.display = 'flex';
+    radar.classList.remove('show');
+    onsite.classList.remove('show');
+    $('#btn-validate-from-compass').style.display = 'none';
+
+    const bearing = getBearing({ lat: state.curLat, lng: state.curLng }, { lat: p.lat, lng: p.lng });
+    const angle = (bearing - state.heading + 360) % 360;
+    arrow.style.transform = 'rotate(' + angle + 'deg)';
+    $('#arrow-path').setAttribute('fill', arrowColorByDist(d));
+  }
 }
 
-function openFullPhoto(src){
-  document.getElementById('photo-full-img').src=src;
-  document.getElementById('photo-full').classList.add('show');
-}
-function closeFullPhoto(){
-  document.getElementById('photo-full').classList.remove('show');
-  document.getElementById('photo-full-img').src='';
-}
+/* ============================================================
+   RESET
+============================================================ */
+$('#btn-reset').onclick = () => show($('#popup-reset1'));
+$('#reset1-cancel').onclick = () => hide($('#popup-reset1'));
+$('#reset1-ok').onclick = () => { hide($('#popup-reset1')); show($('#popup-reset2')); };
+$('#reset2-cancel').onclick = () => hide($('#popup-reset2'));
+$('#reset2-ok').onclick = async () => {
+  hide($('#popup-reset2'));
+  try {
+    await db.ref('rooms/' + state.code + '/resetDone').set(true);
+  } catch(e) { console.error(e); }
+  try { localStorage.clear(); } catch(e){}
+  setTimeout(() => location.reload(), 300);
+};
 
-// Close overlay on backdrop click
-document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeOv();});
-
-// ══════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════
-loadLocal();
-if(G.phase==='game' && G.roomCode){
-  document.getElementById('view-setup').style.display='none';
-  document.getElementById('view-main').style.display='block';
-  fbListen(G.roomCode);
-  render();
+/* ============================================================
+   WIN POPUP / GALLERY
+============================================================ */
+function showWinPopup() {
+  const w = state.room.winner;
+  const winnerName = state.room.names[w] || ('Joueur ' + (w+1));
+  $('#win-title').textContent = winnerName + ' a gagné ! 🏆';
+  $('#win-text').textContent = (w === state.ap) ? 'Bravo, tu remportes la partie.' : 'Bien joué, tu finiras la prochaine !';
+  show($('#popup-win'));
 }
+$('#btn-gallery').onclick = () => {
+  hide($('#popup-win'));
+  openGallery();
+};
+function openGallery() {
+  const w = state.room.winner;
+  const winnerName = state.room.names[w] || ('Joueur ' + (w+1));
+  $('#win-banner').textContent = winnerName + ' a gagné ! 🏆';
+  const grid = $('#gallery-grid');
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+  const visits = state.room.visits || {};
+  const places = state.room.places || {};
+  const items = [];
+  for (const id of Object.keys(visits)) {
+    for (const slot of [0, 1]) {
+      const v = visits[id];
+      if (v['p' + slot] && v['p' + slot + '_photo']) {
+        items.push({
+          id, slot,
+          photo: v['p' + slot + '_photo'],
+          time: v['p' + slot + '_time'] || '',
+          name: (places[id] && places[id].name) || '?',
+          who: state.room.names[slot] || ('Joueur ' + (slot+1))
+        });
+      }
+    }
+  }
+  items.sort((a, b) => a.time.localeCompare(b.time));
+
+  for (const it of items) {
+    const div = document.createElement('div');
+    div.className = 'gallery-item';
+    const img = document.createElement('img');
+    img.src = it.photo; img.alt = '';
+    div.appendChild(img);
+    const info = document.createElement('div');
+    info.className = 'gallery-info';
+    const pl = document.createElement('div');
+    pl.className = 'pl p' + it.slot;
+    pl.textContent = it.who + ' · ' + it.time;
+    info.appendChild(pl);
+    const pn = document.createElement('div');
+    pn.className = 'pname';
+    pn.textContent = it.name;
+    info.appendChild(pn);
+    div.appendChild(info);
+    div.addEventListener('click', () => {
+      $('#full-img').src = it.photo;
+      show($('#fullscreen-img'));
+    });
+    grid.appendChild(div);
+  }
+
+  show($('#gallery-overlay'));
+}
+$('#gallery-close').onclick = () => hide($('#gallery-overlay'));
+$('#btn-new-game').onclick = async () => {
+  try { await db.ref('rooms/' + state.code + '/resetDone').set(true); } catch(e){}
+  setTimeout(() => location.reload(), 200);
+};
+$('#fullscreen-img').onclick = () => hide($('#fullscreen-img'));
+
+/* ============================================================
+   INIT — show fab on game screen
+============================================================ */
+const obs = new MutationObserver(() => {
+  $('#fab-compass').classList.toggle('show', $('#screen-game').classList.contains('active'));
+});
+obs.observe($('#screen-game'), { attributes: true, attributeFilter: ['class'] });
+
+// Connection status
+db.ref('.info/connected').on('value', s => setSync(!!s.val()));
+
 </script>
 </body>
 </html>
