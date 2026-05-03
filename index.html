@@ -40,12 +40,10 @@ input {
 }
 input:focus { border-color: var(--text2); }
 
-/* ---------- SCREENS ---------- */
 .screen { display: none; min-height: 100vh; padding: 20px; }
 .screen.active { display: block; }
 #screen-game.active { display: flex; flex-direction: column; padding: 0; min-height: 100vh; }
 
-/* ---------- SETUP ---------- */
 .setup-wrap { max-width: 480px; margin: 0 auto; padding-top: 8vh; }
 .logo {
   font-size: 42px; font-weight: 900; letter-spacing: -1.5px;
@@ -93,7 +91,6 @@ input:focus { border-color: var(--text2); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- GAME HEADER ---------- */
 .game-header {
   position: sticky; top: 0; z-index: 50; background: rgba(10,10,10,.92);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -105,9 +102,7 @@ input:focus { border-color: var(--text2); }
   background: linear-gradient(90deg, var(--green), var(--blue));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.sync-dot {
-  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2);
-}
+.sync-dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
 .sync-dot::before {
   content: ''; width: 8px; height: 8px; border-radius: 50%;
   background: var(--green); box-shadow: 0 0 8px var(--green);
@@ -116,11 +111,7 @@ input:focus { border-color: var(--text2); }
 .sync-dot.off::before { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
-/* ---------- SCORES ---------- */
-.scores {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  padding: 14px 16px;
-}
+.scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
 .score-card {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 14px; padding: 14px;
@@ -132,17 +123,12 @@ input:focus { border-color: var(--text2); }
 .score-card.p0 .score-val { color: var(--green); }
 .score-card.p1 .score-val { color: var(--blue); }
 .score-target { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.progress {
-  height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden;
-}
+.progress { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden; }
 .progress-bar { height: 100%; transition: width .4s; border-radius: 2px; }
 .score-card.p0 .progress-bar { background: var(--green); }
 .score-card.p1 .progress-bar { background: var(--blue); }
 
-/* ---------- TABS PLAYERS ---------- */
-.player-tabs {
-  display: flex; gap: 8px; padding: 0 16px 12px;
-}
+.player-tabs { display: flex; gap: 8px; padding: 0 16px 12px; }
 .tab-pl {
   flex: 1; padding: 11px; background: var(--bg2); border: 1px solid var(--border);
   border-radius: 10px; font-weight: 600; font-size: 14px; color: var(--text2);
@@ -150,16 +136,9 @@ input:focus { border-color: var(--text2); }
 }
 .tab-pl.active.p0 { background: rgba(34,197,94,.15); color: var(--green); border-color: var(--green); }
 .tab-pl.active.p1 { background: rgba(59,130,246,.15); color: var(--blue); border-color: var(--blue); }
-.btn-reset {
-  padding: 11px 14px; background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 10px; font-size: 16px;
-}
+.btn-reset { padding: 11px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
 
-/* ---------- FILTERS ---------- */
-.filters {
-  display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto;
-  scrollbar-width: none;
-}
+.filters { display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto; scrollbar-width: none; }
 .filters::-webkit-scrollbar { display: none; }
 .filter {
   flex-shrink: 0; padding: 7px 14px; background: var(--bg2);
@@ -168,7 +147,6 @@ input:focus { border-color: var(--text2); }
 }
 .filter.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
 
-/* ---------- LIST ---------- */
 .list-wrap { flex: 1; padding: 0 16px 100px; overflow-y: auto; }
 .section-title {
   font-size: 11px; color: var(--text2); text-transform: uppercase;
@@ -199,6 +177,10 @@ input:focus { border-color: var(--text2); }
 .card.mine.p1 { border-color: rgba(59,130,246,.45); }
 .card.opp { opacity: .55; pointer-events: none; }
 .card.visited { background: var(--bg3); }
+.card.test-place {
+  border-color: var(--amber);
+  background: linear-gradient(135deg, var(--bg2), rgba(245,158,11,.10));
+}
 .card-icon {
   width: 40px; height: 40px; border-radius: 10px;
   background: var(--bg3); display: flex; align-items: center; justify-content: center;
@@ -206,9 +188,8 @@ input:focus { border-color: var(--text2); }
 }
 .card.mine.p0 .card-icon { background: rgba(34,197,94,.18); color: var(--green); }
 .card.mine.p1 .card-icon { background: rgba(59,130,246,.18); color: var(--blue); }
-.card-thumb {
-  width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
-}
+.card.test-place .card-icon { background: rgba(245,158,11,.2); color: var(--amber); }
+.card-thumb { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
 .card-body { flex: 1; min-width: 0; }
 .card-name {
   font-weight: 600; font-size: 14px; line-height: 1.25;
@@ -220,9 +201,7 @@ input:focus { border-color: var(--text2); }
 }
 .card-time { color: var(--green); font-weight: 600; }
 .card.opp .card-time { color: var(--blue); }
-.card-pts {
-  font-size: 16px; font-weight: 800; flex-shrink: 0; padding-left: 8px;
-}
+.card-pts { font-size: 16px; font-weight: 800; flex-shrink: 0; padding-left: 8px; }
 .card.mine.p0 .card-pts { color: var(--green); }
 .card.mine.p1 .card-pts { color: var(--blue); }
 .card-pts.opp { color: var(--text3); }
@@ -233,111 +212,114 @@ input:focus { border-color: var(--text2); }
 }
 .card.mine.p0 .badge-mine { background: rgba(34,197,94,.2); color: var(--green); }
 .card.mine.p1 .badge-mine { background: rgba(59,130,246,.2); color: var(--blue); }
-.check-mark { color: var(--green); font-size: 14px; font-weight: 700; }
 
-/* ---------- COMPASS BUTTON ---------- */
-.fab-compass {
-  position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
-  border-radius: 50%; background: var(--bg2); border: 1px solid var(--border);
-  display: none; align-items: center; justify-content: center; font-size: 24px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.5); z-index: 40;
-}
-.fab-compass.show { display: flex; }
-
-/* ---------- OVERLAY ---------- */
+/* ===== VALIDATE OVERLAY ===== */
 .overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.92);
-  z-index: 100; display: none; flex-direction: column;
-  padding: 20px; padding-top: calc(20px + env(safe-area-inset-top));
+  position: fixed; inset: 0; background: rgba(0,0,0,.93);
+  z-index: 100; display: none;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
-.overlay.show { display: flex; }
-.overlay-header {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-}
-.overlay-title { font-weight: 700; font-size: 18px; }
-.btn-close {
-  width: 36px; height: 36px; border-radius: 50%; background: var(--bg2);
-  border: 1px solid var(--border); font-size: 18px;
-}
+.overlay.show { display: block; }
 
-/* ---------- COMPASS VIEW ---------- */
-.compass-view {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 20px;
+.validate-backdrop { position: absolute; inset: 0; z-index: 1; }
+
+.validate-top {
+  position: absolute; top: env(safe-area-inset-top); right: 12px;
+  z-index: 30; padding: 12px;
 }
-.compass-target {
-  font-size: 22px; font-weight: 700; text-align: center; line-height: 1.2;
-}
-.compass-distance { font-size: 14px; color: var(--text2); }
-.compass-circle {
-  width: min(70vw, 280px); aspect-ratio: 1; border-radius: 50%;
-  border: 2px solid var(--border); position: relative;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg2);
-}
-.compass-arrow {
-  width: 70%; height: 70%; transition: transform .25s ease-out;
+.btn-close-x {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text); font-size: 20px;
   display: flex; align-items: center; justify-content: center;
 }
-.compass-arrow svg { width: 100%; height: 100%; }
-.compass-radar {
-  width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--green);
-  position: relative; display: none;
-  animation: radarPulse 1.4s ease-in-out infinite;
-}
-.compass-radar.show { display: block; }
-@keyframes radarPulse {
-  0% { box-shadow: 0 0 0 0 rgba(34,197,94,.6); }
-  70% { box-shadow: 0 0 0 30px rgba(34,197,94,0); }
-  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
-}
-.compass-radar::after {
-  content: '📍'; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 36px;
-}
-.compass-onsite {
-  display: none; text-align: center; color: var(--green);
-  font-weight: 800; font-size: 22px; margin-top: 8px;
-}
-.compass-onsite.show { display: block; }
 
-.btn-permission {
-  display: none; background: var(--amber); color: var(--bg);
-  padding: 12px 24px; border-radius: 10px; font-weight: 700;
+.validate-card {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 22px; padding: 28px 24px;
+  width: min(86vw, 380px); text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
 }
-.btn-permission.show { display: inline-block; }
-
-/* ---------- VALIDATE OVERLAY ---------- */
-.validate-content {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 18px; text-align: center;
-}
-.validate-target {
-  font-size: 24px; font-weight: 800; line-height: 1.2;
-  max-width: 90%;
-}
+.validate-target { font-size: 22px; font-weight: 800; line-height: 1.25; margin-bottom: 14px; }
 .validate-distance {
-  font-size: 56px; font-weight: 900; color: var(--amber);
+  font-size: 56px; font-weight: 900; line-height: 1;
+  margin-bottom: 4px;
+  transition: color .3s;
 }
-.validate-distance.ok { color: var(--green); }
-.validate-msg { color: var(--text2); font-size: 15px; }
-.validate-msg.ok { color: var(--green); font-weight: 700; font-size: 18px; }
-.btn-camera {
-  background: var(--green); color: white; padding: 16px 32px;
-  border-radius: 14px; font-weight: 700; font-size: 16px; display: none;
-}
-.btn-camera.show { display: inline-block; }
-.preview-img {
-  max-width: 100%; max-height: 50vh; border-radius: 14px;
-  display: none; margin: 0 auto;
-}
-.preview-img.show { display: block; }
-.preview-actions {
-  display: none; gap: 10px; justify-content: center; flex-wrap: wrap;
-}
-.preview-actions.show { display: flex; }
+.validate-msg { color: var(--text2); font-size: 14px; min-height: 20px; }
 
-/* ---------- POPUPS ---------- */
+.validate-fab-wrap {
+  position: absolute; left: 0; right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + 28px);
+  display: flex; justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+}
+.validate-fab {
+  pointer-events: auto;
+  width: 84px; height: 84px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+  background: var(--bg3); color: var(--text3);
+  border: 2px solid var(--border);
+  transition: all .3s ease;
+  box-shadow: 0 6px 24px rgba(0,0,0,.5);
+}
+.validate-fab.ready {
+  background: var(--green); color: white;
+  border-color: var(--green);
+  box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 0 rgba(34,197,94,.6);
+  animation: fabPulse 1.6s ease-in-out infinite;
+}
+@keyframes fabPulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 0 rgba(34,197,94,.6); }
+  70% { box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 18px rgba(34,197,94,0); }
+}
+
+.file-hidden { display: none; }
+
+.preview-stage {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  z-index: 25;
+  padding: 20px;
+  padding-top: calc(env(safe-area-inset-top) + 60px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  background: rgba(0,0,0,.95);
+}
+.preview-stage.show { display: flex; }
+.preview-img {
+  flex: 1; min-height: 0;
+  width: 100%; object-fit: contain;
+  border-radius: 14px; background: #000;
+}
+.preview-actions { display: flex; gap: 10px; margin-top: 14px; }
+.preview-actions button { flex: 1; }
+
+/* ===== BORDER COMPASS ===== */
+.border-compass {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  display: none;
+}
+.border-compass.show { display: block; }
+.border-bar {
+  position: absolute;
+  background: var(--green);
+  opacity: 0;
+  transition: opacity .25s ease, top .35s ease, bottom .35s ease,
+              left .35s ease, right .35s ease,
+              width .35s ease, height .35s ease, background-color .3s;
+  border-radius: 4px;
+}
+.border-bar.visible { opacity: .92; }
+
+/* ===== POPUPS ===== */
 .popup {
   position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200;
   display: none; align-items: center; justify-content: center; padding: 20px;
@@ -354,7 +336,14 @@ input:focus { border-color: var(--text2); }
 .popup-actions button { flex: 1; }
 .popup-emoji { font-size: 48px; margin-bottom: 8px; }
 
-/* ---------- WIN GALLERY ---------- */
+/* ===== GALLERY ===== */
+.gallery-overlay-content {
+  position: relative; height: 100%;
+  display: flex; flex-direction: column;
+  padding: 20px;
+  padding-top: calc(env(safe-area-inset-top) + 60px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+}
 .win-banner {
   background: linear-gradient(90deg, var(--green), var(--blue));
   padding: 16px; text-align: center; font-weight: 800; font-size: 18px;
@@ -362,7 +351,7 @@ input:focus { border-color: var(--text2); }
 }
 .gallery-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  overflow-y: auto; flex: 1;
+  overflow-y: auto; flex: 1; align-content: start;
 }
 .gallery-item {
   background: var(--bg2); border: 1px solid var(--border);
@@ -387,7 +376,7 @@ input:focus { border-color: var(--text2); }
 </head>
 <body>
 
-<!-- ============== SCREEN SETUP ============== -->
+<!-- SETUP -->
 <div id="screen-setup" class="screen active">
   <div class="setup-wrap">
     <div class="logo">UrbaQuest</div>
@@ -398,7 +387,6 @@ input:focus { border-color: var(--text2); }
       <button class="btn-tab" id="tab-join">Rejoindre</button>
     </div>
 
-    <!-- CREATE FORM -->
     <div class="form-block" id="form-create">
       <input type="text" id="i-name1" placeholder="Ton prénom" maxlength="20">
       <input type="text" id="i-name2" placeholder="Prénom de l'adversaire" maxlength="20">
@@ -407,7 +395,6 @@ input:focus { border-color: var(--text2); }
       <div class="status-msg" id="create-status" style="display:none;"></div>
     </div>
 
-    <!-- JOIN FORM -->
     <div class="form-block hidden" id="form-join">
       <input type="text" id="i-name-join" placeholder="Ton prénom" maxlength="20">
       <input type="text" id="i-code" placeholder="Code de la partie (6 caractères)" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;">
@@ -415,7 +402,6 @@ input:focus { border-color: var(--text2); }
       <div class="status-msg" id="join-status" style="display:none;"></div>
     </div>
 
-    <!-- WAITING -->
     <div id="waiting-block" style="display:none;">
       <div class="code-display">
         <div style="color:var(--text2);font-size:13px;text-transform:uppercase;letter-spacing:1.5px;">Code de la partie</div>
@@ -430,7 +416,7 @@ input:focus { border-color: var(--text2); }
   </div>
 </div>
 
-<!-- ============== SCREEN GAME ============== -->
+<!-- GAME -->
 <div id="screen-game" class="screen">
   <div class="game-header">
     <div class="game-title"><span class="accent">Urba</span>Quest</div>
@@ -467,50 +453,41 @@ input:focus { border-color: var(--text2); }
   <div class="list-wrap" id="list-wrap"></div>
 </div>
 
-<!-- ============== COMPASS OVERLAY ============== -->
-<div class="overlay" id="compass-overlay">
-  <div class="overlay-header">
-    <div class="overlay-title">Boussole</div>
-    <button class="btn-close" id="compass-close">✕</button>
-  </div>
-  <div class="compass-view">
-    <div class="compass-target" id="compass-target"></div>
-    <div class="compass-distance" id="compass-distance"></div>
-    <div class="compass-circle" id="compass-circle">
-      <div class="compass-arrow" id="compass-arrow">
-        <svg viewBox="0 0 100 100">
-          <path id="arrow-path" d="M 50 10 L 65 60 L 50 50 L 35 60 Z" fill="#22c55e"/>
-        </svg>
-      </div>
-    </div>
-    <div class="compass-radar" id="compass-radar"></div>
-    <div class="compass-onsite" id="compass-onsite">Tu es sur place !</div>
-    <button class="btn-permission" id="btn-permission">Activer la boussole</button>
-    <button class="btn-primary" id="btn-validate-from-compass" style="display:none;">Valider ce lieu</button>
-  </div>
+<!-- BORDER COMPASS -->
+<div class="border-compass" id="border-compass">
+  <div class="border-bar" id="border-bar"></div>
 </div>
 
-<!-- ============== VALIDATE OVERLAY ============== -->
+<!-- VALIDATE OVERLAY -->
 <div class="overlay" id="validate-overlay">
-  <div class="overlay-header">
-    <div class="overlay-title">Valider</div>
-    <button class="btn-close" id="validate-close">✕</button>
+  <div class="validate-backdrop" id="validate-backdrop"></div>
+
+  <div class="validate-top">
+    <button class="btn-close-x" id="validate-close" aria-label="Fermer">✕</button>
   </div>
-  <div class="validate-content">
+
+  <div class="validate-card" id="validate-card">
     <div class="validate-target" id="validate-target"></div>
     <div class="validate-distance" id="validate-distance">--</div>
-    <div class="validate-msg" id="validate-msg">Calcul de la distance…</div>
-    <button class="btn-camera" id="btn-camera">📷 Prendre une photo</button>
-    <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none;">
-    <img class="preview-img" id="preview-img">
-    <div class="preview-actions" id="preview-actions">
+    <div class="validate-msg" id="validate-msg">Calcul…</div>
+  </div>
+
+  <div class="validate-fab-wrap">
+    <button class="validate-fab" id="validate-fab" aria-label="Valider">📷</button>
+  </div>
+
+  <input type="file" id="file-camera" accept="image/*" capture="environment" class="file-hidden">
+
+  <div class="preview-stage" id="preview-stage">
+    <img class="preview-img" id="preview-img" alt="">
+    <div class="preview-actions">
       <button class="btn-secondary" id="btn-retake">Reprendre</button>
       <button class="btn-primary" id="btn-confirm" style="margin-top:0;">Confirmer</button>
     </div>
   </div>
 </div>
 
-<!-- ============== POPUPS ============== -->
+<!-- POPUPS -->
 <div class="popup" id="popup-reset1">
   <div class="popup-box">
     <div class="popup-emoji">⚠️</div>
@@ -557,33 +534,27 @@ input:focus { border-color: var(--text2); }
   </div>
 </div>
 
-<!-- ============== GALLERY OVERLAY ============== -->
+<!-- GALLERY -->
 <div class="overlay" id="gallery-overlay">
-  <div class="overlay-header">
-    <div class="overlay-title" id="gallery-title">Galerie</div>
-    <button class="btn-close" id="gallery-close">✕</button>
+  <div class="validate-top">
+    <button class="btn-close-x" id="gallery-close">✕</button>
   </div>
-  <div class="win-banner" id="win-banner"></div>
-  <div class="gallery-grid" id="gallery-grid"></div>
-  <button class="btn-primary" id="btn-new-game" style="margin-top:14px;">Nouvelle partie</button>
+  <div class="gallery-overlay-content">
+    <div class="win-banner" id="win-banner"></div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <button class="btn-primary" id="btn-new-game" style="margin-top:14px;">Nouvelle partie</button>
+  </div>
 </div>
 
 <div class="fullscreen-img" id="fullscreen-img">
   <img id="full-img" alt="">
 </div>
 
-<!-- ============== FAB COMPASS ============== -->
-<button class="fab-compass" id="fab-compass" title="Boussole">🧭</button>
-
-<!-- ============== FIREBASE ============== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 <script>
-/* ============================================================
-   FIREBASE INIT
-============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyADOzmRY7ZJJlLJ5KMWuJsV8gHT_bZeOMw",
   authDomain: "urbaquest.firebaseapp.com",
@@ -597,139 +568,73 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
-/* ============================================================
-   STATE
-============================================================ */
 const state = {
-  code: null,
-  ap: 0,            // active player slot (0 or 1) — moi
-  myName: '',
-  startLat: null,
-  startLng: null,
-  curLat: null,
-  curLng: null,
-  heading: 0,
-  watchId: null,
-  orientationAttached: false,
-  room: null,       // mirror Firebase room
-  roomRef: null,
-  selectedTab: 0,   // which player's view to show (0 = p0, 1 = p1)
-  filter: 'all',
+  code: null, ap: 0, myName: '',
+  startLat: null, startLng: null,
+  curLat: null, curLng: null,
+  heading: 0, watchId: null, orientationAttached: false,
+  room: null, roomRef: null,
+  selectedTab: 0, filter: 'all',
   validatingPlace: null,
-  compassPlace: null,
-  pendingBlob: null,
-  pendingPreviewUrl: null,
+  pendingBlob: null, pendingPreviewUrl: null,
   syncOk: false,
 };
 
-/* ============================================================
-   UTILS
-============================================================ */
-function $(sel) { return document.querySelector(sel); }
-function $$(sel) { return Array.from(document.querySelectorAll(sel)); }
-function show(el) { el.classList.add('show'); }
-function hide(el) { el.classList.remove('show'); }
-function showScreen(id) {
-  $$('.screen').forEach(s => s.classList.remove('active'));
-  $('#' + id).classList.add('active');
-}
-function timeNow() {
-  const d = new Date();
-  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-}
-function genCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
-  for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
-}
-function distMeters(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const toRad = d => d * Math.PI / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-function pointsForDist(d) {
-  if (d < 100) return 0.5;
-  if (d < 150) return 1;
-  if (d < 200) return 1.5;
-  if (d < 250) return 2;
-  if (d < 300) return 2.5;
-  if (d < 350) return 3;
-  if (d < 400) return 3.5;
-  if (d < 450) return 4;
-  if (d < 500) return 4.5;
-  if (d < 600) return 5;
-  if (d <= 700) return 5.5;
-  return null;
-}
-function getBearing(from, to) {
-  const dLng = (to.lng - from.lng) * Math.PI / 180;
-  const lat1 = from.lat * Math.PI / 180;
-  const lat2 = to.lat * Math.PI / 180;
-  const y = Math.sin(dLng) * Math.cos(lat2);
-  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
-  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-}
-function arrowColorByDist(d) {
-  if (d > 400) return '#8B5CF6';
-  if (d > 300) return '#EF4444';
-  if (d > 200) return '#F97316';
-  if (d > 100) return '#EAB308';
-  return '#22C55E';
-}
-function categoryIcon(cat) {
-  return cat === 'historic' ? 'H' : cat === 'tourism' ? 'T' : cat === 'artwork' ? 'A' : cat === 'fountain' ? 'F' : '•';
-}
-function showInfo(emoji, title, text, cb) {
-  $('#info-emoji').textContent = emoji;
-  $('#info-title').textContent = title;
-  $('#info-text').textContent = text;
-  show($('#popup-info'));
-  $('#info-ok').onclick = () => { hide($('#popup-info')); if (cb) cb(); };
-}
-function setStatus(elId, msg, isErr) {
-  const el = $('#' + elId);
-  if (!msg) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-  el.textContent = msg;
-  el.classList.toggle('err', !!isErr);
-}
+function $(s){return document.querySelector(s);}
+function $$(s){return Array.from(document.querySelectorAll(s));}
+function show(el){el.classList.add('show');}
+function hide(el){el.classList.remove('show');}
+function showScreen(id){$$('.screen').forEach(s=>s.classList.remove('active'));$('#'+id).classList.add('active');}
+function timeNow(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function distMeters(a,b,c,d){const R=6371000;const r=x=>x*Math.PI/180;const dLat=r(c-a);const dLng=r(d-b);const x=Math.sin(dLat/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
+function pointsForDist(d){if(d<100)return 0.5;if(d<150)return 1;if(d<200)return 1.5;if(d<250)return 2;if(d<300)return 2.5;if(d<350)return 3;if(d<400)return 3.5;if(d<450)return 4;if(d<500)return 4.5;if(d<600)return 5;if(d<=700)return 5.5;return null;}
+function getBearing(f,t){const dLng=(t.lng-f.lng)*Math.PI/180;const l1=f.lat*Math.PI/180;const l2=t.lat*Math.PI/180;const y=Math.sin(dLng)*Math.cos(l2);const x=Math.cos(l1)*Math.sin(l2)-Math.sin(l1)*Math.cos(l2)*Math.cos(dLng);return (Math.atan2(y,x)*180/Math.PI+360)%360;}
+function colorByDist(d){if(d>400)return '#8B5CF6';if(d>300)return '#EF4444';if(d>200)return '#F97316';if(d>100)return '#EAB308';return '#22C55E';}
+function categoryIcon(c){if(c==='historic')return 'H';if(c==='tourism')return 'T';if(c==='artwork')return 'A';if(c==='fountain')return 'F';if(c==='test')return '🏠';return '•';}
+function showInfo(emo,t,tx,cb){$('#info-emoji').textContent=emo;$('#info-title').textContent=t;$('#info-text').textContent=tx;show($('#popup-info'));$('#info-ok').onclick=()=>{hide($('#popup-info'));if(cb)cb();};}
+function setStatus(id,msg,err){const el=$('#'+id);if(!msg){el.style.display='none';return;}el.style.display='block';el.textContent=msg;el.classList.toggle('err',!!err);}
 
-/* ============================================================
-   GEOLOCATION
-============================================================ */
-function getOnceGPS() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) return reject(new Error('Géolocalisation non supportée'));
-    navigator.geolocation.getCurrentPosition(
-      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      err => reject(err),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  });
-}
-function startWatchGPS() {
-  if (state.watchId !== null) return;
-  if (!navigator.geolocation) return;
-  state.watchId = navigator.geolocation.watchPosition(
-    pos => {
-      state.curLat = pos.coords.latitude;
-      state.curLng = pos.coords.longitude;
-      onPositionUpdate();
-    },
-    err => console.warn('GPS watch error', err),
-    { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 }
+function getOnceGPS(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('Géolocalisation non supportée'));navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude}),e=>rej(e),{enableHighAccuracy:true,timeout:15000,maximumAge:0});});}
+function startWatchGPS(){
+  if(state.watchId!==null)return;
+  if(!navigator.geolocation)return;
+  state.watchId=navigator.geolocation.watchPosition(
+    p=>{state.curLat=p.coords.latitude;state.curLng=p.coords.longitude;onPositionUpdate();},
+    e=>console.warn('GPS watch',e),
+    {enableHighAccuracy:true,maximumAge:2000,timeout:15000}
   );
 }
 
-/* ============================================================
-   OVERPASS API
-============================================================ */
-async function fetchOverpass(lat, lng) {
-  const query = `[out:json][timeout:25];
+function attachOrientation(){
+  if(state.orientationAttached)return;
+  const handler=(e)=>{
+    let h=null;
+    if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;
+    else if(typeof e.alpha==='number') h=(360-e.alpha)%360;
+    if(h!==null){
+      state.heading=h;
+      if(state.validatingPlace)updateBorderCompass();
+    }
+  };
+  window.addEventListener('deviceorientationabsolute',handler,true);
+  window.addEventListener('deviceorientation',handler,true);
+  state.orientationAttached=true;
+}
+async function ensureOrientationPermission(){
+  try{
+    if(typeof DeviceOrientationEvent!=='undefined' &&
+       typeof DeviceOrientationEvent.requestPermission==='function'){
+      const r=await DeviceOrientationEvent.requestPermission();
+      if(r!=='granted'){attachOrientation();return false;}
+    }
+    attachOrientation();
+    return true;
+  }catch(e){attachOrientation();return false;}
+}
+
+async function fetchOverpass(lat,lng){
+  const query=`[out:json][timeout:25];
 (
   node["name"]["historic"](around:700,${lat},${lng});
   node["name"]["tourism"](around:700,${lat},${lng});
@@ -739,894 +644,533 @@ async function fetchOverpass(lat, lng) {
   way["name"]["tourism"](around:700,${lat},${lng});
 );
 out center 40;`;
-  const endpoints = [
+  const endpoints=[
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
     'https://overpass.openstreetmap.fr/api/interpreter'
   ];
-  let lastErr = null;
-  for (const url of endpoints) {
-    try {
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 25000);
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: query,
-        signal: ctrl.signal
-      });
+  let lastErr=null;
+  for(const url of endpoints){
+    try{
+      const ctrl=new AbortController();
+      const tid=setTimeout(()=>ctrl.abort(),25000);
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:query,signal:ctrl.signal});
       clearTimeout(tid);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const data = await r.json();
-      return parseOverpass(data, lat, lng);
-    } catch (e) { lastErr = e; }
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      return parseOverpass(data,lat,lng);
+    }catch(e){lastErr=e;}
   }
-  throw lastErr || new Error('Overpass indisponible');
+  throw lastErr||new Error('Overpass indisponible');
 }
-function parseOverpass(data, lat, lng) {
-  const out = [];
-  const seen = new Set();
-  for (const el of data.elements || []) {
-    const t = el.tags || {};
-    const name = t.name;
-    if (!name) continue;
-    const elat = el.lat || (el.center && el.center.lat);
-    const elng = el.lon || (el.center && el.center.lon);
-    if (!elat || !elng) continue;
-    const d = distMeters(lat, lng, elat, elng);
-    const pts = pointsForDist(d);
-    if (pts === null) continue;
-    let cat = 'tourism';
-    if (t.historic) cat = 'historic';
-    else if (t.artwork_type) cat = 'artwork';
-    else if (t.amenity === 'fountain') cat = 'fountain';
-    else if (t.tourism) cat = 'tourism';
-    const key = name.trim().toLowerCase() + '_' + Math.round(elat * 1e4) + '_' + Math.round(elng * 1e4);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({
-      id: 'p_' + el.type + '_' + el.id,
-      name: name.trim(),
-      lat: elat, lng: elng,
-      dist: Math.round(d),
-      pts, cat
-    });
+function parseOverpass(data,lat,lng){
+  const out=[];const seen=new Set();
+  for(const el of data.elements||[]){
+    const t=el.tags||{};const name=t.name;if(!name)continue;
+    const elat=el.lat||(el.center&&el.center.lat);
+    const elng=el.lon||(el.center&&el.center.lon);
+    if(!elat||!elng)continue;
+    const d=distMeters(lat,lng,elat,elng);
+    const pts=pointsForDist(d);if(pts===null)continue;
+    let cat='tourism';
+    if(t.historic)cat='historic';
+    else if(t.artwork_type)cat='artwork';
+    else if(t.amenity==='fountain')cat='fountain';
+    else if(t.tourism)cat='tourism';
+    const key=name.trim().toLowerCase()+'_'+Math.round(elat*1e4)+'_'+Math.round(elng*1e4);
+    if(seen.has(key))continue;seen.add(key);
+    out.push({id:'p_'+el.type+'_'+el.id,name:name.trim(),lat:elat,lng:elng,dist:Math.round(d),pts,cat});
   }
-  out.sort((a, b) => a.dist - b.dist);
+  out.sort((a,b)=>a.dist-b.dist);
   return out;
 }
 
-/* ============================================================
-   ASSIGN ALGORITHM
-============================================================ */
-function assign(places, target) {
-  const used = new Set();
-  function fillPlayer(t) {
-    const arr = [];
-    let score = 0;
-    const veryLow = places.filter(p => p.pts >= 0.5 && p.pts <= 1 && !used.has(p.id));
-    if (veryLow.length && t >= veryLow[0].pts) {
-      const p = veryLow[Math.floor(Math.random() * veryLow.length)];
-      arr.push(p.id); used.add(p.id); score += p.pts;
-    }
-    const medLow = places.filter(p => p.pts >= 1.5 && p.pts <= 2 && !used.has(p.id));
-    if (medLow.length && t - score >= medLow[0].pts) {
-      const p = medLow[Math.floor(Math.random() * medLow.length)];
-      arr.push(p.id); used.add(p.id); score += p.pts;
-    }
-    const byPts = {};
-    places.forEach(p => { if (!byPts[p.pts]) byPts[p.pts] = []; byPts[p.pts].push(p); });
-    const keys = Object.keys(byPts).map(Number).sort((a, b) => b - a);
-    let rem = parseFloat((t - score).toFixed(1));
-    let safety = 0;
-    outer: for (const k of keys) {
-      while (rem >= k) {
-        if (++safety > 200) break outer;
-        const c = (byPts[k] || []).filter(p => !used.has(p.id));
-        if (!c.length) break;
-        const p = c[Math.floor(Math.random() * c.length)];
-        arr.push(p.id); used.add(p.id);
-        score = parseFloat((score + k).toFixed(1));
-        rem = parseFloat((t - score).toFixed(1));
-      }
-    }
-    return { ids: arr, score };
-  }
-  const r0 = fillPlayer(target);
-  const r1 = fillPlayer(target);
-  return { p0: r0.ids, p1: r1.ids, s0: r0.score, s1: r1.score };
+function makeTestPlaces(lat,lng){
+  const offset=10/111000;
+  return [
+    {id:'test_home_p0',name:'🏠 Chez moi (test J1)',lat:lat+offset,lng:lng,dist:10,pts:0.5,cat:'test'},
+    {id:'test_home_p1',name:'🏠 Chez moi 2 (test J2)',lat:lat-offset,lng:lng,dist:10,pts:0.5,cat:'test'}
+  ];
 }
 
-/* ============================================================
-   CREATE / JOIN
-============================================================ */
-$('#tab-create').onclick = () => {
-  $('#tab-create').classList.add('active');
-  $('#tab-join').classList.remove('active');
-  $('#form-create').classList.remove('hidden');
-  $('#form-join').classList.add('hidden');
-};
-$('#tab-join').onclick = () => {
-  $('#tab-join').classList.add('active');
-  $('#tab-create').classList.remove('active');
-  $('#form-join').classList.remove('hidden');
-  $('#form-create').classList.add('hidden');
-};
-
-$('#btn-create').onclick = async () => {
-  const n1 = $('#i-name1').value.trim();
-  const n2 = $('#i-name2').value.trim();
-  const target = parseInt($('#i-target').value);
-  if (!n1 || !n2) return setStatus('create-status', 'Renseigne les deux prénoms', true);
-  if (!target || target < 5) return setStatus('create-status', 'Objectif minimum : 5 points', true);
-
-  $('#btn-create').disabled = true;
-  setStatus('create-status', '📍 Demande de position GPS…');
-
-  try {
-    const pos = await getOnceGPS();
-    state.startLat = pos.lat; state.startLng = pos.lng;
-    setStatus('create-status', '🌍 Recherche des lieux autour de toi…');
-    const places = await fetchOverpass(pos.lat, pos.lng);
-    if (places.length < 4) {
-      setStatus('create-status', 'Trop peu de lieux trouvés ici (' + places.length + '). Essaie ailleurs.', true);
-      $('#btn-create').disabled = false;
-      return;
-    }
-
-    // Total points dispo
-    const totalPts = places.reduce((s, p) => s + p.pts, 0);
-    let actualTarget = target;
-    if (totalPts < target * 2) {
-      // pas assez de points pour 2 joueurs → ajuster
-      actualTarget = Math.max(3, Math.floor(totalPts / 2.2 * 2) / 2); // arrondi à 0.5
-      actualTarget = Math.round(actualTarget * 2) / 2;
-    }
-
-    setStatus('create-status', '🎯 Attribution des objectifs…');
-    const a = assign(places, actualTarget);
-
-    const code = genCode();
-    state.code = code;
-    state.ap = 0;
-    state.myName = n1;
-
-    // Build places map (only used ones) — keep all so opponent's are visible
-    const placesMap = {};
-    places.forEach(p => { placesMap[p.id] = { name: p.name, lat: p.lat, lng: p.lng, pts: p.pts, cat: p.cat, dist: p.dist }; });
-
-    const room = {
-      names: [n1, n2],
-      target: actualTarget,
-      startLat: pos.lat, startLng: pos.lng,
-      assigns: { p0: a.p0, p1: a.p1 },
-      places: placesMap,
-      visits: {},
-      winner: -1,
-      resetDone: false,
-      status: 'waiting',
-      ts: Date.now()
-    };
-
-    await db.ref('rooms/' + code).set(room);
-
-    // UI: show waiting
-    $('#form-create').classList.add('hidden');
-    $('#tab-create').style.display = 'none';
-    $('#tab-join').style.display = 'none';
-    $('#btn-cancel-wait').onclick = async () => {
-      try { await db.ref('rooms/' + code).remove(); } catch(e){}
-      location.reload();
-    };
-    $('#game-code').textContent = code;
-    $('#waiting-block').style.display = 'block';
-
-    if (actualTarget !== target) {
-      showInfo('ℹ️', 'Objectif ajusté', 'Pas assez de lieux pour ' + target + ' pts par joueur. Objectif réajusté à ' + actualTarget + ' pts.');
-    }
-
-    // Listen for player 2 to join
-    state.roomRef = db.ref('rooms/' + code);
-    state.roomRef.on('value', snap => {
-      const r = snap.val();
-      if (!r) return;
-      state.room = r;
-      if (r.status === 'playing') {
-        enterGame();
+function assign(places,target){
+  const used=new Set();
+  function fill(t){
+    const arr=[];let score=0;
+    const vL=places.filter(p=>p.pts>=0.5&&p.pts<=1&&!used.has(p.id));
+    if(vL.length&&t>=vL[0].pts){const p=vL[Math.floor(Math.random()*vL.length)];arr.push(p.id);used.add(p.id);score+=p.pts;}
+    const mL=places.filter(p=>p.pts>=1.5&&p.pts<=2&&!used.has(p.id));
+    if(mL.length&&t-score>=mL[0].pts){const p=mL[Math.floor(Math.random()*mL.length)];arr.push(p.id);used.add(p.id);score+=p.pts;}
+    const byPts={};places.forEach(p=>{if(!byPts[p.pts])byPts[p.pts]=[];byPts[p.pts].push(p);});
+    const keys=Object.keys(byPts).map(Number).sort((a,b)=>b-a);
+    let rem=parseFloat((t-score).toFixed(1));let safety=0;
+    outer: for(const k of keys){
+      while(rem>=k){
+        if(++safety>200)break outer;
+        const c=(byPts[k]||[]).filter(p=>!used.has(p.id));
+        if(!c.length)break;
+        const p=c[Math.floor(Math.random()*c.length)];
+        arr.push(p.id);used.add(p.id);
+        score=parseFloat((score+k).toFixed(1));
+        rem=parseFloat((t-score).toFixed(1));
       }
-    });
-  } catch (e) {
-    console.error(e);
-    setStatus('create-status', '❌ ' + (e.message || 'Erreur'), true);
-    $('#btn-create').disabled = false;
-  }
-};
-
-$('#btn-join').onclick = async () => {
-  const name = $('#i-name-join').value.trim();
-  const code = $('#i-code').value.trim().toUpperCase();
-  if (!name) return setStatus('join-status', 'Renseigne ton prénom', true);
-  if (code.length !== 6) return setStatus('join-status', 'Code à 6 caractères', true);
-
-  $('#btn-join').disabled = true;
-  setStatus('join-status', '🔍 Recherche de la partie…');
-
-  try {
-    const snap = await db.ref('rooms/' + code).once('value');
-    const r = snap.val();
-    if (!r) { setStatus('join-status', 'Partie introuvable', true); $('#btn-join').disabled = false; return; }
-    if (r.status === 'playing') { setStatus('join-status', 'Partie déjà en cours', true); $('#btn-join').disabled = false; return; }
-
-    setStatus('join-status', '📍 Vérification de ta position…');
-    const pos = await getOnceGPS();
-    const d = distMeters(pos.lat, pos.lng, r.startLat, r.startLng);
-    if (d > 2000) {
-      setStatus('join-status', `Tu es à ${Math.round(d)}m de l'autre joueur. Distance max 2km.`, true);
-      $('#btn-join').disabled = false;
-      return;
     }
-
-    state.code = code;
-    state.ap = 1;
-    state.myName = name;
-    state.startLat = r.startLat; state.startLng = r.startLng;
-    state.room = r;
-
-    // update name slot 2 + status
-    await db.ref('rooms/' + code).update({
-      'names/1': name,
-      status: 'playing'
-    });
-
-    state.roomRef = db.ref('rooms/' + code);
-    state.roomRef.on('value', snap => {
-      const r2 = snap.val();
-      if (!r2) return;
-      state.room = r2;
-      onRoomUpdate();
-    });
-
-    enterGame();
-  } catch (e) {
-    console.error(e);
-    setStatus('join-status', '❌ ' + (e.message || 'Erreur'), true);
-    $('#btn-join').disabled = false;
+    return {ids:arr,score};
   }
+  const r0=fill(target);const r1=fill(target);
+  return {p0:r0.ids,p1:r1.ids,s0:r0.score,s1:r1.score};
+}
+
+$('#tab-create').onclick=()=>{$('#tab-create').classList.add('active');$('#tab-join').classList.remove('active');$('#form-create').classList.remove('hidden');$('#form-join').classList.add('hidden');};
+$('#tab-join').onclick=()=>{$('#tab-join').classList.add('active');$('#tab-create').classList.remove('active');$('#form-join').classList.remove('hidden');$('#form-create').classList.add('hidden');};
+
+$('#btn-create').onclick=async()=>{
+  const n1=$('#i-name1').value.trim();const n2=$('#i-name2').value.trim();
+  const target=parseInt($('#i-target').value);
+  if(!n1||!n2)return setStatus('create-status','Renseigne les deux prénoms',true);
+  if(!target||target<5)return setStatus('create-status','Objectif minimum : 5 points',true);
+  $('#btn-create').disabled=true;
+  setStatus('create-status','📍 Demande de position GPS…');
+  try{
+    const pos=await getOnceGPS();
+    state.startLat=pos.lat;state.startLng=pos.lng;
+    setStatus('create-status','🌍 Recherche des lieux autour de toi…');
+    const places=await fetchOverpass(pos.lat,pos.lng);
+    if(places.length<4){setStatus('create-status','Trop peu de lieux trouvés ici ('+places.length+'). Essaie ailleurs.',true);$('#btn-create').disabled=false;return;}
+    const totalPts=places.reduce((s,p)=>s+p.pts,0);
+    let actualTarget=target;
+    if(totalPts<target*2){actualTarget=Math.max(3,Math.floor(totalPts/2.2*2)/2);actualTarget=Math.round(actualTarget*2)/2;}
+    setStatus('create-status','🎯 Attribution des objectifs…');
+    const a=assign(places,actualTarget);
+    const code=genCode();
+    state.code=code;state.ap=0;state.myName=n1;
+    const placesMap={};
+    places.forEach(p=>{placesMap[p.id]={name:p.name,lat:p.lat,lng:p.lng,pts:p.pts,cat:p.cat,dist:p.dist};});
+    // TEST PLACES
+    const tests=makeTestPlaces(pos.lat,pos.lng);
+    tests.forEach(tp=>{placesMap[tp.id]={name:tp.name,lat:tp.lat,lng:tp.lng,pts:tp.pts,cat:tp.cat,dist:tp.dist};});
+    a.p0.unshift(tests[0].id);
+    a.p1.unshift(tests[1].id);
+
+    const room={
+      names:[n1,n2],target:actualTarget,
+      startLat:pos.lat,startLng:pos.lng,
+      assigns:{p0:a.p0,p1:a.p1},
+      places:placesMap,visits:{},
+      winner:-1,resetDone:false,status:'waiting',ts:Date.now()
+    };
+    await db.ref('rooms/'+code).set(room);
+    $('#form-create').classList.add('hidden');
+    $('#tab-create').style.display='none';$('#tab-join').style.display='none';
+    $('#btn-cancel-wait').onclick=async()=>{try{await db.ref('rooms/'+code).remove();}catch(e){}location.reload();};
+    $('#game-code').textContent=code;
+    $('#waiting-block').style.display='block';
+    if(actualTarget!==target)showInfo('ℹ️','Objectif ajusté','Pas assez de lieux pour '+target+' pts par joueur. Réajusté à '+actualTarget+' pts.');
+    state.roomRef=db.ref('rooms/'+code);
+    state.roomRef.on('value',snap=>{const r=snap.val();if(!r)return;state.room=r;if(r.status==='playing')enterGame();});
+  }catch(e){console.error(e);setStatus('create-status','❌ '+(e.message||'Erreur'),true);$('#btn-create').disabled=false;}
 };
 
-/* ============================================================
-   ENTER GAME
-============================================================ */
-function enterGame() {
+$('#btn-join').onclick=async()=>{
+  const name=$('#i-name-join').value.trim();
+  const code=$('#i-code').value.trim().toUpperCase();
+  if(!name)return setStatus('join-status','Renseigne ton prénom',true);
+  if(code.length!==6)return setStatus('join-status','Code à 6 caractères',true);
+  $('#btn-join').disabled=true;
+  setStatus('join-status','🔍 Recherche de la partie…');
+  try{
+    const snap=await db.ref('rooms/'+code).once('value');
+    const r=snap.val();
+    if(!r){setStatus('join-status','Partie introuvable',true);$('#btn-join').disabled=false;return;}
+    if(r.status==='playing'){setStatus('join-status','Partie déjà en cours',true);$('#btn-join').disabled=false;return;}
+    setStatus('join-status','📍 Vérification de ta position…');
+    const pos=await getOnceGPS();
+    const d=distMeters(pos.lat,pos.lng,r.startLat,r.startLng);
+    if(d>2000){setStatus('join-status',`Tu es à ${Math.round(d)}m de l'autre joueur. Distance max 2km.`,true);$('#btn-join').disabled=false;return;}
+    state.code=code;state.ap=1;state.myName=name;
+    state.startLat=r.startLat;state.startLng=r.startLng;
+    state.room=r;
+    await db.ref('rooms/'+code).update({'names/1':name,status:'playing'});
+    state.roomRef=db.ref('rooms/'+code);
+    state.roomRef.on('value',snap=>{const r2=snap.val();if(!r2)return;state.room=r2;onRoomUpdate();});
+    enterGame();
+  }catch(e){console.error(e);setStatus('join-status','❌ '+(e.message||'Erreur'),true);$('#btn-join').disabled=false;}
+};
+
+function enterGame(){
   showScreen('screen-game');
-  state.selectedTab = state.ap;
+  state.selectedTab=state.ap;
   startWatchGPS();
   attachOrientation();
-
-  // Fill names + targets
-  $('#score-name-0').textContent = state.room.names[0] || 'Joueur 1';
-  $('#score-name-1').textContent = state.room.names[1] || 'Joueur 2';
-  $('#score-target-0').textContent = '/ ' + state.room.target + ' pts';
-  $('#score-target-1').textContent = '/ ' + state.room.target + ' pts';
-
-  // Tab labels
-  $('#tab-p0').textContent = state.room.names[0];
-  $('#tab-p1').textContent = state.room.names[1];
-
-  // Set up reactivity
-  if (!state.roomRef) {
-    state.roomRef = db.ref('rooms/' + state.code);
-    state.roomRef.on('value', snap => {
-      const r = snap.val();
-      if (!r) return;
-      state.room = r;
-      onRoomUpdate();
-    });
+  $('#score-name-0').textContent=state.room.names[0]||'Joueur 1';
+  $('#score-name-1').textContent=state.room.names[1]||'Joueur 2';
+  $('#score-target-0').textContent='/ '+state.room.target+' pts';
+  $('#score-target-1').textContent='/ '+state.room.target+' pts';
+  $('#tab-p0').textContent=state.room.names[0];
+  $('#tab-p1').textContent=state.room.names[1];
+  if(!state.roomRef){
+    state.roomRef=db.ref('rooms/'+state.code);
+    state.roomRef.on('value',snap=>{const r=snap.val();if(!r)return;state.room=r;onRoomUpdate();});
   }
   setSync(true);
   onRoomUpdate();
 }
-
-function setSync(ok) {
-  state.syncOk = ok;
-  $('#sync-dot').classList.toggle('off', !ok);
-}
-
-function onPositionUpdate() {
-  // refresh validate overlay if open
-  if (state.validatingPlace && $('#validate-overlay').classList.contains('show')) {
-    refreshValidateDistance();
-  }
-  if (state.compassPlace && $('#compass-overlay').classList.contains('show')) {
-    refreshCompass();
+function setSync(ok){state.syncOk=ok;$('#sync-dot').classList.toggle('off',!ok);}
+function onPositionUpdate(){
+  if(state.validatingPlace&&$('#validate-overlay').classList.contains('show')){
+    refreshValidateDistance();updateBorderCompass();
   }
 }
 
-/* ============================================================
-   ROOM UPDATE — RENDER
-============================================================ */
-function onRoomUpdate() {
-  if (!state.room) return;
-  if (state.room.resetDone && state.room.resetDone !== '__self__') {
-    // adversaire a reset
-    if (!window.__resetSeen) {
-      window.__resetSeen = true;
-      showInfo('🔄', 'Partie réinitialisée', "L'adversaire a réinitialisé la partie", () => {
-        location.reload();
-      });
-    }
+function onRoomUpdate(){
+  if(!state.room)return;
+  if(state.room.resetDone&&state.room.resetDone!=='__self__'){
+    if(!window.__resetSeen){window.__resetSeen=true;showInfo('🔄','Partie réinitialisée',"L'adversaire a réinitialisé la partie",()=>location.reload());}
     return;
   }
-
-  // Compute scores
-  const scores = computeScores();
-  $('#score-val-0').textContent = scores[0].toFixed(1);
-  $('#score-val-1').textContent = scores[1].toFixed(1);
-  $('#progress-0').style.width = Math.min(100, (scores[0] / state.room.target) * 100) + '%';
-  $('#progress-1').style.width = Math.min(100, (scores[1] / state.room.target) * 100) + '%';
-
-  // Check victory
-  if (state.room.winner === -1) {
-    if (scores[0] >= state.room.target) {
-      db.ref('rooms/' + state.code + '/winner').set(0);
-    } else if (scores[1] >= state.room.target) {
-      db.ref('rooms/' + state.code + '/winner').set(1);
+  const scores=computeScores();
+  $('#score-val-0').textContent=scores[0].toFixed(1);
+  $('#score-val-1').textContent=scores[1].toFixed(1);
+  $('#progress-0').style.width=Math.min(100,(scores[0]/state.room.target)*100)+'%';
+  $('#progress-1').style.width=Math.min(100,(scores[1]/state.room.target)*100)+'%';
+  if(state.room.winner===-1){
+    if(scores[0]>=state.room.target)db.ref('rooms/'+state.code+'/winner').set(0);
+    else if(scores[1]>=state.room.target)db.ref('rooms/'+state.code+'/winner').set(1);
+  }
+  renderList();
+  if(state.room.winner>=0&&!window.__winShown){window.__winShown=true;showWinPopup();}
+}
+function computeScores(){
+  const visits=state.room.visits||{};
+  const places=state.room.places||{};
+  const scores=[0,0];
+  for(const slot of [0,1]){
+    const ids=(state.room.assigns&&state.room.assigns['p'+slot])||[];
+    for(const id of ids){
+      const v=visits[id];
+      if(v&&v['p'+slot]) scores[slot]+=(places[id]&&places[id].pts)||0;
     }
   }
-
-  renderList();
-
-  if (state.room.winner >= 0 && !window.__winShown) {
-    window.__winShown = true;
-    showWinPopup();
-  }
+  return [parseFloat(scores[0].toFixed(1)),parseFloat(scores[1].toFixed(1))];
 }
 
-function computeScores() {
-  const visits = state.room.visits || {};
-  const places = state.room.places || {};
-  const scores = [0, 0];
-  for (const slot of [0, 1]) {
-    const ids = (state.room.assigns && state.room.assigns['p' + slot]) || [];
-    for (const id of ids) {
-      const v = visits[id];
-      if (v && v['p' + slot]) {
-        scores[slot] += (places[id] && places[id].pts) || 0;
-      }
-    }
-  }
-  return [parseFloat(scores[0].toFixed(1)), parseFloat(scores[1].toFixed(1))];
-}
+$('#tab-p0').onclick=()=>{state.selectedTab=0;updateTabs();renderList();};
+$('#tab-p1').onclick=()=>{state.selectedTab=1;updateTabs();renderList();};
+function updateTabs(){$('#tab-p0').classList.toggle('active',state.selectedTab===0);$('#tab-p1').classList.toggle('active',state.selectedTab===1);}
+$$('.filter').forEach(b=>b.onclick=()=>{$$('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;renderList();});
 
-/* ============================================================
-   PLAYER TABS / FILTERS
-============================================================ */
-$('#tab-p0').onclick = () => { state.selectedTab = 0; updateTabs(); renderList(); };
-$('#tab-p1').onclick = () => { state.selectedTab = 1; updateTabs(); renderList(); };
-function updateTabs() {
-  $('#tab-p0').classList.toggle('active', state.selectedTab === 0);
-  $('#tab-p1').classList.toggle('active', state.selectedTab === 1);
-}
-$$('.filter').forEach(b => b.onclick = () => {
-  $$('.filter').forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  state.filter = b.dataset.filter;
-  renderList();
-});
+function renderList(){
+  const wrap=$('#list-wrap');
+  while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
+  const slot=state.selectedTab;const oppSlot=1-slot;
+  const places=state.room.places||{};const visits=state.room.visits||{};
+  const myIds=(state.room.assigns&&state.room.assigns['p'+slot])||[];
+  const oppIds=(state.room.assigns&&state.room.assigns['p'+oppSlot])||[];
+  const isV=(id,s)=>visits[id]&&visits[id]['p'+s];
 
-/* ============================================================
-   RENDER LIST
-============================================================ */
-function renderList() {
-  const wrap = $('#list-wrap');
-  while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
-
-  const slot = state.selectedTab;
-  const oppSlot = 1 - slot;
-  const places = state.room.places || {};
-  const visits = state.room.visits || {};
-  const myIds = (state.room.assigns && state.room.assigns['p' + slot]) || [];
-  const oppIds = (state.room.assigns && state.room.assigns['p' + oppSlot]) || [];
-
-  const isVisited = (id, s) => visits[id] && visits[id]['p' + s];
-
-  // Tile run
-  const tile = document.createElement('div');
-  tile.className = 'tile-run';
-  const tileEmo = document.createElement('div');
-  tileEmo.className = 'emo';
-  tileEmo.textContent = '🏃';
-  const tileTxt = document.createElement('div');
-  tileTxt.textContent = 'Now, run!';
-  tile.appendChild(tileEmo);
-  tile.appendChild(tileTxt);
+  // Tile "Now, have fun!"
+  const tile=document.createElement('div');
+  tile.className='tile-run';
+  const e1=document.createElement('div');e1.className='emo';e1.textContent='🎉';
+  const e2=document.createElement('div');e2.textContent='Now, have fun!';
+  tile.appendChild(e1);tile.appendChild(e2);
   wrap.appendChild(tile);
 
-  // Build sections
-  const myToDo = myIds.filter(id => !isVisited(id, slot));
-  const oppToDo = oppIds.filter(id => !isVisited(id, oppSlot));
-  const visited = [];
-  for (const id of myIds) if (isVisited(id, slot)) visited.push({ id, who: slot });
-  for (const id of oppIds) if (isVisited(id, oppSlot)) visited.push({ id, who: oppSlot });
-  visited.sort((a, b) => {
-    const va = visits[a.id] && visits[a.id]['p' + a.who + '_time'] || '';
-    const vb = visits[b.id] && visits[b.id]['p' + b.who + '_time'] || '';
+  const myToDo=myIds.filter(id=>!isV(id,slot));
+  const oppToDo=oppIds.filter(id=>!isV(id,oppSlot));
+  const visited=[];
+  for(const id of myIds)if(isV(id,slot))visited.push({id,who:slot});
+  for(const id of oppIds)if(isV(id,oppSlot))visited.push({id,who:oppSlot});
+  visited.sort((a,b)=>{
+    const va=visits[a.id]&&visits[a.id]['p'+a.who+'_time']||'';
+    const vb=visits[b.id]&&visits[b.id]['p'+b.who+'_time']||'';
     return vb.localeCompare(va);
   });
+  const F=state.filter;
+  const sM=F==='all'||F==='mine';const sO=F==='all';const sV=F==='all'||F==='visited';
 
-  // Filtering
-  const F = state.filter;
-  const showMine = F === 'all' || F === 'mine';
-  const showOpp = F === 'all';
-  const showVis = F === 'all' || F === 'visited';
-
-  if (showMine && myToDo.length) {
-    const t = document.createElement('div');
-    t.className = 'section-title';
-    t.textContent = `Mes objectifs (${myToDo.length} restants)`;
+  if(sM&&myToDo.length){
+    const t=document.createElement('div');t.className='section-title';t.textContent=`Mes objectifs (${myToDo.length} restants)`;
     wrap.appendChild(t);
-    const cards = document.createElement('div');
-    cards.className = 'cards';
-    myToDo.forEach(id => cards.appendChild(buildCard(id, slot, 'mine')));
-    wrap.appendChild(cards);
+    const c=document.createElement('div');c.className='cards';
+    myToDo.forEach(id=>c.appendChild(buildCard(id,slot,'mine')));
+    wrap.appendChild(c);
   }
-
-  if (showOpp && oppToDo.length) {
-    const t = document.createElement('div');
-    t.className = 'section-title';
-    t.textContent = `Objectifs de ${state.room.names[oppSlot] || 'adversaire'} (${oppToDo.length})`;
+  if(sO&&oppToDo.length){
+    const t=document.createElement('div');t.className='section-title';t.textContent=`Objectifs de ${state.room.names[oppSlot]||'adversaire'} (${oppToDo.length})`;
     wrap.appendChild(t);
-    const cards = document.createElement('div');
-    cards.className = 'cards';
-    oppToDo.forEach(id => cards.appendChild(buildCard(id, oppSlot, 'opp')));
-    wrap.appendChild(cards);
+    const c=document.createElement('div');c.className='cards';
+    oppToDo.forEach(id=>c.appendChild(buildCard(id,oppSlot,'opp')));
+    wrap.appendChild(c);
   }
-
-  if (showVis && visited.length) {
-    const t = document.createElement('div');
-    t.className = 'section-title';
-    t.textContent = `Visités (${visited.length})`;
+  if(sV&&visited.length){
+    const t=document.createElement('div');t.className='section-title';t.textContent=`Visités (${visited.length})`;
     wrap.appendChild(t);
-    const cards = document.createElement('div');
-    cards.className = 'cards';
-    visited.forEach(v => cards.appendChild(buildCard(v.id, v.who, 'visited')));
-    wrap.appendChild(cards);
+    const c=document.createElement('div');c.className='cards';
+    visited.forEach(v=>c.appendChild(buildCard(v.id,v.who,'visited')));
+    wrap.appendChild(c);
   }
-
-  if (F === 'mine' && !myToDo.length) {
-    const t = document.createElement('div');
-    t.className = 'status-msg';
-    t.style.marginTop = '20px';
-    t.textContent = '🎉 Tous tes objectifs sont validés !';
+  if(F==='mine'&&!myToDo.length){
+    const t=document.createElement('div');t.className='status-msg';t.style.marginTop='20px';t.textContent='🎉 Tous tes objectifs sont validés !';
     wrap.appendChild(t);
   }
 }
 
-function buildCard(id, slotForCard, kind) {
-  const places = state.room.places || {};
-  const visits = state.room.visits || {};
-  const p = places[id];
-  if (!p) {
-    const empty = document.createElement('div');
-    empty.className = 'card';
-    empty.textContent = '(lieu introuvable)';
-    return empty;
-  }
-  const v = visits[id] || {};
-  const isVisited = !!v['p' + slotForCard];
-  const card = document.createElement('div');
-  card.className = 'card';
-  if (kind === 'mine') card.classList.add('mine', 'p' + slotForCard);
-  if (kind === 'opp' && !isVisited) card.classList.add('opp');
-  if (isVisited) card.classList.add('visited');
+function buildCard(id,slotForCard,kind){
+  const places=state.room.places||{};const visits=state.room.visits||{};
+  const p=places[id];
+  if(!p){const e=document.createElement('div');e.className='card';e.textContent='(lieu introuvable)';return e;}
+  const v=visits[id]||{};const isV=!!v['p'+slotForCard];
+  const card=document.createElement('div');card.className='card';
+  if(kind==='mine')card.classList.add('mine','p'+slotForCard);
+  if(kind==='opp'&&!isV)card.classList.add('opp');
+  if(isV)card.classList.add('visited');
+  if(p.cat==='test')card.classList.add('test-place');
 
-  // Icon or thumb
-  if (isVisited && v['p' + slotForCard + '_photo']) {
-    const img = document.createElement('img');
-    img.className = 'card-thumb';
-    img.src = v['p' + slotForCard + '_photo'];
-    img.alt = '';
-    img.loading = 'lazy';
-    img.onclick = (e) => {
-      e.stopPropagation();
-      $('#full-img').src = v['p' + slotForCard + '_photo'];
-      show($('#fullscreen-img'));
-    };
+  if(isV&&v['p'+slotForCard+'_photo']){
+    const img=document.createElement('img');
+    img.className='card-thumb';img.src=v['p'+slotForCard+'_photo'];img.alt='';img.loading='lazy';
+    img.onclick=(e)=>{e.stopPropagation();$('#full-img').src=v['p'+slotForCard+'_photo'];show($('#fullscreen-img'));};
     card.appendChild(img);
-  } else {
-    const ic = document.createElement('div');
-    ic.className = 'card-icon';
-    ic.textContent = categoryIcon(p.cat);
+  }else{
+    const ic=document.createElement('div');ic.className='card-icon';ic.textContent=categoryIcon(p.cat);
     card.appendChild(ic);
   }
-
-  const body = document.createElement('div');
-  body.className = 'card-body';
-  const nameEl = document.createElement('div');
-  nameEl.className = 'card-name';
-  // Visibility asymétrique : nom adversaire caché tant que non visité
-  if (kind === 'opp' && !isVisited) {
-    nameEl.textContent = '???';
-  } else {
-    nameEl.textContent = p.name;
-  }
+  const body=document.createElement('div');body.className='card-body';
+  const nameEl=document.createElement('div');nameEl.className='card-name';
+  nameEl.textContent=(kind==='opp'&&!isV)?'???':p.name;
   body.appendChild(nameEl);
-
-  const meta = document.createElement('div');
-  meta.className = 'card-meta';
-  const dist = document.createElement('span');
-  dist.textContent = `${p.dist}m`;
-  meta.appendChild(dist);
-  if (kind === 'mine' && !isVisited) {
-    const b = document.createElement('span');
-    b.className = 'badge-mine';
-    b.textContent = 'Mon objectif';
-    meta.appendChild(b);
+  const meta=document.createElement('div');meta.className='card-meta';
+  const dist=document.createElement('span');dist.textContent=`${p.dist}m`;meta.appendChild(dist);
+  if(kind==='mine'&&!isV){const b=document.createElement('span');b.className='badge-mine';b.textContent='Mon objectif';meta.appendChild(b);}
+  if(isV&&v['p'+slotForCard+'_time']){
+    const tm=document.createElement('span');tm.className='card-time';
+    if(slotForCard===1)tm.style.color='var(--blue)';
+    tm.textContent='✓ '+v['p'+slotForCard+'_time'];meta.appendChild(tm);
   }
-  if (isVisited && v['p' + slotForCard + '_time']) {
-    const tm = document.createElement('span');
-    tm.className = 'card-time';
-    if (slotForCard === 1) tm.style.color = 'var(--blue)';
-    tm.textContent = '✓ ' + v['p' + slotForCard + '_time'];
-    meta.appendChild(tm);
+  body.appendChild(meta);card.appendChild(body);
+  const pts=document.createElement('div');pts.className='card-pts';
+  if(kind==='opp'&&!isV)pts.classList.add('opp');
+  pts.textContent=p.pts;card.appendChild(pts);
+  if(kind==='mine'&&!isV){
+    card.addEventListener('click',()=>openValidate(id));
+  }else if(isV&&v['p'+slotForCard+'_photo']){
+    card.addEventListener('click',()=>{$('#full-img').src=v['p'+slotForCard+'_photo'];show($('#fullscreen-img'));});
   }
-  body.appendChild(meta);
-  card.appendChild(body);
-
-  const pts = document.createElement('div');
-  pts.className = 'card-pts';
-  if (kind === 'opp' && !isVisited) pts.classList.add('opp');
-  pts.textContent = p.pts;
-  card.appendChild(pts);
-
-  // Click handler
-  if (kind === 'mine' && !isVisited) {
-    card.addEventListener('click', () => openValidate(id));
-  } else if (isVisited && v['p' + slotForCard + '_photo']) {
-    // tap to open photo fullscreen
-    card.addEventListener('click', () => {
-      $('#full-img').src = v['p' + slotForCard + '_photo'];
-      show($('#fullscreen-img'));
-    });
-  }
-
   return card;
 }
 
-/* ============================================================
-   VALIDATE LIEU
-============================================================ */
-function openValidate(placeId) {
-  state.validatingPlace = placeId;
-  state.pendingBlob = null;
-  if (state.pendingPreviewUrl) { URL.revokeObjectURL(state.pendingPreviewUrl); state.pendingPreviewUrl = null; }
-  $('#preview-img').src = '';
-  hide($('#preview-img'));
-  hide($('#preview-actions'));
-  hide($('#btn-camera'));
-  $('#btn-camera').classList.remove('show');
-
-  const p = state.room.places[placeId];
-  $('#validate-target').textContent = p.name;
-  refreshValidateDistance();
+/* ====== VALIDATE ====== */
+async function openValidate(placeId){
+  state.validatingPlace=placeId;
+  state.pendingBlob=null;
+  if(state.pendingPreviewUrl){URL.revokeObjectURL(state.pendingPreviewUrl);state.pendingPreviewUrl=null;}
+  hide($('#preview-stage'));
+  const p=state.room.places[placeId];
+  $('#validate-target').textContent=p.name;
+  $('#validate-fab').classList.remove('ready');
   show($('#validate-overlay'));
+  show($('#border-compass'));
+  refreshValidateDistance();
+  updateBorderCompass();
+  ensureOrientationPermission();
 }
-function refreshValidateDistance() {
-  if (!state.validatingPlace) return;
-  const p = state.room.places[state.validatingPlace];
-  if (state.curLat === null) {
-    $('#validate-distance').textContent = '--';
-    $('#validate-msg').textContent = 'Acquisition du GPS…';
-    $('#validate-msg').classList.remove('ok');
-    return;
+function refreshValidateDistance(){
+  if(!state.validatingPlace)return;
+  const p=state.room.places[state.validatingPlace];
+  const fab=$('#validate-fab');
+  if(state.curLat===null){
+    $('#validate-distance').textContent='--';
+    $('#validate-distance').style.color='';
+    $('#validate-msg').textContent='Acquisition du GPS…';
+    fab.classList.remove('ready');return;
   }
-  const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
-  $('#validate-distance').textContent = Math.round(d) + 'm';
-  if (d <= 30) {
-    $('#validate-distance').classList.add('ok');
-    $('#validate-msg').classList.add('ok');
-    $('#validate-msg').textContent = 'Tu es sur place !';
-    $('#btn-camera').classList.add('show');
-  } else {
-    $('#validate-distance').classList.remove('ok');
-    $('#validate-msg').classList.remove('ok');
-    $('#validate-msg').textContent = 'Trop loin, approche-toi (max 30m)';
-    $('#btn-camera').classList.remove('show');
-  }
+  const d=distMeters(state.curLat,state.curLng,p.lat,p.lng);
+  $('#validate-distance').textContent=Math.round(d)+'m';
+  $('#validate-distance').style.color=colorByDist(d);
+  $('#validate-msg').textContent='';
+  if(d<=30) fab.classList.add('ready');
+  else fab.classList.remove('ready');
 }
-$('#validate-close').onclick = () => {
-  state.validatingPlace = null;
+
+/* ====== BORDER COMPASS ====== */
+function updateBorderCompass(){
+  const bar=$('#border-bar');
+  if(!state.validatingPlace||state.curLat===null){bar.classList.remove('visible');return;}
+  const p=state.room.places[state.validatingPlace];
+  const d=distMeters(state.curLat,state.curLng,p.lat,p.lng);
+  if(d<=30){bar.classList.remove('visible');return;}
+  const bearing=getBearing({lat:state.curLat,lng:state.curLng},{lat:p.lat,lng:p.lng});
+  const angle=((bearing-state.heading)+360)%360;
+  const color=colorByDist(d);
+
+  // Reset
+  bar.style.cssText='';
+  bar.style.background=color;
+  bar.style.boxShadow='0 0 24px '+color;
+
+  const ST='env(safe-area-inset-top)';
+  const SB='env(safe-area-inset-bottom)';
+
+  // 8 secteurs de 45°
+  const sector=Math.round(angle/45)%8;
+  // 0=N(haut centré), 1=NE(coin haut-droit), 2=E(droite centré),
+  // 3=SE(bas-droit), 4=S(bas centré), 5=SO(bas-gauche),
+  // 6=O(gauche centré), 7=NO(haut-gauche)
+
+  const COMMON_H='height:6px;border-radius:4px;';
+  const COMMON_V='width:6px;border-radius:4px;';
+
+  switch(sector){
+    case 0: // Nord — haut, centré
+      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);left:30%;width:40%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 2: // Est — droite, centré
+      bar.style.cssText+=`${COMMON_V}right:8px;top:30%;height:40%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 4: // Sud — bas, centré
+      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);left:30%;width:40%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 6: // Ouest — gauche, centré
+      bar.style.cssText+=`${COMMON_V}left:8px;top:30%;height:40%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 1: // NE — coin haut-droit
+      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);right:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 3: // SE — coin bas-droit
+      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);right:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 5: // SO — coin bas-gauche
+      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);left:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+    case 7: // NO — coin haut-gauche
+      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);left:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+      break;
+  }
+  bar.classList.add('visible');
+}
+
+function closeValidate(){
+  state.validatingPlace=null;
   hide($('#validate-overlay'));
-};
-$('#btn-camera').onclick = () => $('#file-camera').click();
-$('#file-camera').onchange = async (e) => {
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  $('#file-camera').value = '';
-  try {
-    const blob = await compressImage(f, 1024);
-    state.pendingBlob = blob;
-    if (state.pendingPreviewUrl) URL.revokeObjectURL(state.pendingPreviewUrl);
-    state.pendingPreviewUrl = URL.createObjectURL(blob);
-    $('#preview-img').src = state.pendingPreviewUrl;
-    show($('#preview-img'));
-    show($('#preview-actions'));
-    $('#preview-actions').style.display = 'flex';
-    $('#btn-camera').classList.remove('show');
-  } catch (err) {
-    console.error(err);
-    showInfo('❌', 'Erreur', 'Impossible de traiter la photo');
-  }
-};
-$('#btn-retake').onclick = () => {
-  state.pendingBlob = null;
-  hide($('#preview-img'));
-  hide($('#preview-actions'));
-  $('#preview-actions').style.display = 'none';
-  $('#btn-camera').classList.add('show');
+  hide($('#border-compass'));
+  hide($('#preview-stage'));
+}
+$('#validate-close').onclick=closeValidate;
+$('#validate-backdrop').onclick=closeValidate;
+$('#validate-card').onclick=(e)=>e.stopPropagation();
+
+$('#validate-fab').onclick=()=>{
+  if(!$('#validate-fab').classList.contains('ready'))return;
   $('#file-camera').click();
 };
-$('#btn-confirm').onclick = async () => {
-  if (!state.pendingBlob || !state.validatingPlace) return;
-  $('#btn-confirm').disabled = true;
-  $('#btn-confirm').textContent = 'Envoi…';
-  try {
-    const placeId = state.validatingPlace;
-    const path = `photos/${state.code}/${placeId}/p${state.ap}.jpg`;
-    const ref = storage.ref(path);
-    await ref.put(state.pendingBlob, { contentType: 'image/jpeg' });
-    const url = await ref.getDownloadURL();
 
-    const upd = {};
-    upd[`visits/${placeId}/p${state.ap}`] = true;
-    upd[`visits/${placeId}/p${state.ap}_time`] = timeNow();
-    upd[`visits/${placeId}/p${state.ap}_photo`] = url;
-    await db.ref('rooms/' + state.code).update(upd);
-
-    state.validatingPlace = null;
-    state.pendingBlob = null;
-    if (state.pendingPreviewUrl) { URL.revokeObjectURL(state.pendingPreviewUrl); state.pendingPreviewUrl = null; }
-    hide($('#validate-overlay'));
-  } catch (e) {
-    console.error(e);
-    showInfo('❌', 'Échec', 'Échec de l\'envoi de la photo. Réessaie.');
-  } finally {
-    $('#btn-confirm').disabled = false;
-    $('#btn-confirm').textContent = 'Confirmer';
-  }
+$('#file-camera').onchange=async(e)=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  $('#file-camera').value='';
+  try{
+    const blob=await compressImage(f,1024);
+    state.pendingBlob=blob;
+    if(state.pendingPreviewUrl)URL.revokeObjectURL(state.pendingPreviewUrl);
+    state.pendingPreviewUrl=URL.createObjectURL(blob);
+    $('#preview-img').src=state.pendingPreviewUrl;
+    show($('#preview-stage'));
+  }catch(err){console.error(err);showInfo('❌','Erreur','Impossible de traiter la photo');}
+};
+$('#btn-retake').onclick=()=>{state.pendingBlob=null;hide($('#preview-stage'));$('#file-camera').click();};
+$('#btn-confirm').onclick=async()=>{
+  if(!state.pendingBlob||!state.validatingPlace)return;
+  $('#btn-confirm').disabled=true;$('#btn-confirm').textContent='Envoi…';
+  try{
+    const placeId=state.validatingPlace;
+    const path=`photos/${state.code}/${placeId}/p${state.ap}.jpg`;
+    const ref=storage.ref(path);
+    await ref.put(state.pendingBlob,{contentType:'image/jpeg'});
+    const url=await ref.getDownloadURL();
+    const upd={};
+    upd[`visits/${placeId}/p${state.ap}`]=true;
+    upd[`visits/${placeId}/p${state.ap}_time`]=timeNow();
+    upd[`visits/${placeId}/p${state.ap}_photo`]=url;
+    await db.ref('rooms/'+state.code).update(upd);
+    state.pendingBlob=null;
+    if(state.pendingPreviewUrl){URL.revokeObjectURL(state.pendingPreviewUrl);state.pendingPreviewUrl=null;}
+    closeValidate();
+  }catch(e){console.error(e);showInfo('❌','Échec','Échec de l\'envoi de la photo. Réessaie.');}
+  finally{$('#btn-confirm').disabled=false;$('#btn-confirm').textContent='Confirmer';}
 };
 
-function compressImage(file, maxPx) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      try {
-        const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+function compressImage(file,maxPx){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      try{
+        const ratio=Math.min(maxPx/img.width,maxPx/img.height,1);
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.round(img.width*ratio);
+        canvas.height=Math.round(img.height*ratio);
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
         URL.revokeObjectURL(url);
-        canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/jpeg', 0.8);
-      } catch (e) { URL.revokeObjectURL(url); reject(e); }
+        canvas.toBlob(b=>b?resolve(b):reject(new Error('toBlob failed')),'image/jpeg',0.8);
+      }catch(e){URL.revokeObjectURL(url);reject(e);}
     };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('img load')); };
-    img.src = url;
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('img load'));};
+    img.src=url;
   });
 }
 
-/* ============================================================
-   COMPASS
-============================================================ */
-$('#fab-compass').onclick = () => {
-  // open compass for the closest "mine" pending place
-  if (!state.room) return;
-  const slot = state.ap;
-  const myIds = (state.room.assigns && state.room.assigns['p' + slot]) || [];
-  const visits = state.room.visits || {};
-  const pending = myIds.filter(id => !(visits[id] && visits[id]['p' + slot]));
-  if (!pending.length) return showInfo('🎉', 'Tous validés', 'Tu n\'as plus de lieux à atteindre !');
-  // closest
-  if (state.curLat !== null) {
-    pending.sort((a, b) => {
-      const pa = state.room.places[a], pb = state.room.places[b];
-      return distMeters(state.curLat, state.curLng, pa.lat, pa.lng) - distMeters(state.curLat, state.curLng, pb.lat, pb.lng);
-    });
-  }
-  openCompass(pending[0]);
-};
-
-function openCompass(placeId) {
-  state.compassPlace = placeId;
-  const p = state.room.places[placeId];
-  $('#compass-target').textContent = p.name;
-  $('#btn-validate-from-compass').style.display = 'none';
-  $('#btn-validate-from-compass').onclick = () => {
-    hide($('#compass-overlay'));
-    openValidate(placeId);
-  };
-  show($('#compass-overlay'));
-  // iOS permission button
-  if (typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function' &&
-      !state.orientationAttached) {
-    $('#btn-permission').classList.add('show');
-    $('#btn-permission').onclick = async () => {
-      try {
-        const r = await DeviceOrientationEvent.requestPermission();
-        if (r === 'granted') {
-          attachOrientation();
-          $('#btn-permission').classList.remove('show');
-        }
-      } catch(e){ console.error(e); }
-    };
-  } else {
-    $('#btn-permission').classList.remove('show');
-  }
-  refreshCompass();
-}
-$('#compass-close').onclick = () => {
-  state.compassPlace = null;
-  hide($('#compass-overlay'));
-};
-
-function attachOrientation() {
-  if (state.orientationAttached) return;
-  const handler = (e) => {
-    let h = null;
-    if (typeof e.webkitCompassHeading === 'number') {
-      h = e.webkitCompassHeading;
-    } else if (typeof e.alpha === 'number') {
-      // alpha: 0 = north (with absolute=true). Convert.
-      h = (360 - e.alpha) % 360;
-    }
-    if (h !== null) {
-      state.heading = h;
-      if (state.compassPlace && $('#compass-overlay').classList.contains('show')) {
-        refreshCompass();
-      }
-    }
-  };
-  window.addEventListener('deviceorientationabsolute', handler, true);
-  window.addEventListener('deviceorientation', handler, true);
-  state.orientationAttached = true;
-}
-
-function refreshCompass() {
-  if (!state.compassPlace) return;
-  const p = state.room.places[state.compassPlace];
-  if (!p) return;
-  const arrow = $('#compass-arrow');
-  const radar = $('#compass-radar');
-  const onsite = $('#compass-onsite');
-  const circle = $('#compass-circle');
-
-  if (state.curLat === null) {
-    $('#compass-distance').textContent = 'Acquisition GPS…';
-    return;
-  }
-  const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
-  $('#compass-distance').textContent = Math.round(d) + 'm';
-
-  if (d <= 30) {
-    circle.style.display = 'none';
-    radar.classList.add('show');
-    onsite.classList.add('show');
-    $('#btn-validate-from-compass').style.display = 'inline-block';
-  } else {
-    circle.style.display = 'flex';
-    radar.classList.remove('show');
-    onsite.classList.remove('show');
-    $('#btn-validate-from-compass').style.display = 'none';
-
-    const bearing = getBearing({ lat: state.curLat, lng: state.curLng }, { lat: p.lat, lng: p.lng });
-    const angle = (bearing - state.heading + 360) % 360;
-    arrow.style.transform = 'rotate(' + angle + 'deg)';
-    $('#arrow-path').setAttribute('fill', arrowColorByDist(d));
-  }
-}
-
-/* ============================================================
-   RESET
-============================================================ */
-$('#btn-reset').onclick = () => show($('#popup-reset1'));
-$('#reset1-cancel').onclick = () => hide($('#popup-reset1'));
-$('#reset1-ok').onclick = () => { hide($('#popup-reset1')); show($('#popup-reset2')); };
-$('#reset2-cancel').onclick = () => hide($('#popup-reset2'));
-$('#reset2-ok').onclick = async () => {
+$('#btn-reset').onclick=()=>show($('#popup-reset1'));
+$('#reset1-cancel').onclick=()=>hide($('#popup-reset1'));
+$('#reset1-ok').onclick=()=>{hide($('#popup-reset1'));show($('#popup-reset2'));};
+$('#reset2-cancel').onclick=()=>hide($('#popup-reset2'));
+$('#reset2-ok').onclick=async()=>{
   hide($('#popup-reset2'));
-  try {
-    await db.ref('rooms/' + state.code + '/resetDone').set(true);
-  } catch(e) { console.error(e); }
-  try { localStorage.clear(); } catch(e){}
-  setTimeout(() => location.reload(), 300);
+  try{await db.ref('rooms/'+state.code+'/resetDone').set(true);}catch(e){console.error(e);}
+  try{localStorage.clear();}catch(e){}
+  setTimeout(()=>location.reload(),300);
 };
 
-/* ============================================================
-   WIN POPUP / GALLERY
-============================================================ */
-function showWinPopup() {
-  const w = state.room.winner;
-  const winnerName = state.room.names[w] || ('Joueur ' + (w+1));
-  $('#win-title').textContent = winnerName + ' a gagné ! 🏆';
-  $('#win-text').textContent = (w === state.ap) ? 'Bravo, tu remportes la partie.' : 'Bien joué, tu finiras la prochaine !';
+function showWinPopup(){
+  const w=state.room.winner;
+  const winnerName=state.room.names[w]||('Joueur '+(w+1));
+  $('#win-title').textContent=winnerName+' a gagné ! 🏆';
+  $('#win-text').textContent=(w===state.ap)?'Bravo, tu remportes la partie.':'Bien joué, tu finiras la prochaine !';
   show($('#popup-win'));
 }
-$('#btn-gallery').onclick = () => {
-  hide($('#popup-win'));
-  openGallery();
-};
-function openGallery() {
-  const w = state.room.winner;
-  const winnerName = state.room.names[w] || ('Joueur ' + (w+1));
-  $('#win-banner').textContent = winnerName + ' a gagné ! 🏆';
-  const grid = $('#gallery-grid');
-  while (grid.firstChild) grid.removeChild(grid.firstChild);
-
-  const visits = state.room.visits || {};
-  const places = state.room.places || {};
-  const items = [];
-  for (const id of Object.keys(visits)) {
-    for (const slot of [0, 1]) {
-      const v = visits[id];
-      if (v['p' + slot] && v['p' + slot + '_photo']) {
-        items.push({
-          id, slot,
-          photo: v['p' + slot + '_photo'],
-          time: v['p' + slot + '_time'] || '',
-          name: (places[id] && places[id].name) || '?',
-          who: state.room.names[slot] || ('Joueur ' + (slot+1))
-        });
+$('#btn-gallery').onclick=()=>{hide($('#popup-win'));openGallery();};
+function openGallery(){
+  const w=state.room.winner;
+  const winnerName=state.room.names[w]||('Joueur '+(w+1));
+  $('#win-banner').textContent=winnerName+' a gagné ! 🏆';
+  const grid=$('#gallery-grid');
+  while(grid.firstChild)grid.removeChild(grid.firstChild);
+  const visits=state.room.visits||{};const places=state.room.places||{};
+  const items=[];
+  for(const id of Object.keys(visits)){
+    for(const slot of [0,1]){
+      const v=visits[id];
+      if(v['p'+slot]&&v['p'+slot+'_photo']){
+        items.push({id,slot,photo:v['p'+slot+'_photo'],time:v['p'+slot+'_time']||'',name:(places[id]&&places[id].name)||'?',who:state.room.names[slot]||('Joueur '+(slot+1))});
       }
     }
   }
-  items.sort((a, b) => a.time.localeCompare(b.time));
-
-  for (const it of items) {
-    const div = document.createElement('div');
-    div.className = 'gallery-item';
-    const img = document.createElement('img');
-    img.src = it.photo; img.alt = '';
-    div.appendChild(img);
-    const info = document.createElement('div');
-    info.className = 'gallery-info';
-    const pl = document.createElement('div');
-    pl.className = 'pl p' + it.slot;
-    pl.textContent = it.who + ' · ' + it.time;
-    info.appendChild(pl);
-    const pn = document.createElement('div');
-    pn.className = 'pname';
-    pn.textContent = it.name;
-    info.appendChild(pn);
+  items.sort((a,b)=>a.time.localeCompare(b.time));
+  for(const it of items){
+    const div=document.createElement('div');div.className='gallery-item';
+    const img=document.createElement('img');img.src=it.photo;img.alt='';div.appendChild(img);
+    const info=document.createElement('div');info.className='gallery-info';
+    const pl=document.createElement('div');pl.className='pl p'+it.slot;pl.textContent=it.who+' · '+it.time;info.appendChild(pl);
+    const pn=document.createElement('div');pn.className='pname';pn.textContent=it.name;info.appendChild(pn);
     div.appendChild(info);
-    div.addEventListener('click', () => {
-      $('#full-img').src = it.photo;
-      show($('#fullscreen-img'));
-    });
+    div.addEventListener('click',()=>{$('#full-img').src=it.photo;show($('#fullscreen-img'));});
     grid.appendChild(div);
   }
-
   show($('#gallery-overlay'));
 }
-$('#gallery-close').onclick = () => hide($('#gallery-overlay'));
-$('#btn-new-game').onclick = async () => {
-  try { await db.ref('rooms/' + state.code + '/resetDone').set(true); } catch(e){}
-  setTimeout(() => location.reload(), 200);
-};
-$('#fullscreen-img').onclick = () => hide($('#fullscreen-img'));
+$('#gallery-close').onclick=()=>hide($('#gallery-overlay'));
+$('#btn-new-game').onclick=async()=>{try{await db.ref('rooms/'+state.code+'/resetDone').set(true);}catch(e){}setTimeout(()=>location.reload(),200);};
+$('#fullscreen-img').onclick=()=>hide($('#fullscreen-img'));
 
-/* ============================================================
-   INIT — show fab on game screen
-============================================================ */
-const obs = new MutationObserver(() => {
-  $('#fab-compass').classList.toggle('show', $('#screen-game').classList.contains('active'));
-});
-obs.observe($('#screen-game'), { attributes: true, attributeFilter: ['class'] });
-
-// Connection status
-db.ref('.info/connected').on('value', s => setSync(!!s.val()));
-
+db.ref('.info/connected').on('value',s=>setSync(!!s.val()));
 </script>
 </body>
 </html>
