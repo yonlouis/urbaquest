@@ -319,6 +319,26 @@ input:focus { border-color: var(--text2); }
 }
 .border-bar.visible { opacity: .92; }
 
+/* DEBUG PANEL */
+.debug-panel {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 4px);
+  left: 8px;
+  z-index: 250;
+  background: rgba(0,0,0,.85);
+  color: #0f0;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #0f0;
+  display: none;
+  max-width: 220px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+.debug-panel.show { display: block; }
+
 /* ===== POPUPS ===== */
 .popup {
   position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200;
@@ -458,6 +478,9 @@ input:focus { border-color: var(--text2); }
   <div class="border-bar" id="border-bar"></div>
 </div>
 
+<!-- DEBUG PANEL -->
+<div class="debug-panel" id="debug-panel"></div>
+
 <!-- VALIDATE OVERLAY -->
 <div class="overlay" id="validate-overlay">
   <div class="validate-backdrop" id="validate-backdrop"></div>
@@ -573,6 +596,7 @@ const state = {
   startLat: null, startLng: null,
   curLat: null, curLng: null,
   heading: 0, watchId: null, orientationAttached: false,
+  orientationEvents: 0, lastHeadingSrc: '?',
   room: null, roomRef: null,
   selectedTab: 0, filter: 'all',
   validatingPlace: null,
@@ -609,12 +633,17 @@ function startWatchGPS(){
 function attachOrientation(){
   if(state.orientationAttached)return;
   const handler=(e)=>{
-    let h=null;
-    if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;
-    else if(typeof e.alpha==='number') h=(360-e.alpha)%360;
+    state.orientationEvents++;
+    let h=null;let src='none';
+    if(typeof e.webkitCompassHeading==='number'){h=e.webkitCompassHeading;src='webkit';}
+    else if(typeof e.alpha==='number'){h=(360-e.alpha)%360;src='alpha';}
     if(h!==null){
       state.heading=h;
-      if(state.validatingPlace)updateBorderCompass();
+      state.lastHeadingSrc=src;
+      if(state.validatingPlace){updateBorderCompass();updateDebug();}
+    }else{
+      state.lastHeadingSrc='null';
+      if(state.validatingPlace)updateDebug();
     }
   };
   window.addEventListener('deviceorientationabsolute',handler,true);
@@ -973,6 +1002,7 @@ async function openValidate(placeId){
   show($('#border-compass'));
   refreshValidateDistance();
   updateBorderCompass();
+  updateDebug();
   ensureOrientationPermission();
 }
 function refreshValidateDistance(){
@@ -996,58 +1026,114 @@ function refreshValidateDistance(){
 /* ====== BORDER COMPASS ====== */
 function updateBorderCompass(){
   const bar=$('#border-bar');
-  if(!state.validatingPlace||state.curLat===null){bar.classList.remove('visible');return;}
+  if(!state.validatingPlace||state.curLat===null){
+    bar.classList.remove('visible');
+    return;
+  }
   const p=state.room.places[state.validatingPlace];
   const d=distMeters(state.curLat,state.curLng,p.lat,p.lng);
   if(d<=30){bar.classList.remove('visible');return;}
+
   const bearing=getBearing({lat:state.curLat,lng:state.curLng},{lat:p.lat,lng:p.lng});
   const angle=((bearing-state.heading)+360)%360;
   const color=colorByDist(d);
 
-  // Reset
-  bar.style.cssText='';
+  // Reset all positioning props (avoid stale values from previous sector)
+  bar.style.top='';
+  bar.style.bottom='';
+  bar.style.left='';
+  bar.style.right='';
+  bar.style.width='';
+  bar.style.height='';
+  bar.style.borderRadius='4px';
   bar.style.background=color;
   bar.style.boxShadow='0 0 24px '+color;
 
-  const ST='env(safe-area-inset-top)';
-  const SB='env(safe-area-inset-bottom)';
-
   // 8 secteurs de 45°
   const sector=Math.round(angle/45)%8;
-  // 0=N(haut centré), 1=NE(coin haut-droit), 2=E(droite centré),
-  // 3=SE(bas-droit), 4=S(bas centré), 5=SO(bas-gauche),
-  // 6=O(gauche centré), 7=NO(haut-gauche)
 
-  const COMMON_H='height:6px;border-radius:4px;';
-  const COMMON_V='width:6px;border-radius:4px;';
+  // padding from edge (account for safe area)
+  const padTop='calc(env(safe-area-inset-top) + 8px)';
+  const padBot='calc(env(safe-area-inset-bottom) + 8px)';
 
   switch(sector){
-    case 0: // Nord — haut, centré
-      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);left:30%;width:40%;background:${color};box-shadow:0 0 24px ${color};`;
+    case 0: // Nord — haut, centré horizontalement
+      bar.style.top=padTop;
+      bar.style.left='30%';
+      bar.style.width='40%';
+      bar.style.height='6px';
       break;
-    case 2: // Est — droite, centré
-      bar.style.cssText+=`${COMMON_V}right:8px;top:30%;height:40%;background:${color};box-shadow:0 0 24px ${color};`;
+    case 1: // NE — haut-droit
+      bar.style.top=padTop;
+      bar.style.right='8px';
+      bar.style.width='38%';
+      bar.style.height='6px';
+      break;
+    case 2: // Est — droite, centré vertical
+      bar.style.right='8px';
+      bar.style.top='30%';
+      bar.style.height='40%';
+      bar.style.width='6px';
+      break;
+    case 3: // SE — bas-droit
+      bar.style.bottom=padBot;
+      bar.style.right='8px';
+      bar.style.width='38%';
+      bar.style.height='6px';
       break;
     case 4: // Sud — bas, centré
-      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);left:30%;width:40%;background:${color};box-shadow:0 0 24px ${color};`;
+      bar.style.bottom=padBot;
+      bar.style.left='30%';
+      bar.style.width='40%';
+      bar.style.height='6px';
       break;
-    case 6: // Ouest — gauche, centré
-      bar.style.cssText+=`${COMMON_V}left:8px;top:30%;height:40%;background:${color};box-shadow:0 0 24px ${color};`;
+    case 5: // SO — bas-gauche
+      bar.style.bottom=padBot;
+      bar.style.left='8px';
+      bar.style.width='38%';
+      bar.style.height='6px';
       break;
-    case 1: // NE — coin haut-droit
-      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);right:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+    case 6: // Ouest — gauche, centré vertical
+      bar.style.left='8px';
+      bar.style.top='30%';
+      bar.style.height='40%';
+      bar.style.width='6px';
       break;
-    case 3: // SE — coin bas-droit
-      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);right:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
-      break;
-    case 5: // SO — coin bas-gauche
-      bar.style.cssText+=`${COMMON_H}bottom:calc(${SB} + 8px);left:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
-      break;
-    case 7: // NO — coin haut-gauche
-      bar.style.cssText+=`${COMMON_H}top:calc(${ST} + 8px);left:8px;width:38%;background:${color};box-shadow:0 0 24px ${color};`;
+    case 7: // NO — haut-gauche
+      bar.style.top=padTop;
+      bar.style.left='8px';
+      bar.style.width='38%';
+      bar.style.height='6px';
       break;
   }
   bar.classList.add('visible');
+  updateDebug();
+}
+
+function updateDebug(){
+  if(!state.validatingPlace)return;
+  const panel=$('#debug-panel');
+  if(!panel.classList.contains('show'))panel.classList.add('show');
+  const p=state.room.places[state.validatingPlace];
+  let bearing='?',angle='?',sector='?';
+  if(state.curLat!==null){
+    const b=getBearing({lat:state.curLat,lng:state.curLng},{lat:p.lat,lng:p.lng});
+    bearing=Math.round(b);
+    const a=((b-state.heading)+360)%360;
+    angle=Math.round(a);
+    sector=Math.round(a/45)%8;
+  }
+  const d=state.curLat!==null?Math.round(distMeters(state.curLat,state.curLng,p.lat,p.lng)):'?';
+  const sectorNames=['N','NE','E','SE','S','SO','O','NO'];
+  const barVisible=$('#border-bar').classList.contains('visible')?'OUI':'NON';
+  panel.textContent=
+    `evts: ${state.orientationEvents} (${state.lastHeadingSrc})
+heading: ${Math.round(state.heading)}°
+bearing: ${bearing}°
+angle: ${angle}°
+secteur: ${sector} (${sectorNames[sector]||'?'})
+dist: ${d}m
+barre: ${barVisible}`;
 }
 
 function closeValidate(){
@@ -1055,6 +1141,7 @@ function closeValidate(){
   hide($('#validate-overlay'));
   hide($('#border-compass'));
   hide($('#preview-stage'));
+  hide($('#debug-panel'));
 }
 $('#validate-close').onclick=closeValidate;
 $('#validate-backdrop').onclick=closeValidate;
