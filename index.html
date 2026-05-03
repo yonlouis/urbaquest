@@ -240,8 +240,12 @@ input:focus { border-color: var(--text2); }
   transform: translate(-50%, -50%);
   z-index: 10;
   background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 22px; padding: 28px 24px;
-  width: min(86vw, 380px); text-align: center;
+  border-radius: 22px; padding: 36px 28px;
+  width: min(86vw, 360px);
+  min-height: 320px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
   box-shadow: 0 12px 40px rgba(0,0,0,.6);
 }
 .validate-target { font-size: 22px; font-weight: 800; line-height: 1.25; margin-bottom: 14px; }
@@ -261,23 +265,23 @@ input:focus { border-color: var(--text2); }
 }
 .validate-fab {
   pointer-events: auto;
-  width: 84px; height: 84px; border-radius: 50%;
+  width: 96px; height: 96px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 34px;
-  background: var(--bg3); color: var(--text3);
-  border: 2px solid var(--border);
-  transition: all .3s ease;
-  box-shadow: 0 6px 24px rgba(0,0,0,.5);
+  background: transparent;
+  color: var(--text3);
+  border: none;
+  transition: color .3s ease, transform .2s ease;
+  padding: 0;
 }
+.validate-fab svg { width: 64px; height: 64px; display: block; }
 .validate-fab.ready {
-  background: var(--green); color: white;
-  border-color: var(--green);
-  box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 0 rgba(34,197,94,.6);
+  color: var(--green);
   animation: fabPulse 1.6s ease-in-out infinite;
 }
+.validate-fab.ready:active { transform: scale(.92); }
 @keyframes fabPulse {
-  0%, 100% { box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 0 rgba(34,197,94,.6); }
-  70% { box-shadow: 0 6px 24px rgba(34,197,94,.5), 0 0 0 18px rgba(34,197,94,0); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .file-hidden { display: none; }
@@ -300,24 +304,37 @@ input:focus { border-color: var(--text2); }
 .preview-actions { display: flex; gap: 10px; margin-top: 14px; }
 .preview-actions button { flex: 1; }
 
-/* ===== BORDER COMPASS ===== */
-.border-compass {
-  position: fixed; inset: 0;
+/* ===== CARD COMPASS (barre autour de la tuile) ===== */
+.card-compass {
+  position: absolute;
   pointer-events: none;
-  z-index: 90;
+  z-index: 15;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(86vw, 360px);
+  min-height: 320px;
+  /* same dims as .validate-card */
   display: none;
 }
-.border-compass.show { display: block; }
-.border-bar {
+.card-compass.show { display: block; }
+
+.cc-bar {
   position: absolute;
-  background: var(--green);
+  background: #22c55e;
+  border-radius: 6px;
   opacity: 0;
-  transition: opacity .25s ease, top .35s ease, bottom .35s ease,
-              left .35s ease, right .35s ease,
-              width .35s ease, height .35s ease, background-color .3s;
-  border-radius: 4px;
+  /* No CSS transitions on position — JS smoothing handles fluidity at 60fps.
+     Only opacity & color have transitions. */
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease,
+    opacity 0.3s ease;
+  will-change: top, left, width, height;
 }
-.border-bar.visible { opacity: .92; }
+.cc-bar.visible { opacity: 0.95; }
+
+/* Old border-compass kept for backward compat but invisible */
+.border-compass { display: none; }
 
 /* DEBUG PANEL */
 .debug-panel {
@@ -473,11 +490,6 @@ input:focus { border-color: var(--text2); }
   <div class="list-wrap" id="list-wrap"></div>
 </div>
 
-<!-- BORDER COMPASS -->
-<div class="border-compass" id="border-compass">
-  <div class="border-bar" id="border-bar"></div>
-</div>
-
 <!-- DEBUG PANEL -->
 <div class="debug-panel" id="debug-panel"></div>
 
@@ -489,6 +501,11 @@ input:focus { border-color: var(--text2); }
     <button class="btn-close-x" id="validate-close" aria-label="Fermer">✕</button>
   </div>
 
+  <!-- Card compass (barre autour de la tuile) -->
+  <div class="card-compass" id="card-compass">
+    <div class="cc-bar" id="cc-bar"></div>
+  </div>
+
   <div class="validate-card" id="validate-card">
     <div class="validate-target" id="validate-target"></div>
     <div class="validate-distance" id="validate-distance">--</div>
@@ -496,7 +513,12 @@ input:focus { border-color: var(--text2); }
   </div>
 
   <div class="validate-fab-wrap">
-    <button class="validate-fab" id="validate-fab" aria-label="Valider">📷</button>
+    <button class="validate-fab" id="validate-fab" aria-label="Valider">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7h3l2-3h8l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+    </button>
   </div>
 
   <input type="file" id="file-camera" accept="image/*" capture="environment" class="file-hidden">
@@ -595,13 +617,15 @@ const state = {
   code: null, ap: 0, myName: '',
   startLat: null, startLng: null,
   curLat: null, curLng: null,
-  heading: 0, watchId: null, orientationAttached: false,
+  heading: 0, smoothedHeading: null,
+  watchId: null, orientationAttached: false,
   orientationEvents: 0, lastHeadingSrc: '?',
   room: null, roomRef: null,
   selectedTab: 0, filter: 'all',
   validatingPlace: null,
   pendingBlob: null, pendingPreviewUrl: null,
   syncOk: false,
+  compassRafId: null,
 };
 
 function $(s){return document.querySelector(s);}
@@ -640,11 +664,10 @@ function attachOrientation(){
     if(h!==null){
       state.heading=h;
       state.lastHeadingSrc=src;
-      if(state.validatingPlace){updateBorderCompass();updateDebug();}
     }else{
       state.lastHeadingSrc='null';
-      if(state.validatingPlace)updateDebug();
     }
+    // Note: pas d'appel à updateBorderCompass ici, le RAF loop s'en charge
   };
   window.addEventListener('deviceorientationabsolute',handler,true);
   window.addEventListener('deviceorientation',handler,true);
@@ -847,7 +870,7 @@ function enterGame(){
 function setSync(ok){state.syncOk=ok;$('#sync-dot').classList.toggle('off',!ok);}
 function onPositionUpdate(){
   if(state.validatingPlace&&$('#validate-overlay').classList.contains('show')){
-    refreshValidateDistance();updateBorderCompass();
+    refreshValidateDistance();
   }
 }
 
@@ -993,15 +1016,27 @@ function buildCard(id,slotForCard,kind){
 async function openValidate(placeId){
   state.validatingPlace=placeId;
   state.pendingBlob=null;
+  state.smoothedHeading=null;
   if(state.pendingPreviewUrl){URL.revokeObjectURL(state.pendingPreviewUrl);state.pendingPreviewUrl=null;}
   hide($('#preview-stage'));
   const p=state.room.places[placeId];
   $('#validate-target').textContent=p.name;
   $('#validate-fab').classList.remove('ready');
   show($('#validate-overlay'));
-  show($('#border-compass'));
   refreshValidateDistance();
-  updateBorderCompass();
+  // Start animation loop pour fluidité (le lissage continue d'avancer
+  // même entre 2 events orientation)
+  if(state.compassRafId===null){
+    const tick=()=>{
+      if(state.validatingPlace){
+        updateBorderCompass();
+        state.compassRafId=requestAnimationFrame(tick);
+      }else{
+        state.compassRafId=null;
+      }
+    };
+    state.compassRafId=requestAnimationFrame(tick);
+  }
   updateDebug();
   ensureOrientationPermission();
 }
@@ -1023,89 +1058,113 @@ function refreshValidateDistance(){
   else fab.classList.remove('ready');
 }
 
-/* ====== BORDER COMPASS ====== */
+/* ====== CARD COMPASS (continu, autour de la tuile) ======
+   On positionne une barre sur le périmètre d'un rectangle
+   correspondant à la validate-card. L'angle (0=N=haut, 90=E=droite,
+   180=S=bas, 270=O=gauche) est mappé en continu sur le périmètre.
+   La barre fait ~1/3 du côté correspondant et est centrée sur le
+   point calculé.
+*/
+function rectPointFromAngle(angleDeg, w, h) {
+  // Angle en radians, 0° = haut, 90° = droite (sens horaire)
+  const a = (angleDeg % 360 + 360) % 360;
+  const rad = a * Math.PI / 180;
+  // Direction depuis le centre
+  const dx = Math.sin(rad);
+  const dy = -Math.cos(rad);
+  // On scale pour tomber sur le bord du rectangle [-w/2..w/2] x [-h/2..h/2]
+  const sx = dx === 0 ? Infinity : (w/2) / Math.abs(dx);
+  const sy = dy === 0 ? Infinity : (h/2) / Math.abs(dy);
+  const s = Math.min(sx, sy);
+  const x = dx * s;
+  const y = dy * s;
+  // Quel côté ? (en cas d'égalité on choisit horizontal)
+  let side; // 'top','right','bottom','left'
+  if (s === sy) side = dy < 0 ? 'top' : 'bottom';
+  else side = dx > 0 ? 'right' : 'left';
+  return { x, y, side };
+}
+
+// Heading lissé pour éviter les sauts (filtre exponentiel + gestion 0/360)
+// Appelé à 60fps via le RAF loop. alpha = vitesse de convergence.
+// alpha plus petit = mouvement plus lent et plus lisse.
+function smoothHeading(target) {
+  const cur = state.smoothedHeading;
+  if (cur === null || cur === undefined) {
+    state.smoothedHeading = target;
+    return target;
+  }
+  // diff dans [-180,180] (gestion du wrap 0/360)
+  let diff = ((target - cur + 540) % 360) - 180;
+  // Mouvement lent et fluide
+  const alpha = 0.06;
+  const next = (cur + diff * alpha + 360) % 360;
+  state.smoothedHeading = next;
+  return next;
+}
+
 function updateBorderCompass(){
-  const bar=$('#border-bar');
-  if(!state.validatingPlace||state.curLat===null){
+  const bar = $('#cc-bar');
+  const cc  = $('#card-compass');
+  if(!state.validatingPlace || state.curLat === null){
     bar.classList.remove('visible');
     return;
   }
-  const p=state.room.places[state.validatingPlace];
-  const d=distMeters(state.curLat,state.curLng,p.lat,p.lng);
-  if(d<=30){bar.classList.remove('visible');return;}
-
-  const bearing=getBearing({lat:state.curLat,lng:state.curLng},{lat:p.lat,lng:p.lng});
-  const angle=((bearing-state.heading)+360)%360;
-  const color=colorByDist(d);
-
-  // Reset all positioning props (avoid stale values from previous sector)
-  bar.style.top='';
-  bar.style.bottom='';
-  bar.style.left='';
-  bar.style.right='';
-  bar.style.width='';
-  bar.style.height='';
-  bar.style.borderRadius='4px';
-  bar.style.background=color;
-  bar.style.boxShadow='0 0 24px '+color;
-
-  // 8 secteurs de 45°
-  const sector=Math.round(angle/45)%8;
-
-  // padding from edge (account for safe area)
-  const padTop='calc(env(safe-area-inset-top) + 8px)';
-  const padBot='calc(env(safe-area-inset-bottom) + 8px)';
-
-  switch(sector){
-    case 0: // Nord — haut, centré horizontalement
-      bar.style.top=padTop;
-      bar.style.left='30%';
-      bar.style.width='40%';
-      bar.style.height='6px';
-      break;
-    case 1: // NE — haut-droit
-      bar.style.top=padTop;
-      bar.style.right='8px';
-      bar.style.width='38%';
-      bar.style.height='6px';
-      break;
-    case 2: // Est — droite, centré vertical
-      bar.style.right='8px';
-      bar.style.top='30%';
-      bar.style.height='40%';
-      bar.style.width='6px';
-      break;
-    case 3: // SE — bas-droit
-      bar.style.bottom=padBot;
-      bar.style.right='8px';
-      bar.style.width='38%';
-      bar.style.height='6px';
-      break;
-    case 4: // Sud — bas, centré
-      bar.style.bottom=padBot;
-      bar.style.left='30%';
-      bar.style.width='40%';
-      bar.style.height='6px';
-      break;
-    case 5: // SO — bas-gauche
-      bar.style.bottom=padBot;
-      bar.style.left='8px';
-      bar.style.width='38%';
-      bar.style.height='6px';
-      break;
-    case 6: // Ouest — gauche, centré vertical
-      bar.style.left='8px';
-      bar.style.top='30%';
-      bar.style.height='40%';
-      bar.style.width='6px';
-      break;
-    case 7: // NO — haut-gauche
-      bar.style.top=padTop;
-      bar.style.left='8px';
-      bar.style.width='38%';
-      bar.style.height='6px';
-      break;
+  const p = state.room.places[state.validatingPlace];
+  const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
+  if(d <= 30){
+    bar.classList.remove('visible');
+    return;
   }
+
+  cc.classList.add('show');
+
+  const bearing = getBearing({lat:state.curLat, lng:state.curLng}, {lat:p.lat, lng:p.lng});
+  const smoothed = smoothHeading(state.heading);
+  const angle = ((bearing - smoothed) + 360) % 360;
+  const color = colorByDist(d);
+
+  // Dimensions de la card-compass = mêmes que la validate-card
+  const rect = cc.getBoundingClientRect();
+  const W = rect.width;
+  const H = rect.height;
+  if (W === 0 || H === 0) return;
+
+  const { x, y, side } = rectPointFromAngle(angle, W, H);
+
+  // Taille de la barre = ~1/3 du côté
+  const BAR_THICK = 8;
+  const BAR_LEN_H = Math.max(60, W * 0.33);
+  const BAR_LEN_V = Math.max(60, H * 0.33);
+
+  // Reset
+  bar.style.top = '';
+  bar.style.left = '';
+  bar.style.width = '';
+  bar.style.height = '';
+  bar.style.background = color;
+  bar.style.boxShadow = '0 0 16px ' + color;
+
+  // x,y sont relatifs au centre. On convertit en coords (top,left) du conteneur (origin top-left)
+  const cx = W/2 + x;
+  const cy = H/2 + y;
+
+  if (side === 'top' || side === 'bottom') {
+    bar.style.height = BAR_THICK + 'px';
+    bar.style.width  = BAR_LEN_H + 'px';
+    bar.style.left   = (cx - BAR_LEN_H/2) + 'px';
+    if (side === 'top')    bar.style.top = (-BAR_THICK/2) + 'px';
+    else                   bar.style.top = (H - BAR_THICK/2) + 'px';
+  } else { // left or right
+    bar.style.width  = BAR_THICK + 'px';
+    bar.style.height = BAR_LEN_V + 'px';
+    bar.style.top    = (cy - BAR_LEN_V/2) + 'px';
+    if (side === 'left')   bar.style.left = (-BAR_THICK/2) + 'px';
+    else                   bar.style.left = (W - BAR_THICK/2) + 'px';
+  }
+
+  // Clamp pour ne pas déborder visuellement aux coins
+  // (pas critique car transition gère, mais évite les valeurs absurdes)
   bar.classList.add('visible');
   updateDebug();
 }
@@ -1115,31 +1174,34 @@ function updateDebug(){
   const panel=$('#debug-panel');
   if(!panel.classList.contains('show'))panel.classList.add('show');
   const p=state.room.places[state.validatingPlace];
-  let bearing='?',angle='?',sector='?';
+  let bearing='?',angle='?';
   if(state.curLat!==null){
     const b=getBearing({lat:state.curLat,lng:state.curLng},{lat:p.lat,lng:p.lng});
     bearing=Math.round(b);
-    const a=((b-state.heading)+360)%360;
+    const sm = state.smoothedHeading != null ? state.smoothedHeading : state.heading;
+    const a=((b-sm)+360)%360;
     angle=Math.round(a);
-    sector=Math.round(a/45)%8;
   }
   const d=state.curLat!==null?Math.round(distMeters(state.curLat,state.curLng,p.lat,p.lng)):'?';
-  const sectorNames=['N','NE','E','SE','S','SO','O','NO'];
-  const barVisible=$('#border-bar').classList.contains('visible')?'OUI':'NON';
+  const barVisible=$('#cc-bar').classList.contains('visible')?'OUI':'NON';
   panel.textContent=
     `evts: ${state.orientationEvents} (${state.lastHeadingSrc})
 heading: ${Math.round(state.heading)}°
+smooth: ${state.smoothedHeading!=null?Math.round(state.smoothedHeading):'-'}°
 bearing: ${bearing}°
 angle: ${angle}°
-secteur: ${sector} (${sectorNames[sector]||'?'})
 dist: ${d}m
 barre: ${barVisible}`;
 }
 
 function closeValidate(){
   state.validatingPlace=null;
+  if(state.compassRafId!==null){
+    cancelAnimationFrame(state.compassRafId);
+    state.compassRafId=null;
+  }
+  $('#card-compass').classList.remove('show');
   hide($('#validate-overlay'));
-  hide($('#border-compass'));
   hide($('#preview-stage'));
   hide($('#debug-panel'));
 }
