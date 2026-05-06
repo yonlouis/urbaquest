@@ -256,6 +256,23 @@ input:focus { border-color: var(--text2); }
 }
 .validate-msg { color: var(--text2); font-size: 14px; min-height: 20px; }
 
+.btn-map {
+  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background .15s, transform .15s;
+}
+.btn-map:active { transform: scale(.96); background: rgba(255,255,255,.1); }
+.btn-map svg { width: 18px; height: 18px; flex-shrink: 0; }
+
 .validate-fab-wrap {
   position: absolute; left: 0; right: 0;
   bottom: calc(env(safe-area-inset-bottom) + 28px);
@@ -313,25 +330,24 @@ input:focus { border-color: var(--text2); }
   transform: translate(-50%, -50%);
   width: min(86vw, 360px);
   min-height: 320px;
-  /* same dims as .validate-card */
   display: none;
 }
 .card-compass.show { display: block; }
 
-.cc-bar {
+/* Two segments — they form an L when both are present (corner mode) */
+.cc-seg {
   position: absolute;
   background: #22c55e;
   border-radius: 6px;
   opacity: 0;
-  /* No CSS transitions on position — JS smoothing handles fluidity at 60fps.
-     Only opacity & color have transitions. */
+  /* No CSS transitions on geometry — JS smoothing handles it at 60fps */
   transition:
     background-color 0.4s ease,
     box-shadow 0.4s ease,
     opacity 0.3s ease;
   will-change: top, left, width, height;
 }
-.cc-bar.visible { opacity: 0.95; }
+.cc-seg.visible { opacity: 0.95; }
 
 /* Old border-compass kept for backward compat but invisible */
 .border-compass { display: none; }
@@ -356,7 +372,78 @@ input:focus { border-color: var(--text2); }
 }
 .debug-panel.show { display: block; }
 
-/* ===== POPUPS ===== */
+/* ===== MAP OVERLAY ===== */
+.map-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.96);
+  z-index: 220;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.map-overlay.show { display: flex; }
+.map-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px;
+}
+.map-title {
+  font-weight: 700; font-size: 16px;
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-right: 12px;
+}
+.map-stage {
+  flex: 1; min-height: 0;
+  position: relative;
+  margin: 0 16px 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.map-loading, .map-error {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  color: var(--text2);
+  text-align: center; padding: 20px;
+}
+.map-error { color: var(--red); display: none; }
+.map-error.show { display: flex; }
+.map-marker {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+}
+.map-marker-dot {
+  width: 18px; height: 18px;
+  background: var(--red);
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(239,68,68,.6);
+  animation: markerPulse 1.6s ease-out infinite;
+}
+@keyframes markerPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,.7); }
+  70%  { box-shadow: 0 0 0 22px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+.map-info {
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--text2);
+  font-size: 13px;
+}
 .popup {
   position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200;
   display: none; align-items: center; justify-content: center; padding: 20px;
@@ -503,13 +590,22 @@ input:focus { border-color: var(--text2); }
 
   <!-- Card compass (barre autour de la tuile) -->
   <div class="card-compass" id="card-compass">
-    <div class="cc-bar" id="cc-bar"></div>
+    <div class="cc-seg" id="cc-seg-h"></div>
+    <div class="cc-seg" id="cc-seg-v"></div>
   </div>
 
   <div class="validate-card" id="validate-card">
     <div class="validate-target" id="validate-target"></div>
     <div class="validate-distance" id="validate-distance">--</div>
     <div class="validate-msg" id="validate-msg">Calcul…</div>
+    <button class="btn-map" id="btn-map" aria-label="Voir la carte">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+        <line x1="9" y1="3" x2="9" y2="18"/>
+        <line x1="15" y1="6" x2="15" y2="21"/>
+      </svg>
+      <span>Voir sur la carte</span>
+    </button>
   </div>
 
   <div class="validate-fab-wrap">
@@ -530,6 +626,30 @@ input:focus { border-color: var(--text2); }
       <button class="btn-primary" id="btn-confirm" style="margin-top:0;">Confirmer</button>
     </div>
   </div>
+</div>
+
+<!-- MAP OVERLAY -->
+<div class="map-overlay" id="map-overlay">
+  <div class="map-header">
+    <div class="map-title" id="map-title"></div>
+    <button class="btn-close-x" id="map-close" aria-label="Fermer">✕</button>
+  </div>
+  <div class="map-stage" id="map-stage">
+    <div class="map-loading" id="map-loading">
+      <span class="spinner"></span>
+      <div>Chargement de la carte…</div>
+    </div>
+    <div class="map-error" id="map-error">
+      <div style="font-size:32px">🗺️</div>
+      <div>Carte indisponible</div>
+      <div style="color:var(--text2);font-size:13px">Vérifie ta connexion</div>
+    </div>
+    <img class="map-img" id="map-img" alt="" style="display:none">
+    <div class="map-marker" id="map-marker">
+      <div class="map-marker-dot"></div>
+    </div>
+  </div>
+  <div class="map-info" id="map-info"></div>
 </div>
 
 <!-- POPUPS -->
@@ -1058,36 +1178,8 @@ function refreshValidateDistance(){
   else fab.classList.remove('ready');
 }
 
-/* ====== CARD COMPASS (continu, autour de la tuile) ======
-   On positionne une barre sur le périmètre d'un rectangle
-   correspondant à la validate-card. L'angle (0=N=haut, 90=E=droite,
-   180=S=bas, 270=O=gauche) est mappé en continu sur le périmètre.
-   La barre fait ~1/3 du côté correspondant et est centrée sur le
-   point calculé.
-*/
-function rectPointFromAngle(angleDeg, w, h) {
-  // Angle en radians, 0° = haut, 90° = droite (sens horaire)
-  const a = (angleDeg % 360 + 360) % 360;
-  const rad = a * Math.PI / 180;
-  // Direction depuis le centre
-  const dx = Math.sin(rad);
-  const dy = -Math.cos(rad);
-  // On scale pour tomber sur le bord du rectangle [-w/2..w/2] x [-h/2..h/2]
-  const sx = dx === 0 ? Infinity : (w/2) / Math.abs(dx);
-  const sy = dy === 0 ? Infinity : (h/2) / Math.abs(dy);
-  const s = Math.min(sx, sy);
-  const x = dx * s;
-  const y = dy * s;
-  // Quel côté ? (en cas d'égalité on choisit horizontal)
-  let side; // 'top','right','bottom','left'
-  if (s === sy) side = dy < 0 ? 'top' : 'bottom';
-  else side = dx > 0 ? 'right' : 'left';
-  return { x, y, side };
-}
-
 // Heading lissé pour éviter les sauts (filtre exponentiel + gestion 0/360)
-// Appelé à 60fps via le RAF loop. alpha = vitesse de convergence.
-// alpha plus petit = mouvement plus lent et plus lisse.
+// Appelé à 60fps via le RAF loop. alpha plus petit = plus lent / plus lisse.
 function smoothHeading(target) {
   const cur = state.smoothedHeading;
   if (cur === null || cur === undefined) {
@@ -1096,24 +1188,38 @@ function smoothHeading(target) {
   }
   // diff dans [-180,180] (gestion du wrap 0/360)
   let diff = ((target - cur + 540) % 360) - 180;
-  // Mouvement lent et fluide
-  const alpha = 0.06;
+  // Plus petit = plus lent. ~3× plus lent que la version précédente.
+  const alpha = 0.022;
   const next = (cur + diff * alpha + 360) % 360;
   state.smoothedHeading = next;
   return next;
 }
 
+/* ====== CARD COMPASS (continu, autour de la tuile, avec coins en L) ======
+   Stratégie :
+   - On a 2 segments : un horizontal (haut OU bas) et un vertical (gauche OU droite).
+   - Pour chaque angle, on détermine vers quel coin on se rapproche le plus,
+     puis on alloue la longueur disponible entre les deux segments.
+   - Quand l'angle pointe pile vers un côté (N/E/S/O), un seul segment est visible
+     (l'autre a longueur 0).
+   - Quand il pointe pile vers un coin (NE/SE/SO/NO), les deux segments sont
+     présents avec longueur égale, formant un L.
+   - Entre les deux, la longueur des deux segments varie continûment.
+*/
 function updateBorderCompass(){
-  const bar = $('#cc-bar');
-  const cc  = $('#card-compass');
+  const segH = $('#cc-seg-h');
+  const segV = $('#cc-seg-v');
+  const cc   = $('#card-compass');
   if(!state.validatingPlace || state.curLat === null){
-    bar.classList.remove('visible');
+    segH.classList.remove('visible');
+    segV.classList.remove('visible');
     return;
   }
   const p = state.room.places[state.validatingPlace];
   const d = distMeters(state.curLat, state.curLng, p.lat, p.lng);
   if(d <= 30){
-    bar.classList.remove('visible');
+    segH.classList.remove('visible');
+    segV.classList.remove('visible');
     return;
   }
 
@@ -1121,51 +1227,146 @@ function updateBorderCompass(){
 
   const bearing = getBearing({lat:state.curLat, lng:state.curLng}, {lat:p.lat, lng:p.lng});
   const smoothed = smoothHeading(state.heading);
-  const angle = ((bearing - smoothed) + 360) % 360;
+  const angle = ((bearing - smoothed) + 360) % 360; // 0=devant, 90=droite, 180=derrière, 270=gauche
   const color = colorByDist(d);
 
-  // Dimensions de la card-compass = mêmes que la validate-card
   const rect = cc.getBoundingClientRect();
   const W = rect.width;
   const H = rect.height;
   if (W === 0 || H === 0) return;
 
-  const { x, y, side } = rectPointFromAngle(angle, W, H);
+  // Longueur de référence augmentée de 30% (était 0.33, devient 0.43)
+  const LEN_REF_H = Math.max(78, W * 0.43);
+  const LEN_REF_V = Math.max(78, H * 0.43);
+  const THICK = 8;
 
-  // Taille de la barre = ~1/3 du côté
-  const BAR_THICK = 8;
-  const BAR_LEN_H = Math.max(60, W * 0.33);
-  const BAR_LEN_V = Math.max(60, H * 0.33);
+  // Détermine le quadrant et la position dans le quadrant
+  // Quadrant 0 = NE (0..90°), 1 = SE (90..180°), 2 = SO (180..270°), 3 = NO (270..360°)
+  const quadrant = Math.floor(angle / 90);
+  const inQuadrant = (angle - quadrant * 90) / 90; // 0..1
 
-  // Reset
-  bar.style.top = '';
-  bar.style.left = '';
-  bar.style.width = '';
-  bar.style.height = '';
-  bar.style.background = color;
-  bar.style.boxShadow = '0 0 16px ' + color;
+  // Détermine quel côté horizontal et quel côté vertical
+  // Quadrant 0 (NE) : haut + droite
+  // Quadrant 1 (SE) : bas + droite
+  // Quadrant 2 (SO) : bas + gauche
+  // Quadrant 3 (NO) : haut + gauche
+  const isTop    = (quadrant === 0 || quadrant === 3);
+  const isRight  = (quadrant === 0 || quadrant === 1);
 
-  // x,y sont relatifs au centre. On convertit en coords (top,left) du conteneur (origin top-left)
-  const cx = W/2 + x;
-  const cy = H/2 + y;
+  // Calcul des longueurs (mélange continu)
+  // Près du côté principal (angle 0,90,180,270) : un seul segment, l'autre = 0
+  // Près du coin (angle 45,135,225,315) : les deux segments à pleine longueur
+  //
+  // On utilise un mapping qui :
+  // - à inQuadrant=0    (côté pur N/E/S/O) → 1 segment plein, 1 segment 0
+  // - à inQuadrant=0.5  (coin) → 2 segments à 70% chacun (effet L bien visible)
+  // - à inQuadrant=1    (côté suivant) → switch vers le segment de l'autre orientation
+  //
+  // Astuce : on crée une fonction de blend symétrique autour de 0.5
+  //
+  // Selon le quadrant, la "phase" du segment H/V est inversée :
+  // - Quadrant 0 (NE, 0->90°) : on part du haut, on arrive à droite
+  //   → début (angle≈0) : H plein, V=0
+  //   → milieu (angle≈45) : les deux à 70%
+  //   → fin (angle≈90) : H=0, V plein
+  //
+  // Donc on utilise inQuadrant directement comme paramètre de transition pour les quadrants 0 et 2,
+  // et son inverse pour les quadrants 1 et 3.
 
-  if (side === 'top' || side === 'bottom') {
-    bar.style.height = BAR_THICK + 'px';
-    bar.style.width  = BAR_LEN_H + 'px';
-    bar.style.left   = (cx - BAR_LEN_H/2) + 'px';
-    if (side === 'top')    bar.style.top = (-BAR_THICK/2) + 'px';
-    else                   bar.style.top = (H - BAR_THICK/2) + 'px';
-  } else { // left or right
-    bar.style.width  = BAR_THICK + 'px';
-    bar.style.height = BAR_LEN_V + 'px';
-    bar.style.top    = (cy - BAR_LEN_V/2) + 'px';
-    if (side === 'left')   bar.style.left = (-BAR_THICK/2) + 'px';
-    else                   bar.style.left = (W - BAR_THICK/2) + 'px';
+  // Pour simplifier : t = position le long du quadrant où H domine au début et V à la fin
+  let tH, tV;
+  if (quadrant === 0 || quadrant === 2) {
+    // NE et SO : H d'abord, V ensuite
+    tH = 1 - inQuadrant;
+    tV = inQuadrant;
+  } else {
+    // SE et NO : V d'abord, H ensuite
+    tH = inQuadrant;
+    tV = 1 - inQuadrant;
   }
 
-  // Clamp pour ne pas déborder visuellement aux coins
-  // (pas critique car transition gère, mais évite les valeurs absurdes)
-  bar.classList.add('visible');
+  // Près du coin (quand tH et tV sont tous deux ~0.5) on veut les DEUX visibles.
+  // Près des côtés purs, on veut UN seul.
+  // Solution : longueur = max(côté principal, contribution d'angle)
+  //
+  // Plus simple : plot la "force" de chaque segment en fonction de la position dans le quadrant.
+  // Soit s ∈ [0,1] où s=0 est début quadrant, s=1 fin.
+  //   force_H(s) = max(0, 1 - 2*s)        décroît de 1 à 0 entre s=0 et s=0.5
+  //   force_V(s) = max(0, 2*s - 1)        croît de 0 à 1 entre s=0.5 et s=1
+  // Au coin (s=0.5) les deux forces = 0. Pas bon.
+  //
+  // Mieux : on veut au coin que les deux soient à ~0.7. Utilisons :
+  //   force_H(s) = clamp01(1 - s) * (1 + corner_bonus(s))
+  //   force_V(s) = clamp01(s) * (1 + corner_bonus(s))
+  // où corner_bonus est une bosse autour de s=0.5
+  //
+  // Ou encore plus simple : interpolation lineaire des longueurs, garantissant
+  // que la SOMME des deux = constante (donne L au coin, segment unique sur côtés).
+
+  // Solution finale : longueurs proportionnelles, somme constante
+  // s ∈ [0,1] : position dans le quadrant ; H va de plein à 0, V va de 0 à plein
+  //   lenH = LEN_REF_H * (1 - s)
+  //   lenV = LEN_REF_V * s
+  // Au coin (s=0.5) : H et V sont à 50% chacun → L visible
+  // Au côté pur (s=0 ou s=1) : un seul segment
+
+  // Convertit (tH,tV) en s (où s = 0 quand H domine, 1 quand V domine)
+  const s = tV; // car tV = 0 quand on est au début (H pur), 1 quand on est à la fin (V pur)
+
+  let lenH = LEN_REF_H * (1 - s);
+  let lenV = LEN_REF_V * s;
+
+  // Pour rendre le coin plus visible, on boost les longueurs quand les deux sont présents
+  // (compense l'effet "1-s + s = 1" qui rend les segments courts au milieu)
+  // Bosse gaussienne centrée sur s=0.5
+  const cornerBoost = 1 + 0.4 * Math.exp(-Math.pow((s - 0.5) / 0.25, 2));
+  lenH *= cornerBoost;
+  lenV *= cornerBoost;
+
+  // Cap aux dimensions de la tuile
+  lenH = Math.min(lenH, W * 0.7);
+  lenV = Math.min(lenV, H * 0.7);
+
+  // Position des segments
+  // Segment horizontal : ancré à un coin H (selon isRight et isTop) du côté isTop, et s'étend vers le centre
+  // Segment vertical : ancré à un coin V (selon isRight et isTop) du côté isRight, et s'étend vers le centre
+
+  // Reset
+  segH.style.top = ''; segH.style.bottom = ''; segH.style.left = ''; segH.style.right = '';
+  segH.style.width = ''; segH.style.height = '';
+  segV.style.top = ''; segV.style.bottom = ''; segV.style.left = ''; segV.style.right = '';
+  segV.style.width = ''; segV.style.height = '';
+  segH.style.background = color;
+  segV.style.background = color;
+  segH.style.boxShadow = '0 0 16px ' + color;
+  segV.style.boxShadow = '0 0 16px ' + color;
+
+  // Segment horizontal
+  if (lenH > 1) {
+    segH.style.height = THICK + 'px';
+    segH.style.width = lenH + 'px';
+    if (isTop) segH.style.top = (-THICK/2) + 'px';
+    else       segH.style.bottom = (-THICK/2) + 'px';
+    if (isRight) segH.style.right = '0px';
+    else         segH.style.left = '0px';
+    segH.classList.add('visible');
+  } else {
+    segH.classList.remove('visible');
+  }
+
+  // Segment vertical
+  if (lenV > 1) {
+    segV.style.width = THICK + 'px';
+    segV.style.height = lenV + 'px';
+    if (isRight) segV.style.right = (-THICK/2) + 'px';
+    else         segV.style.left = (-THICK/2) + 'px';
+    if (isTop) segV.style.top = '0px';
+    else       segV.style.bottom = '0px';
+    segV.classList.add('visible');
+  } else {
+    segV.classList.remove('visible');
+  }
+
   updateDebug();
 }
 
@@ -1183,15 +1384,13 @@ function updateDebug(){
     angle=Math.round(a);
   }
   const d=state.curLat!==null?Math.round(distMeters(state.curLat,state.curLng,p.lat,p.lng)):'?';
-  const barVisible=$('#cc-bar').classList.contains('visible')?'OUI':'NON';
   panel.textContent=
     `evts: ${state.orientationEvents} (${state.lastHeadingSrc})
 heading: ${Math.round(state.heading)}°
 smooth: ${state.smoothedHeading!=null?Math.round(state.smoothedHeading):'-'}°
 bearing: ${bearing}°
 angle: ${angle}°
-dist: ${d}m
-barre: ${barVisible}`;
+dist: ${d}m`;
 }
 
 function closeValidate(){
@@ -1213,6 +1412,44 @@ $('#validate-fab').onclick=()=>{
   if(!$('#validate-fab').classList.contains('ready'))return;
   $('#file-camera').click();
 };
+
+/* ====== MAP OVERLAY ====== */
+$('#btn-map').onclick = (e) => {
+  e.stopPropagation();
+  if (!state.validatingPlace) return;
+  openMap(state.validatingPlace);
+};
+$('#map-close').onclick = () => hide($('#map-overlay'));
+
+function openMap(placeId) {
+  const p = state.room.places[placeId];
+  if (!p) return;
+  $('#map-title').textContent = p.name;
+  $('#map-info').textContent = `${p.dist} m · ${p.pts} pt${p.pts > 1 ? 's' : ''}`;
+  $('#map-img').style.display = 'none';
+  $('#map-loading').style.display = 'flex';
+  $('#map-error').classList.remove('show');
+  show($('#map-overlay'));
+
+  // Image de la carte. Service utilisé : staticmap.openstreetmap.de (gratuit, basé OSM)
+  // Zoom 15 = très large (env. 1km de côté à cette latitude)
+  // Marqueur : on dessine le notre par-dessus (simple cercle CSS)
+  // On choisit une taille fixe (carrée) qui s'adapte ensuite au container.
+  const zoom = 15;
+  const size = 600; // px
+  const url = `https://staticmap.openstreetmap.de/staticmap.php?center=${p.lat},${p.lng}&zoom=${zoom}&size=${size}x${size}&maptype=mapnik`;
+
+  const img = $('#map-img');
+  img.onload = () => {
+    $('#map-loading').style.display = 'none';
+    img.style.display = 'block';
+  };
+  img.onerror = () => {
+    $('#map-loading').style.display = 'none';
+    $('#map-error').classList.add('show');
+  };
+  img.src = url;
+}
 
 $('#file-camera').onchange=async(e)=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
