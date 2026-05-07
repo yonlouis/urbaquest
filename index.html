@@ -672,6 +672,70 @@ function setSyncDot(on) {
   if (d) d.className = on ? 'sync-dot' : 'sync-dot off';
 }
 
+
+/* ============================================================
+   SOLO — ENTRY & CONFIG
+   ============================================================ */
+const SOLO_PLACES_BY_RADIUS = { 500: 6, 700: 8, 1000: 10, 1500: 12 };
+
+function shuffleCopy(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function getResumableSoloRoom() {
+  // Reprise SOLO: on vérifie si appState.currentRoom pointe sur une room solo non terminée
+  if (!firebaseReady || !appState || !appState.currentRoom || !profile) return null;
+  const code = appState.currentRoom;
+  try {
+    const snap = await db.ref('rooms/' + code).once('value');
+    const room = snap.val();
+    if (!room) return null;
+    if (room.status === 'finished') return null;
+    if (room.mode !== 'solo') return null;
+    if (!room.players || !room.players[profile.uid]) return null;
+    return { code };
+  } catch (_) {
+    return null;
+  }
+}
+
+async function showSoloEntry() {
+  const resumable = await getResumableSoloRoom();
+
+  const resumeBtn = el('button', {
+    class: 'full',
+    disabled: !resumable,
+    onclick: () => {
+      if (!resumable) return;
+      closeModals();
+      enterRoom(resumable.code);
+    }
+  }, '▶ Partie en cours');
+
+  const newBtn = el('button', {
+    class: 'primary full',
+    onclick: () => {
+      closeModals();
+      createSession('solo');
+    }
+  }, '➕ Nouvelle partie');
+
+  showModal([
+    el('h2', null, '🎯 Solo'),
+    el('p', { class: 'muted mb-14' }, resumable
+      ? "Tu as une partie solo en cours. Tu veux la reprendre ou en démarrer une nouvelle ?"
+      : "Aucune partie solo en cours."),
+    resumeBtn,
+    el('div', { class: 'mt-10' }),
+    newBtn
+  ]);
+}
+
 /* ============================================================
    PROFILE & STATE
    ============================================================ */
@@ -1378,7 +1442,7 @@ function showMenu() {
       el('h1', null, 'Salut ', el('span', { style: { color: 'var(--green)' } }, profile.pseudo), ' 👋'),
       el('p', { class: 'muted mb-18' }, 'Choisis un mode de jeu pour commencer.'),
       el('div', { class: 'col gap-12' },
-        modeCard('🎯', 'Solo', 'Explore librement, score cumulatif', 'card-green', () => createSession('solo')),
+        modeCard('🎯', 'Solo', 'Explore librement, score cumulatif', 'card-green', showSoloEntry),
         modeCard('⚔️', 'Compétitif', '1vN — duel ou multi, rang Glicko-2', 'card-blue', () => createOrJoin('competitive')),
         modeCard('👥', 'Groupe', '2 à 6 alliés, score d\'équipe', 'card-purple', () => createOrJoin('group')),
         modeCard('🏆', 'Classements', 'Compétitif, global & amis', 'card-amber', showRankings)
@@ -1473,15 +1537,39 @@ async function createSession(mode) {
     screen.append(el('h1', null, mode === 'solo' ? '🎯 Solo' : mode === 'competitive' ? '⚔️ Compétitif' : '👥 Groupe'));
     screen.append(el('p', { class: 'muted mb-18' }, 'Configure les paramètres de ta partie.'));
 
-    const radiusSel = el('select', null,
-      el('option', { value: '500' }, '500 m  ·  CDC ×1.0  ·  6+ lieux'),
-      el('option', { value: '700' }, '700 m  ·  CDC ×1.3  ·  8+ lieux'),
-      el('option', { value: '1000' }, '1000 m ·  CDC ×1.6  ·  10+ lieux'),
-      el('option', { value: '1500' }, '1500 m ·  CDC ×2.0  ·  12+ lieux'),
-      el('option', { value: 'city' }, '🌆 Ville entière · CDC ×3.0 · catalogue')
-    );
+    let radiusSel;
+    if (mode === 'solo') {
+      // SOLO : distances uniquement
+      radiusSel = el('select', null,
+        el('option', { value: '500' }, '500 m'),
+        el('option', { value: '700' }, '700 m'),
+        el('option', { value: '1000' }, '1000 m'),
+        el('option', { value: '1500' }, '1500 m')
+      );
+    } else {
+      radiusSel = el('select', null,
+        el('option', { value: '500' }, '500 m  ·  CDC ×1.0  ·  6+ lieux'),
+        el('option', { value: '700' }, '700 m  ·  CDC ×1.3  ·  8+ lieux'),
+        el('option', { value: '1000' }, '1000 m ·  CDC ×1.6  ·  10+ lieux'),
+        el('option', { value: '1500' }, '1500 m ·  CDC ×2.0  ·  12+ lieux'),
+        el('option', { value: 'city' }, '🌆 Ville entière · CDC ×3.0 · catalogue')
+      );
+    }
 
-    const targetIn = el('input', { type: 'number', value: 20, min: 5, max: 200 });
+    // SOLO : nombre de lieux auto en fonction du rayon
+    let placesCountIn = null;
+    if (mode === 'solo') {
+      placesCountIn = el('input', { type: 'number', value: 6, min: 3, max: 60, disabled: true });
+      const updatePlaces = () => {
+        const r = parseInt(radiusSel.value, 10);
+        placesCountIn.value = SOLO_PLACES_BY_RADIUS[r] || 6;
+      };
+      radiusSel.addEventListener('change', updatePlaces);
+      updatePlaces();
+    }
+
+    // Non-solo : objectif de points
+    const targetIn = (mode === 'solo') ? null : el('input', { type: 'number', value: 20, min: 5, max: 200 });
     const opponentsSel = el('select', null,
       el('option', { value: 1 }, '1 adversaire'),
       el('option', { value: 2 }, '2 adversaires'),
@@ -1493,8 +1581,10 @@ async function createSession(mode) {
 
     const card = el('div', { class: 'card col gap-14' });
     card.append(
-      el('div', null, el('div', { class: 'small muted mb-6' }, 'Rayon d\'exploration'), radiusSel),
-      el('div', null, el('div', { class: 'small muted mb-6' }, 'Objectif de points'), targetIn)
+      el('div', null, el('div', { class: 'small muted mb-6' }, 'Rayon d'exploration'), radiusSel),
+      mode === 'solo'
+        ? el('div', null, el('div', { class: 'small muted mb-6' }, 'Nombre de lieux'), placesCountIn)
+        : el('div', null, el('div', { class: 'small muted mb-6' }, 'Objectif de points'), targetIn)
     );
     if (mode === 'competitive') card.append(
       el('div', null, el('div', { class: 'small muted mb-6' }, 'Adversaires'), opponentsSel)
@@ -1508,18 +1598,25 @@ async function createSession(mode) {
       el('div', { class: 'row gap-8 mt-18' },
         el('button', { class: 'flex1 ghost', onclick: showMenu }, 'Annuler'),
         el('button', { class: 'flex1 primary', onclick: async () => {
-          radius = radiusSel.value === 'city' ? 'city' : parseInt(radiusSel.value, 10);
-          target = parseInt(targetIn.value, 10) || 20;
+          radius = (mode !== 'solo' && radiusSel.value === 'city') ? 'city' : parseInt(radiusSel.value, 10);
+          let nbPlaces = null;
+          if (mode === 'solo') {
+            nbPlaces = parseInt(placesCountIn.value, 10) || (SOLO_PLACES_BY_RADIUS[radius] || 6);
+            // target reste interne (pour l'affichage existant)
+            target = 20;
+          } else {
+            target = parseInt(targetIn.value, 10) || 20;
+          }
           maxOpponents = parseInt(opponentsSel.value, 10) || 1;
           teamName = teamIn.value.trim() || 'Équipe';
-          await launchSession(mode, radius, target, maxOpponents, teamName);
+          await launchSession(mode, radius, target, maxOpponents, teamName, nbPlaces);
         }}, 'Lancer →')
       )
     );
   });
 }
 
-async function launchSession(mode, radius, target, maxOpponents, teamName) {
+async function launchSession(mode, radius, target, maxOpponents, teamName, nbPlaces) {
   showModal([
     el('h2', null, '📍 Géolocalisation'),
     el('p', { class: 'muted' }, 'Récupération de ta position et chargement des lieux...'),
@@ -1535,7 +1632,12 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
 
   const cityMode = radius === 'city';
   const effectiveRadius = cityMode ? 50000 : radius;
-  const minPlaces = { 500: 6, 700: 8, 1000: 10, 1500: 12, city: 20 }[radius] || 6;
+  let minPlaces;
+  if (mode === 'solo') {
+    minPlaces = nbPlaces || SOLO_PLACES_BY_RADIUS[radius] || 6;
+  } else {
+    minPlaces = { 500: 6, 700: 8, 1000: 10, 1500: 12, city: 20 }[radius] || 6;
+  }
 
   let places = [];
   try { places = await gatherPlaces(pos.lat, pos.lng, effectiveRadius, cityMode); }
@@ -1544,7 +1646,12 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
   closeModals();
 
   if (places.length < minPlaces) {
-    return offerExpand(mode, radius, target, maxOpponents, teamName, places.length, minPlaces);
+    return offerExpand(mode, radius, target, maxOpponents, teamName, places.length, minPlaces, nbPlaces);
+  }
+
+  if (mode === 'solo') {
+    // SOLO: on fixe exactement le nombre de lieux
+    places = shuffleCopy(places).slice(0, minPlaces);
   }
 
   // Reverse geo (best effort)
@@ -1606,7 +1713,7 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
   enterRoom(code);
 }
 
-function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed) {
+function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed, nbPlaces) {
   const radii = [500, 700, 1000, 1500];
   const idx = radii.indexOf(radius);
   const next = idx >= 0 && idx < radii.length - 1 ? radii[idx + 1] : null;
@@ -1618,7 +1725,7 @@ function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed
       ? el('div', { class: 'col gap-8' },
           el('button', { class: 'primary full', onclick: () => {
             closeModals();
-            launchSession(mode, next, target, maxOpponents, teamName);
+            launchSession(mode, next, target, maxOpponents, teamName, nbPlaces);
           }}, `Élargir à ${next}m`),
           el('button', { class: 'ghost full', onclick: () => { closeModals(); showMenu(); } }, 'Annuler')
         )
