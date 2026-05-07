@@ -1,521 +1,78 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="UrbaQuest">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="yes">
-<title>UrbaQuest</title>
-<link rel="manifest" href='data:application/manifest+json,{"name":"UrbaQuest","short_name":"UrbaQuest","start_url":"./","display":"standalone","background_color":"%230a0a0a","theme_color":"%230a0a0a","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 fill=%22%230a0a0a%22/><text x=%2296%22 y=%22120%22 font-size=%22100%22 text-anchor=%22middle%22 fill=%22%2322c55e%22>U</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
-<style>
-:root {
-  --bg:     #0a0a0a;
-  --bg2:    #161616;
-  --bg3:    #222;
-  --border: #2a2a2a;
-  --text:   #f2f2f2;
-  --text2:  #888;
-  --text3:  #444;
-  --green:  #22c55e;
-  --blue:   #3b82f6;
-  --red:    #ef4444;
-  --amber:  #f59e0b;
-  --purple: #8b5cf6;
-  --orange: #f97316;
-  --yellow: #eab308;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', BlinkMacSystemFont, sans-serif;
-  font-size: 15px;
-  line-height: 1.4;
-  min-height: 100vh;
-  overflow-x: hidden;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
-
-button {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 12px 18px;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: transform 0.08s, background 0.15s;
-}
-button:active { transform: scale(0.97); }
-button:disabled { opacity: 0.45; cursor: not-allowed; }
-
-button.primary {
-  background: var(--green);
-  color: #001a08;
-  border-color: var(--green);
-  font-weight: 700;
-}
-button.danger {
-  background: var(--red);
-  color: white;
-  border-color: var(--red);
-}
-button.ghost { background: transparent; }
-
-input, select, textarea {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 14px;
-  width: 100%;
-  outline: none;
-}
-input:focus, select:focus, textarea:focus { border-color: var(--green); }
-
-.app { max-width: 540px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
-
-.screen { padding: 18px 16px; }
-.hidden { display: none !important; }
-
-.header {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(10,10,10,0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.logo { font-weight: 800; letter-spacing: 0.5px; font-size: 17px; }
-.logo .u-q { color: var(--green); }
-
-.sync-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse 1.6s infinite;
-}
-.sync-dot.off { background: var(--red); animation: none; }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity: 0.35; } }
-
-.streak-pill {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-}
-
-h1 { font-size: 26px; margin-bottom: 6px; font-weight: 800; }
-h2 { font-size: 20px; margin-bottom: 14px; font-weight: 700; }
-h3 { font-size: 16px; margin-bottom: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.6px; }
-
-.muted { color: var(--text2); font-size: 13px; }
-.small { font-size: 12px; }
-
-.row { display: flex; gap: 10px; align-items: center; }
-.row.between { justify-content: space-between; }
-.col { display: flex; flex-direction: column; gap: 10px; }
-.gap-6 { gap: 6px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; } .gap-16 { gap: 16px; } .gap-20 { gap: 20px; }
-.mt-6{margin-top:6px;} .mt-10{margin-top:10px;} .mt-14{margin-top:14px;} .mt-18{margin-top:18px;} .mt-24{margin-top:24px;}
-.mb-6{margin-bottom:6px;} .mb-10{margin-bottom:10px;} .mb-14{margin-bottom:14px;} .mb-18{margin-bottom:18px;}
-.center { text-align: center; }
-.full { width: 100%; }
-.flex1 { flex: 1; }
-
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.card.tappable { cursor: pointer; transition: transform 0.08s, border-color 0.15s; }
-.card.tappable:active { transform: scale(0.98); }
-.card.tappable:hover { border-color: var(--text3); }
-
-.card-green   { border-color: var(--green); background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(34,197,94,0.03)); }
-.card-blue    { border-color: var(--blue); }
-.card-amber   { border-color: var(--amber); }
-.card-purple  { border-color: var(--purple); }
-
-.now-run {
-  background: linear-gradient(135deg, var(--green), #16a34a);
-  color: #001a08;
-  font-weight: 800;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex; align-items: center; gap: 10px;
-  font-size: 16px;
-}
-
-.tag {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text2);
-}
-.tag.green  { background: rgba(34,197,94,0.18); color: var(--green); border-color: rgba(34,197,94,0.4); }
-.tag.amber  { background: rgba(245,158,11,0.18); color: var(--amber); border-color: rgba(245,158,11,0.4); }
-.tag.blue   { background: rgba(59,130,246,0.18); color: var(--blue); border-color: rgba(59,130,246,0.4); }
-.tag.purple { background: rgba(139,92,246,0.18); color: var(--purple); border-color: rgba(139,92,246,0.4); }
-.tag.red    { background: rgba(239,68,68,0.18); color: var(--red); border-color: rgba(239,68,68,0.4); }
-
-.avatar {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--bg3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 2px solid var(--border);
-}
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
-.avatar.lg { width: 84px; height: 84px; font-size: 32px; }
-.avatar.sm { width: 40px; height: 40px; font-size: 16px; border-width: 1px; }
-.avatar.gold-frame { border-color: gold; box-shadow: 0 0 12px rgba(255,215,0,0.4); }
-
-.progress {
-  width: 100%; height: 6px;
-  background: var(--bg3);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress > div {
-  height: 100%;
-  background: var(--green);
-  transition: width 0.3s;
-}
-
-.tabs {
-  display: flex;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 4px;
-  gap: 2px;
-}
-.tab {
-  flex: 1;
-  padding: 9px 8px;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--text2);
-  transition: all 0.15s;
-}
-.tab.active {
-  background: var(--bg3);
-  color: var(--text);
-}
-
-.modal-bg {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 100;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 16px;
-}
-.modal {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  width: 100%;
-  max-width: 520px;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: slideUp 0.25s cubic-bezier(0.2,0.8,0.2,1);
-}
-@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-.toast {
-  position: fixed; left: 50%; bottom: 30px;
-  transform: translateX(-50%);
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 12px 16px;
-  border-radius: 14px;
-  z-index: 200;
-  font-size: 14px;
-  animation: slideUp 0.2s;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-  max-width: 90vw;
-  text-align: center;
-}
-.toast.green { border-color: var(--green); }
-.toast.red { border-color: var(--red); }
-
-.compass-wrap {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 90;
-  display: flex; flex-direction: column;
-  padding: 20px;
-}
-.compass-circle {
-  width: 260px; height: 260px;
-  border-radius: 50%;
-  border: 4px solid var(--border);
-  margin: 30px auto;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle, var(--bg2), var(--bg));
-}
-.compass-arrow {
-  width: 0; height: 0;
-  border-left: 22px solid transparent;
-  border-right: 22px solid transparent;
-  border-bottom: 80px solid var(--green);
-  transform-origin: center 80%;
-  transition: transform 0.2s, border-bottom-color 0.3s;
-  filter: drop-shadow(0 0 14px currentColor);
-}
-.compass-radar {
-  position: absolute;
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  background: rgba(34,197,94,0.3);
-  animation: radar 1.6s infinite ease-out;
-}
-@keyframes radar { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
-
-.distance-label {
-  text-align: center;
-  font-size: 38px;
-  font-weight: 800;
-  margin-top: 10px;
-}
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.gallery-item {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-}
-.gallery-item img {
-  width: 100%; aspect-ratio: 1;
-  object-fit: cover;
-  display: block;
-}
-.gallery-item .info { padding: 8px; font-size: 12px; }
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(10,10,10,0.95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-  z-index: 40;
-}
-.bottom-nav .nav-item {
-  flex: 1;
-  text-align: center;
-  padding: 8px 4px;
-  font-size: 11px;
-  color: var(--text2);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.bottom-nav .nav-item.active { color: var(--green); }
-.bottom-nav .nav-item .ico { font-size: 20px; }
-
-.fab {
-  position: fixed;
-  bottom: 90px; right: 18px;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #001a08;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 6px 18px rgba(34,197,94,0.4);
-  cursor: pointer;
-  z-index: 35;
-  border: none;
-}
-
-.badge-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px;
-}
-.badge {
-  aspect-ratio: 1;
-  border-radius: 14px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  font-size: 28px;
-  position: relative;
-  text-align: center;
-  padding: 4px;
-}
-.badge .name { font-size: 9px; color: var(--text2); margin-top: 2px; line-height: 1.1; }
-.badge.locked { filter: grayscale(1) opacity(0.35); }
-.badge.animated { animation: glow 2.4s infinite alternate; }
-@keyframes glow { from { box-shadow: 0 0 0 rgba(245,158,11,0); } to { box-shadow: 0 0 14px rgba(245,158,11,0.55); } }
-
-.photo-fullscreen {
-  position: fixed; inset: 0;
-  background: black;
-  z-index: 150;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-}
-.photo-fullscreen img { max-width: 100%; max-height: 90vh; object-fit: contain; }
-.photo-fullscreen .close {
-  position: absolute; top: 20px; right: 20px;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  border: none; color: white; font-size: 22px;
-  cursor: pointer;
-}
-
-.code-display {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: 6px;
-  text-align: center;
-  background: var(--bg2);
-  border: 2px dashed var(--border);
-  padding: 18px;
-  border-radius: 14px;
-  color: var(--green);
-}
-
-.input-otp {
-  text-transform: uppercase;
-  letter-spacing: 8px;
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 22px;
-  text-align: center;
-  font-weight: 700;
-}
-
-.spinner {
-  width: 28px; height: 28px;
-  border: 3px solid var(--border);
-  border-top-color: var(--green);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 20px auto;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.thumb {
-  width: 48px; height: 48px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.score-line {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 11px;
-  color: var(--text2);
-}
-
-.cat-icon { font-size: 22px; flex-shrink: 0; }
-
-.place-row {
-  display: flex; align-items: flex-start; gap: 10px;
-  cursor: pointer;
-}
-
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 14px 0;
-}
-
-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23888' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 38px;
-}
-
-.empty-state {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--text2);
-}
-.empty-state .ico { font-size: 48px; margin-bottom: 10px; }
-
-.banner-win {
-  background: linear-gradient(135deg, gold, #f59e0b);
-  color: #1a0e00;
-  padding: 18px;
-  border-radius: 14px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 18px;
-  margin-bottom: 16px;
-}
-
-.bonus-list { font-size: 12px; color: var(--text2); }
-.bonus-list b { color: var(--text); }
-
-.list-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-.list-row:last-child { border-bottom: none; }
-
-.rank-num { width: 30px; font-weight: 700; color: var(--text2); text-align: center; }
-
-@media (max-width: 380px) {
-  .badge-grid { grid-template-columns: repeat(3, 1fr); }
-}
-</style>
-</head>
-<body>
-<div id="app" class="app"></div>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-
-<script>
 "use strict";
 
+/*
+  ✅ UrbaQuest - app.js
+  
+  IMPORTANT:
+  - Colle ici tout le contenu JavaScript de ton index.html (le gros <script>),
+    puis applique les petites modifs Android/PWA ci-dessous.
+  - Je t'ai laissé les helpers prêts à l'emploi (timeout fetch, wake lock, saveStateDebounced, visibilitychange).
+*/
+
+// -------------------------
+// Helpers Android/PWA
+// -------------------------
+
+async function fetchWithTimeout(url, opts = {}, ms = 12000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { ...opts, signal: ctrl.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if (!('wakeLock' in navigator)) return;
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => {});
+  } catch (_) {}
+}
+async function releaseWakeLock() {
+  try { if (wakeLock) await wakeLock.release(); } catch (_) {}
+  wakeLock = null;
+}
+
+let _saveStateTimer = null;
+function saveStateDebounced(saveStateFn) {
+  if (_saveStateTimer) return;
+  _saveStateTimer = setTimeout(() => {
+    _saveStateTimer = null;
+    try { saveStateFn(); } catch (_) {}
+  }, 800);
+}
+
+document.addEventListener('visibilitychange', () => {
+  // Ces fonctions (stopWatchPosition/startWatchPosition) existent dans ton code original.
+  try {
+    if (document.hidden) {
+      if (typeof stopWatchPosition === 'function') stopWatchPosition();
+      releaseWakeLock();
+    } else {
+      // Reprendre uniquement si on est dans une vue “jeu” (variable currentView dans ton code)
+      if (typeof currentView !== 'undefined' && ['game','lobby','gallery'].includes(currentView)) {
+        if (typeof startWatchPosition === 'function') startWatchPosition();
+        requestWakeLock();
+      }
+    }
+  } catch (_) {}
+});
+
+// -------------------------
+// ⬇️ Colle TON code original ici
+// -------------------------
+
+/*
+  1) Colle tout ton JS original ici.yyy
+  2) Remplacements à faire dans ton code:
+     - remplace fetch(...) par fetchWithTimeout(...) dans Overpass et Nominatim
+     - dans watchPosition, remplace saveState() par saveStateDebounced(saveState)
+     - dans enterRoom(): après startWatchPosition(); ajoute requestWakeLock();
+     - dans leaveRoom(): avant showMenu(); ajoute releaseWakeLock();
+*/
 /* ============================================================
    FIREBASE INIT
    ============================================================ */
@@ -915,7 +472,7 @@ async function fetchOverpass(lat, lng, radius) {
 );
 out center 40;`;
   const url = 'https://overpass-api.de/api/interpreter';
-  const resp = await fetch(url, {
+  const resp = await fetchWithTimeout(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'data=' + encodeURIComponent(query)
@@ -1103,7 +660,7 @@ function startWatchPosition(onUpdate) {
         }
       }
       appState.lastGPS = p;
-      saveState();
+      saveStateDebounced(saveState);
       if (onUpdate) onUpdate(p);
     },
     err => console.warn('watch err', err),
@@ -1140,7 +697,7 @@ async function setupOrientation(callback) {
    ============================================================ */
 async function reverseGeo(lat, lng) {
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
+    const r = await fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
       headers: { 'Accept-Language': 'fr' }
     });
     if (!r.ok) return null;
@@ -1685,6 +1242,7 @@ function enterRoom(code) {
     renderGameScreen();
   }
   startWatchPosition();
+  requestWakeLock();
 }
 
 function leaveRoom() {
@@ -1694,6 +1252,7 @@ function leaveRoom() {
   appState.currentRoom = null;
   saveState();
   stopWatchPosition();
+  releaseWakeLock();
   showMenu();
 }
 
@@ -2704,6 +2263,3 @@ setInterval(() => {
 if ('serviceWorker' in navigator) {
   // Inline SW: cache nothing here (single file, GitHub Pages)
 }
-</script>
-</body>
-</html>
