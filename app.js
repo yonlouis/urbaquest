@@ -1,78 +1,5 @@
 "use strict";
 
-/*
-  ✅ UrbaQuest - app.js
-  
-  IMPORTANT:
-  - Colle ici tout le contenu JavaScript de ton index.html (le gros <script>),
-    puis applique les petites modifs Android/PWA ci-dessous.
-  - Je t'ai laissé les helpers prêts à l'emploi (timeout fetch, wake lock, saveStateDebounced, visibilitychange).
-*/
-
-// -------------------------
-// Helpers Android/PWA
-// -------------------------
-
-async function fetchWithTimeout(url, opts = {}, ms = 12000) {
-  const ctrl = new AbortController();
-  const id = setTimeout(() => ctrl.abort(), ms);
-  try {
-    return await fetch(url, { ...opts, signal: ctrl.signal });
-  } finally {
-    clearTimeout(id);
-  }
-}
-
-let wakeLock = null;
-async function requestWakeLock() {
-  try {
-    if (!('wakeLock' in navigator)) return;
-    wakeLock = await navigator.wakeLock.request('screen');
-    wakeLock.addEventListener('release', () => {});
-  } catch (_) {}
-}
-async function releaseWakeLock() {
-  try { if (wakeLock) await wakeLock.release(); } catch (_) {}
-  wakeLock = null;
-}
-
-let _saveStateTimer = null;
-function saveStateDebounced(saveStateFn) {
-  if (_saveStateTimer) return;
-  _saveStateTimer = setTimeout(() => {
-    _saveStateTimer = null;
-    try { saveStateFn(); } catch (_) {}
-  }, 800);
-}
-
-document.addEventListener('visibilitychange', () => {
-  // Ces fonctions (stopWatchPosition/startWatchPosition) existent dans ton code original.
-  try {
-    if (document.hidden) {
-      if (typeof stopWatchPosition === 'function') stopWatchPosition();
-      releaseWakeLock();
-    } else {
-      // Reprendre uniquement si on est dans une vue “jeu” (variable currentView dans ton code)
-      if (typeof currentView !== 'undefined' && ['game','lobby','gallery'].includes(currentView)) {
-        if (typeof startWatchPosition === 'function') startWatchPosition();
-        requestWakeLock();
-      }
-    }
-  } catch (_) {}
-});
-
-// -------------------------
-// ⬇️ Colle TON code original ici
-// -------------------------
-
-/*
-  1) Colle tout ton JS original ici.yyy
-  2) Remplacements à faire dans ton code:
-     - remplace fetch(...) par fetchWithTimeout(...) dans Overpass et Nominatim
-     - dans watchPosition, remplace saveState() par saveStateDebounced(saveState)
-     - dans enterRoom(): après startWatchPosition(); ajoute requestWakeLock();
-     - dans leaveRoom(): avant showMenu(); ajoute releaseWakeLock();
-*/
 /* ============================================================
    FIREBASE INIT
    ============================================================ */
@@ -229,6 +156,70 @@ function setSyncDot(on) {
   if (d) d.className = on ? 'sync-dot' : 'sync-dot off';
 }
 
+
+
+/* ============================================================
+   SOLO — ENTRY & CONFIG
+   ============================================================ */
+const SOLO_PLACES_BY_RADIUS = { 500: 6, 700: 8, 1000: 10, 1500: 12 };
+
+function shuffleCopy(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function getResumableSoloRoom() {
+  // Reprise SOLO: on vérifie si appState.currentRoom pointe sur une room solo non terminée
+  if (!firebaseReady || !appState || !appState.currentRoom || !profile) return null;
+  const code = appState.currentRoom;
+  try {
+    const snap = await db.ref('rooms/' + code).once('value');
+    const room = snap.val();
+    if (!room) return null;
+    if (room.status === 'finished') return null;
+    if (room.mode !== 'solo') return null;
+    if (!room.players || !room.players[profile.uid]) return null;
+    return { code };
+  } catch (_) {
+    return null;
+  }
+}
+
+async function showSoloEntry() {
+  const resumable = await getResumableSoloRoom();
+
+  const resumeBtn = el('button', {
+    class: 'full',
+    disabled: !resumable,
+    onclick: () => {
+      if (!resumable) return;
+      closeModals();
+      enterRoom(resumable.code);
+    }
+  }, '▶ Partie en cours');
+
+  const newBtn = el('button', {
+    class: 'primary full',
+    onclick: () => {
+      closeModals();
+      createSession('solo');
+    }
+  }, '➕ Nouvelle partie');
+
+  showModal([
+    el('h2', null, '🎯 Solo'),
+    el('p', { class: 'muted mb-14' }, resumable
+      ? "Tu as une partie solo en cours. Tu veux la reprendre ou en démarrer une nouvelle ?"
+      : "Aucune partie solo en cours."),
+    resumeBtn,
+    el('div', { class: 'mt-10' }),
+    newBtn
+  ]);
+}
 /* ============================================================
    PROFILE & STATE
    ============================================================ */
@@ -472,7 +463,7 @@ async function fetchOverpass(lat, lng, radius) {
 );
 out center 40;`;
   const url = 'https://overpass-api.de/api/interpreter';
-  const resp = await fetchWithTimeout(url, {
+  const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'data=' + encodeURIComponent(query)
@@ -660,7 +651,7 @@ function startWatchPosition(onUpdate) {
         }
       }
       appState.lastGPS = p;
-      saveStateDebounced(saveState);
+      saveState();
       if (onUpdate) onUpdate(p);
     },
     err => console.warn('watch err', err),
@@ -697,7 +688,7 @@ async function setupOrientation(callback) {
    ============================================================ */
 async function reverseGeo(lat, lng) {
   try {
-    const r = await fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
       headers: { 'Accept-Language': 'fr' }
     });
     if (!r.ok) return null;
@@ -935,7 +926,7 @@ function showMenu() {
       el('h1', null, 'Salut ', el('span', { style: { color: 'var(--green)' } }, profile.pseudo), ' 👋'),
       el('p', { class: 'muted mb-18' }, 'Choisis un mode de jeu pour commencer.'),
       el('div', { class: 'col gap-12' },
-        modeCard('🎯', 'Solo', 'Explore librement, score cumulatif', 'card-green', () => createSession('solo')),
+        modeCard('🎯', 'Solo', 'Explore librement, score cumulatif', 'card-green', showSoloEntry),
         modeCard('⚔️', 'Compétitif', '1vN — duel ou multi, rang Glicko-2', 'card-blue', () => createOrJoin('competitive')),
         modeCard('👥', 'Groupe', '2 à 6 alliés, score d\'équipe', 'card-purple', () => createOrJoin('group')),
         modeCard('🏆', 'Classements', 'Compétitif, global & amis', 'card-amber', showRankings)
@@ -1030,15 +1021,39 @@ async function createSession(mode) {
     screen.append(el('h1', null, mode === 'solo' ? '🎯 Solo' : mode === 'competitive' ? '⚔️ Compétitif' : '👥 Groupe'));
     screen.append(el('p', { class: 'muted mb-18' }, 'Configure les paramètres de ta partie.'));
 
-    const radiusSel = el('select', null,
-      el('option', { value: '500' }, '500 m  ·  CDC ×1.0  ·  6+ lieux'),
-      el('option', { value: '700' }, '700 m  ·  CDC ×1.3  ·  8+ lieux'),
-      el('option', { value: '1000' }, '1000 m ·  CDC ×1.6  ·  10+ lieux'),
-      el('option', { value: '1500' }, '1500 m ·  CDC ×2.0  ·  12+ lieux'),
-      el('option', { value: 'city' }, '🌆 Ville entière · CDC ×3.0 · catalogue')
-    );
+    let radiusSel;
+    if (mode === 'solo') {
+      // SOLO : distances uniquement
+      radiusSel = el('select', null,
+        el('option', { value: '500' }, '500 m'),
+        el('option', { value: '700' }, '700 m'),
+        el('option', { value: '1000' }, '1000 m'),
+        el('option', { value: '1500' }, '1500 m')
+      );
+    } else {
+      radiusSel = el('select', null,
+        el('option', { value: '500' }, '500 m  ·  CDC ×1.0  ·  6+ lieux'),
+        el('option', { value: '700' }, '700 m  ·  CDC ×1.3  ·  8+ lieux'),
+        el('option', { value: '1000' }, '1000 m ·  CDC ×1.6  ·  10+ lieux'),
+        el('option', { value: '1500' }, '1500 m ·  CDC ×2.0  ·  12+ lieux'),
+        el('option', { value: 'city' }, '🌆 Ville entière · CDC ×3.0 · catalogue')
+      );
+    }
 
-    const targetIn = el('input', { type: 'number', value: 20, min: 5, max: 200 });
+    // SOLO : nombre de lieux auto en fonction du rayon
+    let placesCountIn = null;
+    if (mode === 'solo') {
+      placesCountIn = el('input', { type: 'number', value: 6, min: 3, max: 60, disabled: true });
+      const updatePlaces = () => {
+        const r = parseInt(radiusSel.value, 10);
+        placesCountIn.value = SOLO_PLACES_BY_RADIUS[r] || 6;
+      };
+      radiusSel.addEventListener('change', updatePlaces);
+      updatePlaces();
+    }
+
+    // Non-solo : objectif de points
+    const targetIn = (mode === 'solo') ? null : el('input', { type: 'number', value: 20, min: 5, max: 200 });
     const opponentsSel = el('select', null,
       el('option', { value: 1 }, '1 adversaire'),
       el('option', { value: 2 }, '2 adversaires'),
@@ -1050,8 +1065,10 @@ async function createSession(mode) {
 
     const card = el('div', { class: 'card col gap-14' });
     card.append(
-      el('div', null, el('div', { class: 'small muted mb-6' }, 'Rayon d\'exploration'), radiusSel),
-      el('div', null, el('div', { class: 'small muted mb-6' }, 'Objectif de points'), targetIn)
+      el('div', null, el('div', { class: 'small muted mb-6' }, 'Rayon d'exploration'), radiusSel),
+      mode === 'solo'
+        ? el('div', null, el('div', { class: 'small muted mb-6' }, 'Nombre de lieux'), placesCountIn)
+        : el('div', null, el('div', { class: 'small muted mb-6' }, 'Objectif de points'), targetIn)
     );
     if (mode === 'competitive') card.append(
       el('div', null, el('div', { class: 'small muted mb-6' }, 'Adversaires'), opponentsSel)
@@ -1065,18 +1082,25 @@ async function createSession(mode) {
       el('div', { class: 'row gap-8 mt-18' },
         el('button', { class: 'flex1 ghost', onclick: showMenu }, 'Annuler'),
         el('button', { class: 'flex1 primary', onclick: async () => {
-          radius = radiusSel.value === 'city' ? 'city' : parseInt(radiusSel.value, 10);
-          target = parseInt(targetIn.value, 10) || 20;
+          radius = (mode !== 'solo' && radiusSel.value === 'city') ? 'city' : parseInt(radiusSel.value, 10);
+          let nbPlaces = null;
+          if (mode === 'solo') {
+            nbPlaces = parseInt(placesCountIn.value, 10) || (SOLO_PLACES_BY_RADIUS[radius] || 6);
+            // target reste interne (pour l'affichage existant)
+            target = 20;
+          } else {
+            target = parseInt(targetIn.value, 10) || 20;
+          }
           maxOpponents = parseInt(opponentsSel.value, 10) || 1;
           teamName = teamIn.value.trim() || 'Équipe';
-          await launchSession(mode, radius, target, maxOpponents, teamName);
+          await launchSession(mode, radius, target, maxOpponents, teamName, nbPlaces);
         }}, 'Lancer →')
       )
     );
   });
 }
 
-async function launchSession(mode, radius, target, maxOpponents, teamName) {
+async function launchSession(mode, radius, target, maxOpponents, teamName, nbPlaces) {
   showModal([
     el('h2', null, '📍 Géolocalisation'),
     el('p', { class: 'muted' }, 'Récupération de ta position et chargement des lieux...'),
@@ -1092,7 +1116,12 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
 
   const cityMode = radius === 'city';
   const effectiveRadius = cityMode ? 50000 : radius;
-  const minPlaces = { 500: 6, 700: 8, 1000: 10, 1500: 12, city: 20 }[radius] || 6;
+  let minPlaces;
+  if (mode === 'solo') {
+    minPlaces = nbPlaces || SOLO_PLACES_BY_RADIUS[radius] || 6;
+  } else {
+    minPlaces = { 500: 6, 700: 8, 1000: 10, 1500: 12, city: 20 }[radius] || 6;
+  }
 
   let places = [];
   try { places = await gatherPlaces(pos.lat, pos.lng, effectiveRadius, cityMode); }
@@ -1101,7 +1130,12 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
   closeModals();
 
   if (places.length < minPlaces) {
-    return offerExpand(mode, radius, target, maxOpponents, teamName, places.length, minPlaces);
+    return offerExpand(mode, radius, target, maxOpponents, teamName, places.length, minPlaces, nbPlaces);
+  }
+
+  if (mode === 'solo') {
+    // SOLO: on fixe exactement le nombre de lieux
+    places = shuffleCopy(places).slice(0, minPlaces);
   }
 
   // Reverse geo (best effort)
@@ -1163,7 +1197,7 @@ async function launchSession(mode, radius, target, maxOpponents, teamName) {
   enterRoom(code);
 }
 
-function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed) {
+function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed, nbPlaces) {
   const radii = [500, 700, 1000, 1500];
   const idx = radii.indexOf(radius);
   const next = idx >= 0 && idx < radii.length - 1 ? radii[idx + 1] : null;
@@ -1175,7 +1209,7 @@ function offerExpand(mode, radius, target, maxOpponents, teamName, found, needed
       ? el('div', { class: 'col gap-8' },
           el('button', { class: 'primary full', onclick: () => {
             closeModals();
-            launchSession(mode, next, target, maxOpponents, teamName);
+            launchSession(mode, next, target, maxOpponents, teamName, nbPlaces);
           }}, `Élargir à ${next}m`),
           el('button', { class: 'ghost full', onclick: () => { closeModals(); showMenu(); } }, 'Annuler')
         )
@@ -1242,7 +1276,6 @@ function enterRoom(code) {
     renderGameScreen();
   }
   startWatchPosition();
-  requestWakeLock();
 }
 
 function leaveRoom() {
@@ -1252,7 +1285,6 @@ function leaveRoom() {
   appState.currentRoom = null;
   saveState();
   stopWatchPosition();
-  releaseWakeLock();
   showMenu();
 }
 

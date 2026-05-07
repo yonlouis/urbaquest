@@ -1,9 +1,10 @@
-const CACHE_NAME = "urbaquest-pwa-v1";
+const CACHE_NAME = "urbaquest-pwa-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./app.js",
   "./manifest.json",
+  "./offline.html",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
@@ -29,7 +30,9 @@ self.addEventListener("fetch", (event) => {
   // Don't interfere with external calls (Firebase / Overpass / Nominatim)
   if (url.origin !== self.location.origin) return;
 
-  // Navigation: network-first, fallback to cached index.html
+  // Online-required:
+  // - Navigations: network-first, fallback to offline.html
+  // - Same-origin assets: cache-first
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -38,12 +41,11 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
           return resp;
         })
-        .catch(() => caches.match("./index.html"))
+        .catch(() => caches.match("./offline.html"))
     );
     return;
   }
 
-  // Assets: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
